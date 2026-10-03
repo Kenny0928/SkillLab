@@ -1,6 +1,0 @@
-# uv 建立的虛擬環境，每台電腦用 uv sync 重建
-.venv/
-__pycache__/
-
-# 帳號密碼、Webhook 網址，不能進 Git
-config.json

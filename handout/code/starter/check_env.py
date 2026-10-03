@@ -8,6 +8,7 @@ import argparse
 import importlib.metadata
 import locale
 import platform
+import re
 import smtplib
 import socket
 import ssl
@@ -19,6 +20,8 @@ PYTHON_VERSION = (3, 13)
 PACKAGES = ["pyserial", "requests", "flask"]
 BAUD = 9600
 WAIT_SECONDS = 6
+# uv 裝的 Python 放在 cpython-3.13.16-macos-aarch64-none 這種名字的資料夾
+UV_PYTHON = re.compile(r"cpython-\d+\.\d+[^/\\]*-(windows|macos|linux)-")
 
 # USB 晶片的廠商代碼（VID）和產品代碼（PID）
 CHIPS = {
@@ -54,10 +57,14 @@ def check_python():
     in_venv = sys.prefix != sys.base_prefix
     where = Path(sys.prefix).name if in_venv else "不在虛擬環境"
     detail = f"{v.major}.{v.minor}.{v.micro}（{where}）"
-    if (v.major, v.minor) != PYTHON_VERSION:
-        report(False, "Python", detail, "在課程資料夾執行 uv sync，再用 uv run 執行這個檔案")
-    elif not in_venv:
-        report(None, "Python", detail, "用 uv run check_env.py 執行，才會用到課程資料夾的 .venv")
+    if not in_venv:
+        ok = None if (v.major, v.minor) == PYTHON_VERSION else False
+        report(ok, "Python", detail, "在課程資料夾用 uv run check_env.py 執行，才會用到課程資料夾的 .venv")
+    elif (v.major, v.minor) != PYTHON_VERSION:
+        report(False, "Python", detail, "在課程資料夾執行 uv python pin 3.13，再執行 uv sync --managed-python")
+    elif not UV_PYTHON.search(str(Path(sys.base_prefix).resolve())):
+        report(None, "Python", f"{detail}，不是 uv 裝的 Python：{sys.base_prefix}",
+               "刪掉課程資料夾裡的 .venv 資料夾，再執行 uv sync --managed-python")
     else:
         report(True, "Python", detail)
 
@@ -70,7 +77,7 @@ def check_packages():
         except importlib.metadata.PackageNotFoundError:
             missing.append(name)
     if missing:
-        report(False, "套件", "缺少 " + "、".join(missing), "在課程資料夾執行 uv sync")
+        report(False, "套件", "缺少 " + "、".join(missing), "在課程資料夾執行 uv add " + " ".join(missing))
     else:
         report(True, "套件", "、".join(found))
 
@@ -109,7 +116,7 @@ def check_board(port_arg):
         import serial
         import serial.tools.list_ports
     except ImportError:
-        report(False, "序列埠", "沒有 pyserial，無法檢查", "在課程資料夾執行 uv sync")
+        report(False, "序列埠", "沒有 pyserial，無法檢查", "在課程資料夾執行 uv add pyserial")
         return
 
     # 只看 USB 裝置；macOS 的藍牙、除錯埠沒有 VID，會被排除

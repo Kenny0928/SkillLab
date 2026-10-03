@@ -15,6 +15,28 @@ body.hd {
 :where(.hd) a { color: inherit; }
 :where(.hd) img { max-width: 100%; }
 
+/* ---------- links in the text ----------
+   Every link in the reading text is accent-coloured and underlined. A link that opens a new tab
+   ends in ↗, a download ends in ↓. The icon is a background in the link's right padding, so it
+   never wraps onto a line by itself. Navigation (toc, step index, page end, cards) keeps its own look. */
+.hd main a:not([class], .toc a, .ex-index a, .doc-end a) {
+  color: var(--accent-text);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgb(200 68 28 / 0.45);
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+.hd main a:not([class], .toc a, .ex-index a, .doc-end a):hover { text-decoration-color: currentColor; text-decoration-thickness: 2px; }
+.hd main a:not([class], .toc a, .ex-index a, .doc-end a):is([target="_blank"], [download]) {
+  padding-right: 1.05em;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8441c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7M9 7h8v8'/%3E%3C/svg%3E") right 0.02em center / 0.9em no-repeat;
+}
+.hd main a:not([class], .toc a, .ex-index a, .doc-end a)[download] { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8441c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11M7 10.5l5 5 5-5M5 20h14'/%3E%3C/svg%3E"); }
+.hd main a:not([class], .toc a, .ex-index a, .doc-end a)[target="_blank"]::after { content: "" / "（另開分頁）"; }
+.hd main a:not([class], .toc a, .ex-index a, .doc-end a)[download]::after { content: "" / "（下載）"; }
+
 /* ---------- top bar ---------- */
 .topbar {
   position: sticky;
@@ -192,6 +214,7 @@ body.hd {
 .sec b, .sec strong { font-weight: 600; }
 .mono, .sec code { font-family: var(--mono); font-size: 0.88em; }
 .sec code { padding: 1px 5px; border-radius: 3px; background: #f1efea; }
+.sec :not(pre) > code { white-space: nowrap; }
 
 /* the one dominant element of a section */
 .lead-in { margin-top: 36px; }
@@ -552,7 +575,6 @@ body.hd {
 .credits h2 { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: 0; }
 .credits ol { margin-top: 8px; padding-left: 1.4em; }
 .credits li + li { margin-top: 4px; }
-.credits a { text-decoration: underline; text-decoration-color: var(--ink-3); text-underline-offset: 2px; }
 
 /* ---------- handout menu ---------- */
 .menu { max-width: 1120px; margin: 0 auto; padding: 80px var(--gut) 120px; }
@@ -627,8 +649,8 @@ body.hd {
 .ex-tags .kind { border-color: var(--ink); color: var(--ink); font-weight: 500; }
 .ex .ex-tags + p { margin-top: 14px; }
 .ex .note + .code, .ex p + .code { margin-top: 16px; }
-.code + p, .code + .note { margin-top: 14px; }
-details.fold + p, details.fold + .code { margin-top: 24px; }
+.code + p, .code + .note, .code + .prose { margin-top: 14px; }
+details.fold + p, details.fold + .code, details.fold + .prose { margin-top: 24px; }
 
 details.fold { margin-top: 20px; border-block: 1px solid var(--rule); }
 details.fold + details.fold { margin-top: 0; border-top: 0; }
@@ -768,8 +790,34 @@ html[data-os="linux"] .code-bar .os-pick [data-os="linux"] { background: #ecebe7
   color: var(--ink-2);
 }
 .ex .ex-h + * { margin-top: 12px; }
-.ex-wire img { display: block; width: 100%; max-width: 520px; height: auto; border-radius: 4px; }
-.ex-wire figcaption a { color: var(--accent-text); }
+.ex-wire .zoom { position: relative; display: block; max-width: 520px; }
+.ex-wire img { display: block; width: 100%; height: auto; border-radius: 4px; border: 1px solid var(--rule); }
+.ex-wire .zoom span {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: background-color var(--dur) var(--ease);
+}
+.ex-wire .zoom:hover span { background: var(--accent); color: #fff; }
+.ex-wire .zoom span::after {
+  content: "";
+  content: "" / "（另開分頁）";
+  display: inline-block;
+  width: 0.85em;
+  height: 0.85em;
+  margin-left: 0.3em;
+  vertical-align: -0.08em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7M9 7h8v8'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 17 17 7M9 7h8v8'/%3E%3C/svg%3E") center / contain no-repeat;
+}
 .ex-wire + .prose { margin-top: 16px; }
 .code.prompt pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 .code.prompt pre code { font-family: "Inter", "Noto Sans TC", system-ui, sans-serif; font-size: 14px; line-height: 1.8; }

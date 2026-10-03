@@ -1,0 +1,493 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>防盜系統 ESP32 版｜SkillLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/handout.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
+  <a href="../handout.html">講義</a><span class="sep">/</span>
+  <span class="here">防盜系統・ESP32 版</span>
+</div></header>
+
+<div class="page has-toc">
+  <header class="doc-head">
+    <p class="kicker">微專案 01｜ESP32 版</p>
+    <h1>防盜系統<span class="badge">框架稿・範例程式碼待補</span></h1>
+    <p class="lead">ESP32 負責偵測與警報，可以自己用 Wi-Fi 寄 Gmail，也可以像 Uno 一樣接電腦，由 Python 寄。</p>
+    <p class="meta"><span><b>適用</b>　ESP32 DevKit 經典款（30 腳、38 腳）</span><span><b>零件</b>　HC-SR04・光敏電阻・旋鈕・有源蜂鳴器</span></p>
+    <a class="switch" href="alarm-uno.html">改看 Uno 版 →</a>
+  </header>
+  <nav class="toc" aria-label="目錄">
+    <p class="toc-h">目錄</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span>系統長什麼樣</a></li>
+      <li><a href="#s2"><span class="n">02</span>這四個零件能防什麼</a></li>
+      <li><a href="#s3"><span class="n">03</span>零件與限制</a></li>
+      <li><a href="#s4"><span class="n">04</span>接線</a></li>
+      <li><a href="#s5"><span class="n">05</span>系統怎麼判斷</a></li>
+      <li><a href="#s6"><span class="n">06</span>通知怎麼送出去</a></li>
+      <li><a href="#s7"><span class="n">07</span>用 AI 一段一段做</a></li>
+      <li><a href="#s8"><span class="n">08</span>測試與驗收</a></li>
+      <li><a href="#s9"><span class="n">09</span>什麼情況下會失效</a></li>
+      <li><a href="#s10"><span class="n">10</span>範例程式碼</a></li>
+    </ol>
+  </nav>
+  <main class="doc">
+    <section class="sec" id="s1" aria-labelledby="s1-h">
+      <p class="sec-no">01</p>
+      <h2 id="s1-h">系統長什麼樣</h2>
+<div class="layers lead-in">
+  <div class="layer">
+    <p class="layer-h"><b>感測層</b><span class="slot">感測</span></p>
+    <ul class="chips"><li><b>HC-SR04</b> 量距離</li><li><b>光敏電阻</b> 量亮度</li><li><b>旋鈕</b> 選模式</li></ul>
+  </div>
+  <p class="link">腳位訊號</p>
+  <div class="layer is-board">
+    <p class="layer-h"><b>控制層</b><span class="slot">判斷・執行</span></p>
+    <p class="layer-main">ESP32</p>
+    <ul class="chips"><li>判斷狀態</li><li><b>有源蜂鳴器</b> 警報</li><li><b>狀態燈</b> 提示</li></ul>
+  </div>
+  <p class="link">Wi-Fi 或 USB 序列埠</p>
+  <div class="layer">
+    <p class="layer-h"><b>應用層</b><span class="slot">紀錄・傳送</span></p>
+    <div class="split">
+      <div><p class="layer-main">ESP32 自己</p><p class="via">Wi-Fi</p><ul class="chips"><li>寄 Gmail</li><li>內建網頁</li><li>LINE、Telegram、Discord、Google 試算表</li></ul></div>
+      <div><p class="layer-main">電腦上的 Python</p><p class="via">USB 或 Wi-Fi</p><ul class="chips"><li>寄 Gmail</li><li>存 CSV 紀錄</li><li>和 Uno 版同一支程式</li></ul></div>
+    </div>
+  </div>
+</div>
+<ul class="prose">
+<li><b>感測層</b>：量距離和亮度，讀旋鈕的位置。</li>
+<li><b>控制層</b>：板子判斷現在是什麼狀態、有沒有人闖入，控制蜂鳴器和狀態燈。</li>
+<li><b>應用層</b>：把事件寄到 Gmail、存成紀錄。這一層可以放在 ESP32 上，也可以像 Uno 版一樣放在電腦上。</li>
+</ul>
+    </section>
+    <section class="sec" id="s2" aria-labelledby="s2-h">
+      <p class="sec-no">02</p>
+      <h2 id="s2-h">這四個零件能防什麼</h2>
+<div class="scenes lead-in">
+<figure class="scene">
+<svg class="dg" viewBox="0 0 480 300" role="img" aria-label="門口俯視圖：HC-SR04 裝在門框一側，有人經過時量到的距離比基準距離短" xmlns="http://www.w3.org/2000/svg">
+  <rect class="shade" x="20" y="140" width="130" height="20"/>
+  <rect class="shade" x="330" y="140" width="130" height="20"/>
+  <line class="ln2 dash" x1="162" y1="150" x2="330" y2="150"/>
+  <line class="hl" x1="162" y1="150" x2="214" y2="150"/>
+  <rect class="tint" x="150" y="142" width="12" height="16"/>
+  <ellipse class="face" cx="246" cy="150" rx="32" ry="16"/>
+  <circle class="face" cx="246" cy="150" r="11"/>
+  <line class="ln2" x1="246" y1="52" x2="246" y2="122"/>
+  <polygon points="246,130 241,120 251,120" fill="#a3a5aa"/>
+  <line class="ln2" x1="162" y1="200" x2="330" y2="200"/>
+  <line class="ln2" x1="162" y1="193" x2="162" y2="207"/>
+  <line class="ln2" x1="330" y1="193" x2="330" y2="207"/>
+  <text x="214" y="120" text-anchor="end">量到的距離</text>
+  <text x="246" y="228" text-anchor="middle" style="fill:#5c5e63">基準距離</text>
+  <text x="156" y="272" text-anchor="middle">HC-SR04</text>
+  <line class="ln2" x1="156" y1="166" x2="156" y2="252"/>
+  <text class="tm" x="30" y="70">門外</text>
+  <text class="tm" x="30" y="250">室內</text>
+</svg>
+<figcaption><p class="t">門口</p><p class="d">HC-SR04 裝在門框一側，對著另一側。平常量到的是到對面的距離；有人經過時距離突然變短，就判定有人。</p></figcaption>
+</figure>
+<figure class="scene">
+<svg class="dg" viewBox="0 0 480 300" role="img" aria-label="盒子側視圖：光敏電阻放在盒子裡，盒蓋打開時光線照進來" xmlns="http://www.w3.org/2000/svg">
+  <line class="hl dash" x1="70" y1="60" x2="226" y2="228"/>
+  <line class="hl dash" x1="100" y1="40" x2="234" y2="224"/>
+  <line class="hl dash" x1="130" y1="30" x2="242" y2="222"/>
+  <rect class="face" x="120" y="150" width="240" height="110"/>
+  <polygon class="shade" points="360,150 160,40 156,47 356,157"/>
+  <circle class="tint" cx="240" cy="236" r="9"/>
+  <line class="ln" x1="236" y1="245" x2="236" y2="260"/>
+  <line class="ln" x1="244" y1="245" x2="244" y2="260"/>
+  <text x="240" y="288" text-anchor="middle">光敏電阻</text>
+</svg>
+<figcaption><p class="t">抽屜或盒子</p><p class="d">光敏電阻放在裡面。關著的時候是暗的，被打開就變亮。</p></figcaption>
+</figure>
+</div>
+<ul class="prose">
+<li><b>旋鈕</b>：當模式開關。轉到左、中、右三段，分別是「撤防」「測試」「布防」。</li>
+<li><b>有源蜂鳴器與狀態燈</b>：警報與狀態提示。30 腳板在 GPIO 2 有板載 LED；38 腳板不一定有，沒有就外接一顆 LED 和 220 Ω 電阻。</li>
+</ul>
+<h3>這組零件做不到的</h3>
+<ul class="prose">
+<li>只看得到 HC-SR04 正前方大約 15 度的範圍，從旁邊繞過就偵測不到。</li>
+<li>沒有門窗開關和人體紅外線感測器，窗戶和其他房間都沒有保護。</li>
+<li>旋鈕誰都能轉。真正的系統用密碼鍵盤、感應卡或手機撤防。</li>
+<li>斷電整個系統就停止。</li>
+</ul>
+    </section>
+    <section class="sec" id="s3" aria-labelledby="s3-h">
+      <p class="sec-no">03</p>
+      <h2 id="s3-h">零件與限制</h2>
+<ul class="parts lead-in">
+  <li class="part"><img class="part-pic" src="../assets/handout/img/hc-sr04.webp" alt="" width="120" height="120" loading="lazy"><div><h3>HC-SR04 超音波測距</h3><p class="spec">量測範圍約 2 cm – 4 m・感測角度約 15°・兩次量測至少間隔 60 ms</p><dl class="kv"><dt>用途</dt><dd>量到前方物體的距離。</dd><dt>接法</dt><dd>要接 5V 供電。Echo 腳輸出 5V，要先用 1 kΩ 和 2 kΩ 電阻分壓成約 3.3V，再接到 ESP32。</dd><dt class="is-trap">限制</dt><dd>衣服、窗簾這類軟的材質會吸收聲波；斜面會把聲波彈開，量不到或讀值亂跳；偶爾會讀到 0 或最大值，要連續量幾次取中間值。兩個 HC-SR04 放太近會互相干擾。</dd></dl></div></li>
+  <li class="part"><img class="part-pic" src="../assets/handout/img/ldr.webp" alt="" width="120" height="120" loading="lazy"><div><h3>光敏電阻</h3><p class="spec">越亮電阻越小・和 10 kΩ 電阻串成分壓後讀類比值</p><dl class="kv"><dt>用途</dt><dd>量亮度。</dd><dt>接法</dt><dd>一腳接 3V3，另一腳接 GPIO 34，GPIO 34 再經 10 kΩ 電阻接 GND。越亮讀值越大。</dd><dt class="is-trap">限制</dt><dd>讀值跟著環境光變化，白天、晚上、開燈都不同，門檻要在現場校正。房間全暗時打開盒子，亮度沒有變化，偵測不到。</dd><dt>模組版</dt><dd>如果買的是光敏電阻模組（有 AO、DO 腳）：AO 是類比值；DO 只有亮、暗兩種，靈敏度用模組上的小旋鈕調。</dd></dl></div></li>
+  <li class="part"><img class="part-pic" src="../assets/handout/img/potentiometer.webp" alt="" width="120" height="120" loading="lazy"><div><h3>旋鈕（可變電阻）</h3><p class="spec">讀值 0–4095</p><dl class="kv"><dt>用途</dt><dd>讀旋鈕轉到哪裡。本專案拿來當模式開關。</dd><dt>接法</dt><dd>兩側的腳分別接 3V3 和 GND，中間腳接 GPIO 35。不能接 5V。轉的方向和讀值相反時，把兩側的腳對調。</dd><dt class="is-trap">限制</dt><dd>讀值會小幅跳動，停在兩段交界時模式會來回切換，交界要留緩衝區。ESP32 的讀值在最兩端不是線性的，三段的分界不要放在兩端。任何人都能轉。</dd></dl></div></li>
+  <li class="part"><img class="part-pic" src="../assets/handout/img/buzzer.webp" alt="" width="120" height="120" loading="lazy"><div><h3>有源蜂鳴器</h3><p class="spec">通電就響・只有一個音高</p><dl class="kv"><dt>用途</dt><dd>警報聲。</dd><dt>分辨</dt><dd>有源蜂鳴器通常比較高，底部用黑膠封住；長腳是正極。買的時候看清楚品名是「有源」。</dd><dt>接法</dt><dd>正極接 GPIO 23，負極接 GND。3.3V 驅動時聲音比較小。</dd><dt class="is-trap">限制</dt><dd>不能改音調，用 tone() 只會發出破音。如果買到的是三腳蜂鳴器模組，有些是「低電位觸發」：腳位輸出 LOW 才會響。這種模組的 VCC 接 5V 時，ESP32 輸出的 3.3V 關不掉它，會一直響，要把模組的 VCC 改接 3V3。</dd></dl></div></li>
+</ul>
+<h3>另外需要</h3>
+<ul class="prose">
+<li>麵包板、杜邦線</li>
+<li>USB 資料線（要能傳資料，不是只能充電的線）</li>
+<li>10 kΩ 電阻 1 顆（光敏電阻分壓）</li>
+<li>1 kΩ 電阻 1 顆、2 kΩ 電阻 1 顆（HC-SR04 Echo 分壓；沒有 2 kΩ 可以用兩顆 1 kΩ 串聯）</li>
+<li>38 腳板沒有板載 LED 時：LED 1 顆、220 Ω 電阻 1 顆</li>
+</ul>
+    </section>
+    <section class="sec" id="s4" aria-labelledby="s4-h">
+      <p class="sec-no">04</p>
+      <h2 id="s4-h">接線</h2>
+<h3>30 腳和 38 腳哪裡不一樣</h3>
+<div class="pinouts lead-in">
+<figure class="pinout">
+  <figcaption class="po-title">30 腳板<span>DOIT DevKit V1 這類・USB 朝下</span></figcaption>
+  <div class="po-grid">
+    <ol class="po-col left">
+        <li><span class="pin">EN</span><span class="dot"></span></li>
+        <li><span class="pin">VP</span><span class="dot"></span></li>
+        <li><span class="pin">VN</span><span class="dot"></span></li>
+        <li class="on"><span class="use">光敏</span><span class="pin">D34</span><span class="dot"></span></li>
+        <li class="on"><span class="use">旋鈕</span><span class="pin">D35</span><span class="dot"></span></li>
+        <li><span class="pin">D32</span><span class="dot"></span></li>
+        <li><span class="pin">D33</span><span class="dot"></span></li>
+        <li><span class="pin">D25</span><span class="dot"></span></li>
+        <li><span class="pin">D26</span><span class="dot"></span></li>
+        <li><span class="pin">D27</span><span class="dot"></span></li>
+        <li><span class="pin">D14</span><span class="dot"></span></li>
+        <li><span class="pin">D12</span><span class="dot"></span></li>
+        <li><span class="pin">D13</span><span class="dot"></span></li>
+        <li class="pw"><span class="use">GND</span><span class="pin">GND</span><span class="dot"></span></li>
+        <li class="pw"><span class="use">HC-SR04 5V</span><span class="pin">VIN</span><span class="dot"></span></li>
+    </ol>
+    <div class="po-body" aria-hidden="true"><span class="ant"></span><span class="chip">ESP32-WROOM-32</span><span class="usb"></span></div>
+    <ol class="po-col right">
+        <li class="on"><span class="dot"></span><span class="pin">D23</span><span class="use">蜂鳴器</span></li>
+        <li><span class="dot"></span><span class="pin">D22</span></li>
+        <li><span class="dot"></span><span class="pin">TX0</span></li>
+        <li><span class="dot"></span><span class="pin">RX0</span></li>
+        <li><span class="dot"></span><span class="pin">D21</span></li>
+        <li class="on"><span class="dot"></span><span class="pin">D19</span><span class="use">Echo</span></li>
+        <li class="on"><span class="dot"></span><span class="pin">D18</span><span class="use">Trig</span></li>
+        <li><span class="dot"></span><span class="pin">D5</span></li>
+        <li><span class="dot"></span><span class="pin">TX2</span></li>
+        <li><span class="dot"></span><span class="pin">RX2</span></li>
+        <li><span class="dot"></span><span class="pin">D4</span></li>
+        <li class="on"><span class="dot"></span><span class="pin">D2</span><span class="use">LED</span></li>
+        <li><span class="dot"></span><span class="pin">D15</span></li>
+        <li class="pw"><span class="dot"></span><span class="pin">GND</span><span class="use">GND</span></li>
+        <li class="pw"><span class="dot"></span><span class="pin">3V3</span><span class="use">3V3</span></li>
+    </ol>
+  </div>
+</figure>
+<figure class="pinout">
+  <figcaption class="po-title">38 腳板<span>Espressif DevKitC 這類・USB 朝下</span></figcaption>
+  <div class="po-grid">
+    <ol class="po-col left">
+        <li class="pw"><span class="use">3V3</span><span class="pin">3V3</span><span class="dot"></span></li>
+        <li><span class="pin">EN</span><span class="dot"></span></li>
+        <li><span class="pin">VP</span><span class="dot"></span></li>
+        <li><span class="pin">VN</span><span class="dot"></span></li>
+        <li class="on"><span class="use">光敏</span><span class="pin">IO34</span><span class="dot"></span></li>
+        <li class="on"><span class="use">旋鈕</span><span class="pin">IO35</span><span class="dot"></span></li>
+        <li><span class="pin">IO32</span><span class="dot"></span></li>
+        <li><span class="pin">IO33</span><span class="dot"></span></li>
+        <li><span class="pin">IO25</span><span class="dot"></span></li>
+        <li><span class="pin">IO26</span><span class="dot"></span></li>
+        <li><span class="pin">IO27</span><span class="dot"></span></li>
+        <li><span class="pin">IO14</span><span class="dot"></span></li>
+        <li><span class="pin">IO12</span><span class="dot"></span></li>
+        <li class="pw"><span class="use">GND</span><span class="pin">GND</span><span class="dot"></span></li>
+        <li><span class="pin">IO13</span><span class="dot"></span></li>
+        <li class="no"><span class="pin">SD2</span><span class="dot"></span></li>
+        <li class="no"><span class="pin">SD3</span><span class="dot"></span></li>
+        <li class="no"><span class="pin">CMD</span><span class="dot"></span></li>
+        <li class="pw"><span class="use">HC-SR04 5V</span><span class="pin">5V</span><span class="dot"></span></li>
+    </ol>
+    <div class="po-body" aria-hidden="true"><span class="ant"></span><span class="chip">ESP32-WROOM-32</span><span class="usb"></span></div>
+    <ol class="po-col right">
+        <li class="pw"><span class="dot"></span><span class="pin">GND</span><span class="use">GND</span></li>
+        <li class="on"><span class="dot"></span><span class="pin">IO23</span><span class="use">蜂鳴器</span></li>
+        <li><span class="dot"></span><span class="pin">IO22</span></li>
+        <li><span class="dot"></span><span class="pin">TX</span></li>
+        <li><span class="dot"></span><span class="pin">RX</span></li>
+        <li><span class="dot"></span><span class="pin">IO21</span></li>
+        <li><span class="dot"></span><span class="pin">GND</span></li>
+        <li class="on"><span class="dot"></span><span class="pin">IO19</span><span class="use">Echo</span></li>
+        <li class="on"><span class="dot"></span><span class="pin">IO18</span><span class="use">Trig</span></li>
+        <li><span class="dot"></span><span class="pin">IO5</span></li>
+        <li><span class="dot"></span><span class="pin">IO17</span></li>
+        <li><span class="dot"></span><span class="pin">IO16</span></li>
+        <li><span class="dot"></span><span class="pin">IO4</span></li>
+        <li><span class="dot"></span><span class="pin">IO0</span></li>
+        <li class="on"><span class="dot"></span><span class="pin">IO2</span><span class="use">LED</span></li>
+        <li><span class="dot"></span><span class="pin">IO15</span></li>
+        <li class="no"><span class="dot"></span><span class="pin">SD1</span></li>
+        <li class="no"><span class="dot"></span><span class="pin">SD0</span></li>
+        <li class="no"><span class="dot"></span><span class="pin">CLK</span></li>
+    </ol>
+  </div>
+</figure>
+</div>
+<p class="po-legend"><span><i class="k-on"></i>本專案用到的訊號腳</span><span><i class="k-pw"></i>本專案用到的電源</span><span><i class="k-no"></i>接著快閃記憶體，不能用</span></p>
+<ul class="prose">
+<li>兩種板子用的是同一顆 ESP32，程式完全一樣；差在排針怎麼排。</li>
+<li>38 腳板多出 8 支：GPIO 6–11 六支（接在板子內部的快閃記憶體上，不能用）、GPIO 0（開機模式腳）和一支 GND。</li>
+<li>同一支 GPIO 在兩種板子上的位置不同，電源腳也不同：30 腳板的 3V3 在右下角、VIN 在左下角；38 腳板的 3V3 在左上角、5V 在左下角。</li>
+<li>板子上印的名稱也不同：30 腳板印 D18，38 腳板印 IO18，指的都是 GPIO 18，程式裡寫 18。</li>
+<li>38 腳板比較寬，插在一般麵包板上，一側可能沒有孔可以接線。可以用兩塊麵包板並排，或買 38 腳專用的擴充底板。</li>
+<li>板載 LED：30 腳板通常在 GPIO 2 有一顆藍色 LED；Espressif 原廠的 38 腳板只有電源燈。</li>
+</ul>
+<p class="note">市面上還有其他排法的 30 腳、38 腳板。接線一律以板子上印的名稱為準，不要數第幾支腳。</p>
+
+<h3>接線表</h3>
+<p>先把 3V3 和 GND 接到麵包板的電源排；5V 只給 HC-SR04 用。所有 GND 在板子內部是相通的，接哪一支都可以。</p>
+<div class="table-wrap"><table class="tbl stack">
+<thead><tr><th scope="col">零件</th><th scope="col">零件的腳</th><th scope="col">GPIO</th><th scope="col">30 腳板</th><th scope="col">38 腳板</th></tr></thead>
+<tbody>
+<tr><th scope="row">HC-SR04</th><td data-label="零件的腳">VCC</td><td data-label="GPIO">—</td><td data-label="30 腳板">VIN</td><td data-label="38 腳板">5V</td></tr>
+<tr><th scope="row">HC-SR04</th><td data-label="零件的腳">GND</td><td data-label="GPIO">—</td><td data-label="30 腳板">GND</td><td data-label="38 腳板">GND</td></tr>
+<tr><th scope="row">HC-SR04</th><td data-label="零件的腳">Trig</td><td data-label="GPIO"><span class="pin hl">18</span></td><td data-label="30 腳板"><span class="pin">D18</span></td><td data-label="38 腳板"><span class="pin">IO18</span></td></tr>
+<tr><th scope="row">HC-SR04</th><td data-label="零件的腳">Echo</td><td data-label="GPIO"><span class="pin hl">19</span></td><td data-label="30 腳板">經 1 kΩ 接 <span class="pin">D19</span>；D19 再經 2 kΩ 接 GND</td><td data-label="38 腳板">經 1 kΩ 接 <span class="pin">IO19</span>；IO19 再經 2 kΩ 接 GND</td></tr>
+<tr><th scope="row">光敏電阻</th><td data-label="零件的腳">一腳</td><td data-label="GPIO">—</td><td data-label="30 腳板">3V3</td><td data-label="38 腳板">3V3</td></tr>
+<tr><th scope="row">光敏電阻</th><td data-label="零件的腳">另一腳</td><td data-label="GPIO"><span class="pin hl">34</span></td><td data-label="30 腳板"><span class="pin">D34</span>，再經 10 kΩ 接 GND</td><td data-label="38 腳板"><span class="pin">IO34</span>，再經 10 kΩ 接 GND</td></tr>
+<tr><th scope="row">旋鈕</th><td data-label="零件的腳">一側</td><td data-label="GPIO">—</td><td data-label="30 腳板">GND</td><td data-label="38 腳板">GND</td></tr>
+<tr><th scope="row">旋鈕</th><td data-label="零件的腳">中間</td><td data-label="GPIO"><span class="pin hl">35</span></td><td data-label="30 腳板"><span class="pin">D35</span></td><td data-label="38 腳板"><span class="pin">IO35</span></td></tr>
+<tr><th scope="row">旋鈕</th><td data-label="零件的腳">另一側</td><td data-label="GPIO">—</td><td data-label="30 腳板">3V3</td><td data-label="38 腳板">3V3</td></tr>
+<tr><th scope="row">有源蜂鳴器</th><td data-label="零件的腳">正極（長腳）</td><td data-label="GPIO"><span class="pin hl">23</span></td><td data-label="30 腳板"><span class="pin">D23</span></td><td data-label="38 腳板"><span class="pin">IO23</span></td></tr>
+<tr><th scope="row">有源蜂鳴器</th><td data-label="零件的腳">負極</td><td data-label="GPIO">—</td><td data-label="30 腳板">GND</td><td data-label="38 腳板">GND</td></tr>
+<tr><th scope="row">狀態燈</th><td data-label="零件的腳">LED</td><td data-label="GPIO"><span class="pin hl">2</span></td><td data-label="30 腳板">板載 LED，不用接線</td><td data-label="38 腳板"><span class="pin">IO2</span> → 220 Ω → LED 長腳，LED 短腳接 GND</td></tr>
+</tbody></table></div>
+<p class="note">為什麼選這幾支腳：GPIO 34、35 屬於 ADC1，開著 Wi-Fi 也能讀類比值；18、19、23 不是開機模式腳，接了零件也不影響開機和燒錄。</p>
+
+    </section>
+    <section class="sec" id="s5" aria-labelledby="s5-h">
+      <p class="sec-no">05</p>
+      <h2 id="s5-h">系統怎麼判斷</h2>
+<ol class="states lead-in">
+  <li class="st"><p class="st-name">撤防</p><p class="st-out">蜂鳴器不響・燈滅</p></li>
+  <li class="tr">旋鈕轉到「布防」</li>
+  <li class="st"><p class="st-name">離開倒數 10 秒</p><p class="st-out">每秒短嗶一聲・燈慢閃</p></li>
+  <li class="tr">倒數結束，量一次基準值</li>
+  <li class="st"><p class="st-name">布防</p><p class="st-out">燈每 2 秒閃一下</p></li>
+  <li class="tr">距離變短，或盒子裡變亮</li>
+  <li class="st"><p class="st-name">進入倒數 10 秒</p><p class="st-out">每秒短嗶兩聲・燈快閃</p></li>
+  <li class="tr">倒數結束還沒撤防</li>
+  <li class="st is-alarm"><p class="st-name">警報</p><p class="st-out">蜂鳴器連續響・燈恆亮・送出通知</p></li>
+</ol>
+<p class="st-loop"><b>任何時候</b>把旋鈕轉到「撤防」，都會回到撤防。<br>旋鈕停在中間的<b>「測試」</b>：只送出讀值，偵測到就亮燈，蜂鳴器不響。</p>
+<ul class="prose">
+<li><b>基準值</b>：布防那一刻量一次 HC-SR04 到對面的距離和盒子裡的亮度，之後跟基準比較，變化超過門檻才算偵測到。</li>
+<li><b>進入倒數</b>：讓主人有時間把旋鈕轉回撤防；倒數結束還沒撤防，才進入警報。</li>
+</ul>
+<h3>要先決定的事</h3>
+<ul class="prose">
+<li>斷電再通電之後，要回到斷電前的狀態，還是一律從撤防開始？</li>
+<li>旋鈕和遠端（電腦、網頁、訊息）都能改狀態時，以誰為準？</li>
+<li>警報要響多久？響完要自動回到布防嗎？</li>
+</ul>
+    </section>
+    <section class="sec" id="s6" aria-labelledby="s6-h">
+      <p class="sec-no">06</p>
+      <h2 id="s6-h">通知怎麼送出去</h2>
+<div class="table-wrap lead-in"><table class="tbl stack">
+<thead><tr><th scope="col">路線</th><th scope="col">怎麼運作</th><th scope="col">需要</th></tr></thead>
+<tbody>
+<tr><th scope="row"><b>A｜只靠 ESP32</b></th><td data-label="怎麼運作">偵測、倒數、蜂鳴器全部在 ESP32 上完成，不會通知任何人。</td><td data-label="需要">ESP32 和電源</td></tr>
+<tr><th scope="row"><b>B｜接電腦，Python 當閘道</b></th><td data-label="怎麼運作">和 Uno 版一樣：ESP32 從 USB 序列埠送出事件，電腦上的 Python 讀到後寄 Gmail、存紀錄。同樣的事件格式、同一支 Python 程式。不想接 USB 線時，ESP32 也可以用 Wi-Fi 把事件送給電腦上的 Python。</td><td data-label="需要">一台一直開著的電腦、Python 3、pyserial</td></tr>
+<tr><th scope="row"><b>C｜ESP32 自己上網</b></th><td data-label="怎麼運作">ESP32 連上 Wi-Fi，直接寄 Gmail；也可以開一個網頁讓同網路的手機看狀態，或直接送 LINE、Telegram、Discord、Google 試算表。</td><td data-label="需要">2.4 GHz Wi-Fi</td></tr>
+</tbody></table></div>
+<h3>路線 B 和 C 怎麼選</h3>
+<div class="table-wrap"><table class="tbl stack">
+<thead><tr><th scope="col"></th><th scope="col">路線 B：電腦上的 Python</th><th scope="col">路線 C：ESP32 自己上網</th></tr></thead>
+<tbody>
+<tr><th scope="row">電腦</th><td data-label="路線 B">要一直開著，不能休眠</td><td data-label="路線 C">不需要</td></tr>
+<tr><th scope="row">帳號密碼放在哪</th><td data-label="路線 B">電腦上的設定檔</td><td data-label="路線 C">燒進 ESP32 的程式裡</td></tr>
+<tr><th scope="row">改通知內容</th><td data-label="路線 B">改 Python 就好，不用重新燒錄</td><td data-label="路線 C">要重新燒錄</td></tr>
+<tr><th scope="row">拍照</th><td data-label="路線 B">可以用電腦的攝影機</td><td data-label="路線 C">經典款 ESP32 沒有相機</td></tr>
+<tr><th scope="row">斷網時</th><td data-label="路線 B">警報照響；Python 可以先存著，網路恢復再寄</td><td data-label="路線 C">警報照響；寄信失敗要自己寫重試</td></tr>
+<tr><th scope="row">現場 Wi-Fi</th><td data-label="路線 B">電腦能上網就行</td><td data-label="路線 C">只能連 2.4 GHz、不需要網頁登入的網路</td></tr>
+</tbody></table></div>
+<h3>事件格式</h3>
+<p>ESP32 和 Python 之間先約定好每一行文字的意思。格式和 Uno 版相同，所以同一支 Python 程式兩種板子都能用。</p>
+<div class="table-wrap"><table class="tbl stack">
+<thead><tr><th scope="col">方向</th><th scope="col">送出的文字</th><th scope="col">意思</th></tr></thead>
+<tbody>
+<tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">HB</span></td><td data-label="意思">每 5 秒一次，表示板子還在運作</td></tr>
+<tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">STATE,ARMED</span></td><td data-label="意思">狀態改變；後面是新的狀態：DISARMED、TEST、EXIT、ARMED、ENTRY、ALARM</td></tr>
+<tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">DETECT,DIST</span>／<span class="pin">DETECT,LIGHT</span></td><td data-label="意思">哪一個感測器偵測到</td></tr>
+<tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">READ,118,640,2050</span></td><td data-label="意思">測試模式的讀值：距離（cm）、亮度、旋鈕</td></tr>
+<tr><th scope="row">電腦 → 板子</th><td data-label="送出的文字"><span class="pin">STATUS</span></td><td data-label="意思">要板子回報目前狀態</td></tr>
+<tr><th scope="row">電腦 → 板子</th><td data-label="送出的文字"><span class="pin">MUTE</span></td><td data-label="意思">讓蜂鳴器停止，狀態不變</td></tr>
+</tbody></table></div>
+<p class="note">這是框架階段的提案，寫程式前可以再調整。</p>
+
+<h3>主線：Gmail</h3>
+<ol class="prose">
+<li>準備一個 Gmail 個人帳號，建議另外開一個專門寄通知的帳號。</li>
+<li>到 Google 帳戶的安全性設定，開啟兩步驟驗證。</li>
+<li>建立「應用程式密碼」（16 個字元）。程式用這組密碼登入，不是用你的 Gmail 密碼。</li>
+<li>Python 或 ESP32 透過 smtp.gmail.com 寄信。</li>
+</ol>
+<p class="note">學校或公司的 Google 帳號，管理員可能關閉了應用程式密碼，請改用個人帳號。</p>
+
+<h3>其他服務</h3>
+<p>預設全部都可以用，範例程式碼會分開提供。</p>
+<div class="table-wrap svc"><table class="tbl stack">
+<thead><tr><th scope="col">服務</th><th scope="col">要準備</th><th scope="col">限制</th></tr></thead>
+<tbody>
+<tr><th scope="row">Gmail</th><td data-label="要準備">應用程式密碼</td><td data-label="限制">信件可能延遲或被歸到垃圾郵件；每天有寄信上限</td></tr>
+<tr><th scope="row">LINE Messaging API</th><td data-label="要準備">LINE 官方帳號、Channel access token、自己的 User ID</td><td data-label="限制">免費方案每月 200 則；要讓板子接收 LINE 指令，需要一個公開的 HTTPS 網址。LINE Notify 已在 2025 年 3 月 31 日停止服務，網路上用它的舊教學都不能用</td></tr>
+<tr><th scope="row">Telegram Bot</th><td data-label="要準備">用 BotFather 建立機器人，取得 token 和 chat ID</td><td data-label="限制">免費；可以傳照片，也可以接收指令</td></tr>
+<tr><th scope="row">Discord Webhook</th><td data-label="要準備">在頻道設定裡建立 Webhook 網址</td><td data-label="限制">設定最簡單；網址外流的話，任何人都能用它發訊息</td></tr>
+<tr><th scope="row">Google 試算表</th><td data-label="要準備">用 Apps Script 部署成網頁應用程式</td><td data-label="限制">適合存紀錄，不適合即時通知</td></tr>
+<tr><th scope="row">網頁儀表板</th><td data-label="要準備">ESP32 內建網頁伺服器，或電腦上的 Flask</td><td data-label="限制">只有同一個網路裡的裝置看得到</td></tr>
+</tbody></table></div>
+    </section>
+    <section class="sec" id="s7" aria-labelledby="s7-h">
+      <p class="sec-no">07</p>
+      <h2 id="s7-h">用 AI 一段一段做</h2>
+<p>一次只做一段，這一段測過了再往下。每一段都問同樣四件事。</p>
+<div class="step-block lead-in">
+  <p class="step-no">階段 1</p>
+  <h3>每個零件單獨測</h3>
+  <dl class="qa">
+    <dt>AI 能幫你</dt><dd>寫只讀一個零件的測試程式，把讀值印到序列埠監控視窗。</dd>
+    <dt>你要準備</dt><dd>板子型號（30 腳或 38 腳）、本頁的接線表；Arduino IDE 已安裝 ESP32 開發板套件，並能燒錄（先燒範例 Blink 確認）。</dd>
+    <dt>怎麼測試</dt><dd><ul>
+<li>HC-SR04：用捲尺對照 30 cm、100 cm 時的讀值。</li>
+<li>光敏電阻：用手遮住、用手機手電筒照，看讀值往哪邊變。</li>
+<li>旋鈕：從頭轉到尾，記下讀值範圍。</li>
+<li>蜂鳴器：輸出 HIGH 一秒，確認會響。</li>
+</ul></dd>
+    <dt class="is-trap">常見陷阱</dt><dd><ul>
+<li>距離一直是 0：Trig、Echo 接反，或零件沒有和板子共用 GND。</li>
+<li>序列埠監控視窗的鮑率和程式不同，畫面全是亂碼。</li>
+<li>類比讀值一直是 0 或 4095：接到 ADC2 的腳，或把旋鈕接到 5V。</li>
+<li>燒錄失敗：有些板子要按住 BOOT 鍵才開始上傳。</li>
+</ul></dd>
+  </dl>
+</div>
+<div class="step-block">
+  <p class="step-no">階段 2</p>
+  <h3>狀態與警報</h3>
+  <dl class="qa">
+    <dt>AI 能幫你</dt><dd>依第 05 節的狀態圖寫出狀態判斷；加上「連續量幾次取中間值」和「旋鈕交界緩衝區」。</dd>
+    <dt>你要準備</dt><dd>第 05 節的狀態圖、倒數秒數、觸發門檻，以及「要先決定的事」的答案。</dd>
+    <dt>怎麼測試</dt><dd>每個狀態都走一次，確認燈號和蜂鳴器符合狀態圖；用序列埠監控視窗看狀態切換的紀錄。</dd>
+    <dt class="is-trap">常見陷阱</dt><dd><ul>
+<li>AI 用 delay() 做倒數和嗶聲，倒數時轉旋鈕沒有反應。</li>
+<li>布防那一刻剛好有人站在前面，基準值量錯。</li>
+</ul></dd>
+  </dl>
+</div>
+<div class="step-block">
+  <p class="step-no">階段 3</p>
+  <h3>送出通知</h3>
+  <dl class="qa">
+    <dt>AI 能幫你</dt><dd><ul>
+<li>路線 B：和 Uno 版相同的 Python 程式。</li>
+<li>路線 C：寫 ESP32 連 Wi-Fi、用 smtp.gmail.com 寄信；斷線自動重連；寄信失敗重試。</li>
+</ul></dd>
+    <dt>你要準備</dt><dd><ul>
+<li>路線 B：Python 3 和 pyserial、Gmail 應用程式密碼、板子的序列埠名稱。</li>
+<li>路線 C：2.4 GHz Wi-Fi 的名稱和密碼（或手機熱點）、Gmail 應用程式密碼。</li>
+</ul></dd>
+    <dt>怎麼測試</dt><dd>先寫一支只寄一封信的程式；再關掉 Wi-Fi 觸發警報，確認蜂鳴器照響，序列埠印出寄信失敗。</dd>
+    <dt class="is-trap">常見陷阱</dt><dd><ul>
+<li>AI 給的程式用 setInsecure() 跳過憑證檢查：能寄出去，但連線沒有驗證對方。</li>
+<li>Wi-Fi 密碼和應用程式密碼寫在程式裡，截圖或上傳 GitHub 就外洩。</li>
+<li>Wi-Fi 斷線後沒有重連，之後的警報都寄不出去。</li>
+<li>打開序列埠時 ESP32 可能會重新開機。</li>
+</ul></dd>
+  </dl>
+</div>
+<div class="step-block">
+  <p class="step-no">階段 4</p>
+  <h3>整合與長時間測試</h3>
+  <dl class="qa">
+    <dt>AI 能幫你</dt><dd>整理測試清單，分析紀錄檔裡的誤報。</dd>
+    <dt>你要準備</dt><dd>第 08 節的驗收表。</dd>
+    <dt>怎麼測試</dt><dd>讓系統連續跑一整晚，隔天看紀錄和心跳有沒有中斷。</dd>
+    <dt class="is-trap">常見陷阱</dt><dd><ul>
+<li>Wi-Fi 發射時電流突然變大，供電不足就重新開機。</li>
+<li>路線 B 的電腦自動休眠，通知中斷。</li>
+</ul></dd>
+  </dl>
+</div>
+    </section>
+    <section class="sec" id="s8" aria-labelledby="s8-h">
+      <p class="sec-no">08</p>
+      <h2 id="s8-h">測試與驗收</h2>
+<div class="table-wrap lead-in"><table class="tbl stack">
+<thead><tr><th scope="col">項目</th><th scope="col">怎麼做</th><th scope="col">記錄什麼</th></tr></thead>
+<tbody>
+<tr><th scope="row">漏報</th><td data-label="怎麼做">用平常的速度走過門口 10 次</td><td data-label="記錄什麼">觸發幾次</td></tr>
+<tr><th scope="row">漏報</th><td data-label="怎麼做">側身快速通過、穿厚外套通過，各 5 次</td><td data-label="記錄什麼">觸發幾次</td></tr>
+<tr><th scope="row">誤報</th><td data-label="怎麼做">布防後讓空房間放 1 小時</td><td data-label="記錄什麼">誤觸發幾次</td></tr>
+<tr><th scope="row">誤報</th><td data-label="怎麼做">開關房間的燈、拉窗簾</td><td data-label="記錄什麼">光敏電阻有沒有誤觸發</td></tr>
+<tr><th scope="row">撤防</th><td data-label="怎麼做">觸發後 10 秒內把旋鈕轉回撤防</td><td data-label="記錄什麼">有沒有響、有沒有寄信</td></tr>
+<tr><th scope="row">通知</th><td data-label="怎麼做">觸發一次完整警報</td><td data-label="記錄什麼">幾秒後收到信、收到幾封</td></tr>
+<tr><th scope="row">斷網</th><td data-label="怎麼做">關掉 Wi-Fi 後觸發</td><td data-label="記錄什麼">蜂鳴器有沒有響、有沒有發現通知失敗</td></tr>
+<tr><th scope="row">斷電</th><td data-label="怎麼做">布防中拔電再插回</td><td data-label="記錄什麼">回到什麼狀態</td></tr>
+<tr><th scope="row">長時間</th><td data-label="怎麼做">連續運作 8 小時</td><td data-label="記錄什麼">有沒有當機、心跳有沒有中斷</td></tr>
+</tbody></table></div>
+<p>誤報太多，使用的人會把系統關掉；漏報太多，系統就沒有用。調門檻時兩個數字要一起看。</p>
+    </section>
+    <section class="sec" id="s9" aria-labelledby="s9-h">
+      <p class="sec-no">09</p>
+      <h2 id="s9-h">什麼情況下會失效</h2>
+<p class="lead-q">「我做的東西在什麼狀況下會翻車？」</p>
+<p>第 07 節的常見陷阱發生在開發時；這一節是系統裝好以後，在真實情況下會失效的地方。</p>
+<p class="fails-h">感測層</p>
+<ul class="fails lead-in">
+<li><div><b>有人從 HC-SR04 照不到的角度進來</b>：不會觸發。</div></li>
+<li><div><b>穿厚外套或抱著棉被經過</b>：聲波被吸收，量不到。</div></li>
+<li><div><b>房間全暗時打開盒子</b>：亮度沒有變化，光敏電阻不會觸發。</div></li>
+<li><div><b>陽光照進來，或有人開燈</b>：光敏電阻誤觸發。</div></li>
+</ul>
+<p class="fails-h">控制層</p>
+<ul class="fails">
+<li><div><b>闖入的人把旋鈕轉到撤防</b>：系統不再偵測。</div></li>
+<li><div><b>拔掉電源</b>：整個系統停止；重新通電後回到撤防。</div></li>
+<li><div><b>程式卡住</b>：蜂鳴器不響，也不會通知。</div></li>
+</ul>
+<p class="fails-h">應用層</p>
+<ul class="fails">
+<li><div><b>Wi-Fi 斷線或路由器重開機</b>：通知送不出去。ESP32 只能連 2.4 GHz 的 Wi-Fi。</div></li>
+<li><div><b>走路線 B 時，電腦休眠、關機，或 USB 線鬆脫</b>：電腦收不到事件，不會送出通知。</div></li>
+<li><div><b>網路斷了</b>：通知送不出去。「沒收到通知」不代表「沒有人闖入」，要靠心跳訊號發現系統離線。</div></li>
+<li><div><b>Gmail 信件延遲，或被歸到垃圾郵件</b>：主人沒有即時看到通知。</div></li>
+<li><div><b>誤報太多</b>：寄出大量信件，收信的人開始忽略通知。</div></li>
+<li><div><b>應用程式密碼外洩</b>：別人可以用這個帳號寄信。</div></li>
+</ul>
+    </section>
+    <section class="sec" id="s10" aria-labelledby="s10-h">
+      <p class="sec-no">10</p>
+      <h2 id="s10-h">範例程式碼</h2>
+<div class="todo lead-in"><p class="todo-tag">框架確認後補上</p><ul>
+<li><span class="f">alarm_esp32.ino</span>路線 A＋B：和 Uno 版用同一套事件格式</li>
+<li><span class="f">alarm_esp32_wifi.ino</span>路線 C：ESP32 自己寄 Gmail、開網頁</li>
+<li><span class="f">gateway.py</span>和 Uno 版共用</li>
+<li><span class="f">延伸</span>LINE、Telegram、Discord、Google 試算表</li>
+</ul></div>
+    </section>
+    <nav class="doc-end" aria-label="下一步"><a class="back" href="../handout.html">← 講義選單</a><a href="alarm-uno.html">Uno 版 →</a></nav>
+    <footer class="credits"><h2>圖片來源</h2><ol>
+<li>HC-SR04：<a href="https://commons.wikimedia.org/wiki/File:HC_SR04_Ultrasonic_Module.jpg">HC SR04 Ultrasonic Module.jpg</a>，Suyash Dwivedi，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+<li>光敏電阻：<a href="https://commons.wikimedia.org/wiki/File:GL5528_photoresistors_02.jpg">GL5528 photoresistors 02.jpg</a>，Retired electrician，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a></li>
+<li>旋鈕：<a href="https://commons.wikimedia.org/wiki/File:Rotary_Potentiometer.jpg">Rotary Potentiometer.jpg</a>，User:Zephyris，<a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+<li>有源蜂鳴器：<a href="https://commons.wikimedia.org/wiki/File:Electromagnetic_buzzer_01.jpg">Electromagnetic buzzer 01.jpg</a>，jdx，<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>，經裁切</li>
+</ol></footer>
+  </main>
+</div>
+<script src="../assets/handout.js"></script>
+</body>
+</html>

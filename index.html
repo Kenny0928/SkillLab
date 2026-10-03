@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SkillLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-ex="robot">
+
+<header class="hero">
+  <h1>SkillLab</h1>
+  <p class="sub">如何運用 AI 與工具來解決問題</p>
+  <p class="core">重視解決問題的過程與方法。</p>
+  <p class="tag">專案導向建構基本能力</p>
+  <div class="actions">
+    <a class="btn" href="handout.html">直接看講義 →</a>
+    <a class="more" href="#example">往下看範例 ↓</a>
+  </div>
+</header>
+
+<section class="teardown" id="example" aria-label="範例">
+  <div class="steps" aria-hidden="true">
+    <div class="trig" data-step="0"></div>
+    <div class="trig" data-step="1"></div>
+    <div class="trig" data-step="2"></div>
+    <div class="trig" data-step="3"></div>
+    <div class="trig" data-step="4"></div>
+    <div class="trig" data-step="5"></div>
+    <div class="trig" data-step="6"></div>
+  </div>
+  <div class="stage" data-step="0">
+    <div class="stage-inner">
+      <div class="fig">
+<!-- build:figs:start -->
+<div class="fig-ex" id="fig-robot" role="tabpanel" aria-labelledby="tab-robot" data-ex="robot">
+<div class="shot" style="--ar: 1122 / 812">
+<img class="shot-img" data-s="0" src="assets/renders/robot-s0.webp" srcset="assets/renders/robot-s0.webp 1122w, assets/renders/robot-s0@2x.webp 2244w" sizes="(max-width: 899px) 100vw, 60vw" width="1122" height="812" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="1" src="assets/renders/robot-s1.webp" srcset="assets/renders/robot-s1.webp 1122w, assets/renders/robot-s1@2x.webp 2244w" sizes="(max-width: 899px) 100vw, 60vw" width="1122" height="812" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="2" src="assets/renders/robot-s2.webp" srcset="assets/renders/robot-s2.webp 1122w, assets/renders/robot-s2@2x.webp 2244w" sizes="(max-width: 899px) 100vw, 60vw" width="1122" height="812" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="3" src="assets/renders/robot-s3.webp" srcset="assets/renders/robot-s3.webp 1122w, assets/renders/robot-s3@2x.webp 2244w" sizes="(max-width: 899px) 100vw, 60vw" width="1122" height="812" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="4" src="assets/renders/robot-s4.webp" srcset="assets/renders/robot-s4.webp 1122w, assets/renders/robot-s4@2x.webp 2244w" sizes="(max-width: 899px) 100vw, 60vw" width="1122" height="812" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="5" src="assets/renders/robot-s5.webp" srcset="assets/renders/robot-s5.webp 1122w, assets/renders/robot-s5@2x.webp 2244w" sizes="(max-width: 899px) 100vw, 60vw" width="1122" height="812" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="6" src="assets/renders/robot-s6.webp" srcset="assets/renders/robot-s6.webp 1122w, assets/renders/robot-s6@2x.webp 2244w" sizes="(max-width: 899px) 100vw, 60vw" width="1122" height="812" alt="" loading="lazy" decoding="async">
+<svg class="model overlay" viewBox="0 0 1122 812" role="img" aria-label="送餐機器人示意圖" xmlns="http://www.w3.org/2000/svg">
+<g data-slot="decide" data-part="route"><path class="net" d="M719.8 569.5 L779.4 603.9 L739.2 627.1 L847.3 689.5"/><polygon class="net-head" points="847.3,689.5 828.6,684.3 838.3,678.7"/></g>
+<g data-slot="send" data-part="network"><path class="net" d="M474.6 331.9 L379.0 387.1 L354.0 372.7"/><polygon class="net-head" points="354.0,372.7 372.7,377.9 363.0,383.5"/><path class="net" d="M362.3 367.9 L379.0 377.5 L466.3 327.1"/><polygon class="net-head" points="466.3,327.1 457.2,337.9 447.5,332.3"/><path class="net" d="M505.0 325.5 L606.2 383.9 L526.5 429.9 L620.1 483.9"/><polygon class="net-head" points="620.1,483.9 601.4,478.7 611.0,473.1"/><path class="net" d="M611.7 488.7 L509.9 429.9 L589.6 383.9 L496.7 330.3"/><polygon class="net-head" points="496.7,330.3 515.4,335.5 505.7,341.1"/></g>
+<g data-slot="base" data-part="align"><line class="cone" x1="656.4" y1="376.7" x2="656.4" y2="463.2"/><line class="cone" x1="750.4" y1="431.0" x2="750.4" y2="517.5"/><line class="cone" x1="560.8" y1="431.9" x2="560.8" y2="518.4"/><line class="cone" x1="654.8" y1="486.2" x2="654.8" y2="572.7"/><line class="cone" x1="595.9" y1="541.4" x2="559.2" y2="562.5"/><line class="cone" x1="710.6" y1="475.1" x2="739.3" y2="458.6"/></g>
+<g class="callout" data-slot="sense" data-part="lidar"><line class="lead" x1="704.2" y1="531.3" x2="694.2" y2="681.3"/><circle class="dot" cx="704.2" cy="531.3" r="5"/><text class="lbl" x="684.2" y="681.3" text-anchor="end" dominant-baseline="central">光達</text></g>
+<g class="callout" data-slot="sense" data-part="camera"><line class="lead" x1="634.1" y1="271.8" x2="804.1" y2="211.8"/><circle class="dot" cx="634.1" cy="271.8" r="5"/><text class="lbl" x="814.1" y="211.8" text-anchor="start" dominant-baseline="central">攝影機</text></g>
+<g class="callout" data-slot="sense" data-part="encoder" data-loop="1"><line class="lead" x1="599.9" y1="529.0" x2="499.9" y2="679.0"/><circle class="dot" cx="599.9" cy="529.0" r="5"/><text class="lbl" x="489.9" y="679.0" text-anchor="end" dominant-baseline="central">編碼器</text></g>
+<g class="callout" data-slot="decide" data-part="board-main" data-loop="1"><line class="lead" x1="670.8" y1="523.0" x2="860.8" y2="373.0"/><circle class="dot" cx="670.8" cy="523.0" r="5"/><text class="lbl" x="870.8" y="373.0" text-anchor="start" dominant-baseline="central">主控板</text></g>
+<g class="callout" data-slot="act" data-part="board-driver" data-loop="1"><line class="lead" x1="605.4" y1="485.3" x2="440.4" y2="507.3"/><circle class="dot" cx="605.4" cy="485.3" r="5"/><text class="lbl" x="430.4" y="507.3" text-anchor="end" dominant-baseline="central">馬達驅動板</text></g>
+<g class="callout" data-slot="act" data-part="motor" data-loop="1"><line class="lead" x1="616.6" y1="521.1" x2="426.6" y2="581.1"/><circle class="dot" cx="616.6" cy="521.1" r="5"/><text class="lbl" x="416.6" y="581.1" text-anchor="end" dominant-baseline="central">輪子馬達</text></g>
+<g class="callout" data-slot="record" data-part="chip"><line class="lead" x1="645.3" y1="510.1" x2="520.3" y2="518.1"/><circle class="dot" cx="645.3" cy="510.1" r="5"/><text class="lbl" x="510.3" y="518.1" text-anchor="end" dominant-baseline="central">儲存裝置</text></g>
+<g class="callout" data-slot="send" data-part="ap"><line class="lead" x1="485.6" y1="124.9" x2="345.6" y2="44.9"/><circle class="dot" cx="485.6" cy="124.9" r="5"/><text class="lbl" x="335.6" y="44.9" text-anchor="end" dominant-baseline="central">無線基地台</text></g>
+<g class="callout" data-slot="send" data-part="tablet"><line class="lead" x1="336.0" y1="212.1" x2="186.0" y2="162.1"/><circle class="dot" cx="336.0" cy="212.1" r="5"/><text class="lbl" x="176.0" y="162.1" text-anchor="end" dominant-baseline="central">櫃台平板</text></g>
+</svg>
+</div>
+</div>
+<div class="fig-ex" id="fig-drone" role="tabpanel" aria-labelledby="tab-drone" data-ex="drone" hidden>
+<div class="shot" style="--ar: 952 / 721">
+<img class="shot-img" data-s="0" src="assets/renders/drone-s0.webp" srcset="assets/renders/drone-s0.webp 952w, assets/renders/drone-s0@2x.webp 1904w" sizes="(max-width: 899px) 100vw, 60vw" width="952" height="721" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="1" src="assets/renders/drone-s1.webp" srcset="assets/renders/drone-s1.webp 952w, assets/renders/drone-s1@2x.webp 1904w" sizes="(max-width: 899px) 100vw, 60vw" width="952" height="721" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="2" src="assets/renders/drone-s2.webp" srcset="assets/renders/drone-s2.webp 952w, assets/renders/drone-s2@2x.webp 1904w" sizes="(max-width: 899px) 100vw, 60vw" width="952" height="721" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="3" src="assets/renders/drone-s3.webp" srcset="assets/renders/drone-s3.webp 952w, assets/renders/drone-s3@2x.webp 1904w" sizes="(max-width: 899px) 100vw, 60vw" width="952" height="721" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="4" src="assets/renders/drone-s4.webp" srcset="assets/renders/drone-s4.webp 952w, assets/renders/drone-s4@2x.webp 1904w" sizes="(max-width: 899px) 100vw, 60vw" width="952" height="721" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="5" src="assets/renders/drone-s5.webp" srcset="assets/renders/drone-s5.webp 952w, assets/renders/drone-s5@2x.webp 1904w" sizes="(max-width: 899px) 100vw, 60vw" width="952" height="721" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="6" src="assets/renders/drone-s6.webp" srcset="assets/renders/drone-s6.webp 952w, assets/renders/drone-s6@2x.webp 1904w" sizes="(max-width: 899px) 100vw, 60vw" width="952" height="721" alt="" loading="lazy" decoding="async">
+<svg class="model overlay" viewBox="0 0 952 721" role="img" aria-label="空拍機示意圖" xmlns="http://www.w3.org/2000/svg">
+<g data-slot="act" data-part="螺旋槳"><path class="cone" fill="none" d="M461.6 241.8 L446.4 249.3 L429.4 255.3 L410.9 259.7 L391.5 262.4 L371.6 263.3 L351.7 262.4 L332.2 259.7 L313.8 255.3 L296.7 249.3 L281.5 241.8 L268.5 233.0 L258.1 223.2 L250.4 212.5 L245.8 201.3 L244.2 189.8 L245.8 178.3 L250.4 167.1 L258.1 156.4 L268.5 146.6 L281.5 137.8 L296.7 130.3 L313.8 124.3 L332.2 119.8 L351.7 117.1 L371.6 116.2 L391.5 117.1 L410.9 119.8 L429.4 124.3 L446.4 130.3 L461.6 137.8 L474.6 146.6 L485.1 156.4 L492.7 167.1 L497.4 178.3 L499.0 189.8 L497.4 201.3 L492.7 212.5 L485.1 223.2 L474.6 233.0 Z"/></g>
+<g data-slot="act" data-part="螺旋槳"><path class="cone" fill="none" d="M713.8 241.8 L698.6 249.3 L681.6 255.3 L663.1 259.7 L643.7 262.4 L623.8 263.3 L603.8 262.4 L584.4 259.7 L565.9 255.3 L548.9 249.3 L533.7 241.8 L520.7 233.0 L510.3 223.2 L502.6 212.5 L498.0 201.3 L496.4 189.8 L498.0 178.3 L502.6 167.1 L510.3 156.4 L520.7 146.6 L533.7 137.8 L548.9 130.3 L565.9 124.3 L584.4 119.8 L603.8 117.1 L623.8 116.2 L643.7 117.1 L663.1 119.8 L681.6 124.3 L698.6 130.3 L713.8 137.8 L726.8 146.6 L737.3 156.4 L744.9 167.1 L749.6 178.3 L751.1 189.8 L749.6 201.3 L744.9 212.5 L737.3 223.2 L726.8 233.0 Z"/></g>
+<g data-slot="base" data-part="shell"><line class="cone" x1="497.7" y1="112.8" x2="497.7" y2="233.5"/><line class="cone" x1="594.9" y1="169.0" x2="594.9" y2="289.6"/><line class="cone" x1="497.7" y1="225.1" x2="497.7" y2="345.8"/><line class="cone" x1="400.4" y1="169.0" x2="400.4" y2="289.6"/></g>
+<g data-slot="act" data-part="螺旋槳"><path class="cone" fill="none" d="M713.8 387.4 L698.6 394.9 L681.6 400.9 L663.1 405.3 L643.7 408.0 L623.8 408.9 L603.8 408.0 L584.4 405.3 L565.9 400.9 L548.9 394.9 L533.7 387.4 L520.7 378.6 L510.3 368.8 L502.6 358.1 L498.0 346.9 L496.4 335.4 L498.0 323.9 L502.6 312.7 L510.3 302.0 L520.7 292.2 L533.7 283.4 L548.9 275.9 L565.9 269.9 L584.4 265.4 L603.8 262.7 L623.8 261.8 L643.7 262.7 L663.1 265.4 L681.6 269.9 L698.6 275.9 L713.8 283.4 L726.8 292.2 L737.3 302.0 L744.9 312.7 L749.6 323.9 L751.1 335.4 L749.6 346.9 L744.9 358.1 L737.3 368.8 L726.8 378.6 Z"/></g>
+<g data-slot="act" data-part="螺旋槳"><path class="cone" fill="none" d="M461.6 387.4 L446.4 394.9 L429.4 400.9 L410.9 405.3 L391.5 408.0 L371.6 408.9 L351.7 408.0 L332.2 405.3 L313.8 400.9 L296.7 394.9 L281.5 387.4 L268.5 378.6 L258.1 368.8 L250.4 358.1 L245.8 346.9 L244.2 335.4 L245.8 323.9 L250.4 312.7 L258.1 302.0 L268.5 292.2 L281.5 283.4 L296.7 275.9 L313.8 269.9 L332.2 265.4 L351.7 262.7 L371.6 261.8 L391.5 262.7 L410.9 265.4 L429.4 269.9 L446.4 275.9 L461.6 283.4 L474.6 292.2 L485.1 302.0 L492.7 312.7 L497.4 323.9 L499.0 335.4 L497.4 346.9 L492.7 358.1 L485.1 368.8 L474.6 378.6 Z"/></g>
+<g data-slot="send" data-part="network"><path class="net" d="M292.3 553.6 L330.1 575.4 L407.6 530.7 L407.6 354.1"/><polygon class="net-head" points="407.6,354.1 414.6,374.1 400.6,374.1"/><path class="net" d="M395.0 346.8 L395.0 523.4 L331.9 559.8 L308.5 546.3"/><polygon class="net-head" points="308.5,546.3 329.4,550.2 322.4,562.4"/></g>
+<g class="callout" data-slot="sense" data-part="GPS"><line class="lead" x1="497.7" y1="114.9" x2="557.7" y2="44.9"/><circle class="dot" cx="497.7" cy="114.9" r="5"/><text class="lbl" x="567.7" y="44.9" text-anchor="start" dominant-baseline="central">GPS</text></g>
+<g class="callout" data-slot="sense" data-part="指南針"><line class="lead" x1="486.9" y1="150.3" x2="316.9" y2="60.3"/><circle class="dot" cx="486.9" cy="150.3" r="5"/><text class="lbl" x="306.9" y="60.3" text-anchor="end" dominant-baseline="central">指南針</text></g>
+<g class="callout" data-slot="sense" data-part="IMU" data-loop="1"><line class="lead" x1="467.0" y1="244.9" x2="277.0" y2="214.9"/><circle class="dot" cx="467.0" cy="244.9" r="5"/><text class="lbl" x="267.0" y="214.9" text-anchor="end" dominant-baseline="central">IMU</text></g>
+<g class="callout" data-slot="sense" data-part="氣壓計"><line class="lead" x1="529.2" y1="246.5" x2="759.2" y2="241.5"/><circle class="dot" cx="529.2" cy="246.5" r="5"/><text class="lbl" x="769.2" y="241.5" text-anchor="start" dominant-baseline="central">氣壓計</text></g>
+<g class="callout" data-slot="sense" data-part="相機"><line class="lead" x1="425.6" y1="370.7" x2="555.6" y2="480.7"/><circle class="dot" cx="425.6" cy="370.7" r="5"/><text class="lbl" x="565.6" y="480.7" text-anchor="start" dominant-baseline="central">相機</text></g>
+<g class="callout" data-slot="decide" data-part="飛控板" data-loop="1"><line class="lead" x1="479.7" y1="268.8" x2="239.7" y2="328.8"/><circle class="dot" cx="479.7" cy="268.8" r="5"/><text class="lbl" x="229.7" y="328.8" text-anchor="end" dominant-baseline="central">飛控板</text></g>
+<g class="callout" data-slot="act" data-part="電子調速器" data-loop="1"><line class="lead" x1="528.3" y1="302.1" x2="728.3" y2="252.1"/><circle class="dot" cx="528.3" cy="302.1" r="5"/><text class="lbl" x="738.3" y="252.1" text-anchor="start" dominant-baseline="central">電子調速器</text></g>
+<g class="callout" data-slot="act" data-part="螺旋槳"><line class="lead" x1="667.0" y1="388.4" x2="787.0" y2="398.4"/><circle class="dot" cx="667.0" cy="388.4" r="5"/><text class="lbl" x="797.0" y="398.4" text-anchor="start" dominant-baseline="central">螺旋槳</text></g>
+<g class="callout" data-slot="act" data-part="馬達" data-loop="1"><line class="lead" x1="632.8" y1="373.9" x2="772.8" y2="483.9"/><circle class="dot" cx="632.8" cy="373.9" r="5"/><text class="lbl" x="782.8" y="483.9" text-anchor="start" dominant-baseline="central">馬達</text></g>
+<g class="callout" data-slot="record" data-part="記憶卡"><line class="lead" x1="632.8" y1="331.2" x2="762.8" y2="201.2"/><circle class="dot" cx="632.8" cy="331.2" r="5"/><text class="lbl" x="772.8" y="201.2" text-anchor="start" dominant-baseline="central">記憶卡</text></g>
+<g class="callout" data-slot="send" data-part="遙控器"><line class="lead" x1="268.0" y1="506.5" x2="148.0" y2="536.5"/><circle class="dot" cx="268.0" cy="506.5" r="5"/><text class="lbl" x="138.0" y="536.5" text-anchor="end" dominant-baseline="central">遙控器</text></g>
+<g class="callout" data-slot="send" data-part="圖傳"><line class="lead" x1="411.2" y1="268.8" x2="211.2" y2="228.8"/><circle class="dot" cx="411.2" cy="268.8" r="5"/><text class="lbl" x="201.2" y="228.8" text-anchor="end" dominant-baseline="central">圖傳</text></g>
+</svg>
+</div>
+</div>
+<div class="fig-ex" id="fig-parking" role="tabpanel" aria-labelledby="tab-parking" data-ex="parking" hidden>
+<div class="shot" style="--ar: 1306 / 708">
+<img class="shot-img" data-s="0" src="assets/renders/parking-s0.webp" srcset="assets/renders/parking-s0.webp 1306w, assets/renders/parking-s0@2x.webp 2612w" sizes="(max-width: 899px) 100vw, 60vw" width="1306" height="708" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="1" src="assets/renders/parking-s1.webp" srcset="assets/renders/parking-s1.webp 1306w, assets/renders/parking-s1@2x.webp 2612w" sizes="(max-width: 899px) 100vw, 60vw" width="1306" height="708" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="2" src="assets/renders/parking-s2.webp" srcset="assets/renders/parking-s2.webp 1306w, assets/renders/parking-s2@2x.webp 2612w" sizes="(max-width: 899px) 100vw, 60vw" width="1306" height="708" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="3" src="assets/renders/parking-s3.webp" srcset="assets/renders/parking-s3.webp 1306w, assets/renders/parking-s3@2x.webp 2612w" sizes="(max-width: 899px) 100vw, 60vw" width="1306" height="708" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="4" src="assets/renders/parking-s4.webp" srcset="assets/renders/parking-s4.webp 1306w, assets/renders/parking-s4@2x.webp 2612w" sizes="(max-width: 899px) 100vw, 60vw" width="1306" height="708" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="5" src="assets/renders/parking-s5.webp" srcset="assets/renders/parking-s5.webp 1306w, assets/renders/parking-s5@2x.webp 2612w" sizes="(max-width: 899px) 100vw, 60vw" width="1306" height="708" alt="" loading="lazy" decoding="async">
+<img class="shot-img" data-s="6" src="assets/renders/parking-s6.webp" srcset="assets/renders/parking-s6.webp 1306w, assets/renders/parking-s6@2x.webp 2612w" sizes="(max-width: 899px) 100vw, 60vw" width="1306" height="708" alt="" loading="lazy" decoding="async">
+<svg class="model overlay" viewBox="0 0 1306 708" role="img" aria-label="停車場示意圖" xmlns="http://www.w3.org/2000/svg">
+<g data-slot="send" data-part="network" data-loop="1"><path class="net" d="M899.7 421.1 L924.7 435.5 L1061.8 356.3"/><polygon class="net-head" points="1061.8,356.3 1052.8,367.1 1043.1,361.5"/><path class="net" d="M1070.2 361.1 L924.7 445.1 L891.4 425.9"/><polygon class="net-head" points="891.4,425.9 910.1,431.1 900.4,436.7"/></g>
+<g data-slot="send" data-part="network"><path class="net" d="M1139.4 359.5 L1160.2 371.5 L729.3 620.3"/><polygon class="net-head" points="729.3,620.3 738.3,609.5 748.0,615.1"/></g>
+<g data-slot="base" data-part="car"><text class="t-plate" transform="matrix(0.6928 -0.4000 0 0.8 496.7 331.0)" x="28" y="15" text-anchor="middle" font-size="9.6">ABC-1234</text></g>
+<g data-slot="sense" data-part="camera"><line class="cone" x1="688.2" y1="153.4" x2="535.6" y2="308.7"/><line class="cone" x1="688.2" y1="153.4" x2="496.8" y2="348.7"/></g>
+<g data-slot="act" data-part="display"><text class="t-screen" transform="matrix(0.6928 0.4000 0 0.8 719.4 183.0)" x="37" y="33.5" text-anchor="middle" font-size="12">ABC-1234</text></g>
+<g class="callout" data-slot="sense" data-part="loop"><line class="lead" x1="519.4" y1="437.7" x2="459.4" y2="567.7"/><circle class="dot" cx="519.4" cy="437.7" r="5"/><text class="lbl" x="449.4" y="567.7" text-anchor="end" dominant-baseline="central">地感線圈</text></g>
+<g class="callout" data-slot="sense" data-part="camera"><line class="lead" x1="701.6" y1="134.9" x2="591.6" y2="44.9"/><circle class="dot" cx="701.6" cy="134.9" r="5"/><text class="lbl" x="581.6" y="44.9" text-anchor="end" dominant-baseline="central">車牌辨識攝影機</text></g>
+<g class="callout" data-slot="decide" data-part="controller" data-loop="1"><line class="lead" x1="897.0" y1="383.7" x2="1017.0" y2="493.7"/><circle class="dot" cx="897.0" cy="383.7" r="5"/><text class="lbl" x="1027.0" y="493.7" text-anchor="start" dominant-baseline="central">現場控制器</text></g>
+<g class="callout" data-slot="act" data-part="display"><line class="lead" x1="750.1" y1="188.5" x2="660.1" y2="68.5"/><circle class="dot" cx="750.1" cy="188.5" r="5"/><text class="lbl" x="650.1" y="68.5" text-anchor="end" dominant-baseline="central">顯示幕</text></g>
+<g class="callout" data-slot="act" data-part="barrier"><line class="lead" x1="573.4" y1="432.1" x2="513.4" y2="582.1"/><circle class="dot" cx="573.4" cy="432.1" r="5"/><text class="lbl" x="503.4" y="582.1" text-anchor="end" dominant-baseline="central">柵欄機</text></g>
+<g class="callout" data-slot="record" data-part="database" data-loop="1"><line class="lead" x1="942.0" y1="310.5" x2="982.0" y2="80.5"/><circle class="dot" cx="942.0" cy="310.5" r="5"/><text class="lbl" x="992.0" y="80.5" text-anchor="start" dominant-baseline="central">資料庫</text></g>
+<g class="callout" data-slot="send" data-part="server" data-loop="1"><line class="lead" x1="1097.9" y1="221.3" x2="1157.9" y2="111.3"/><circle class="dot" cx="1097.9" cy="221.3" r="5"/><text class="lbl" x="1167.9" y="111.3" text-anchor="start" dominant-baseline="central">伺服器</text></g>
+<g class="callout" data-slot="send" data-part="kiosk"><line class="lead" x1="654.5" y1="559.7" x2="564.5" y2="569.7"/><circle class="dot" cx="654.5" cy="559.7" r="5"/><text class="lbl" x="554.5" y="569.7" text-anchor="end" dominant-baseline="central">繳費機</text></g>
+</svg>
+</div>
+</div>
+<!-- build:figs:end -->
+      </div>
+      <div class="side">
+<!-- build:tabs:start -->
+<div class="tabs" role="tablist" aria-label="範例">
+  <button class="tab" role="tab" type="button" id="tab-robot" data-ex="robot" aria-selected="true" aria-controls="fig-robot" tabindex="0">送餐機器人</button>
+  <button class="tab" role="tab" type="button" id="tab-drone" data-ex="drone" aria-selected="false" aria-controls="fig-drone" tabindex="-1">空拍機</button>
+  <button class="tab" role="tab" type="button" id="tab-parking" data-ex="parking" aria-selected="false" aria-controls="fig-parking" tabindex="-1">停車場</button>
+</div>
+<!-- build:tabs:end -->
+<!-- build:side:start -->
+<div class="side-ex" data-ex="robot">
+<svg class="glyph" viewBox="0 0 240 170" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+<g class="g-e" data-from="sense" data-to="decide" data-loop="1"><line x1="63.2" y1="53.3" x2="100.7" y2="26.0"/><polygon points="100.7,26.0 97.4,31.6 94.3,27.4"/></g>
+<g class="g-e" data-from="decide" data-to="act" data-loop="1"><line x1="139.3" y1="26.0" x2="176.8" y2="53.3"/><polygon points="176.8,53.3 170.4,51.9 173.5,47.6"/></g>
+<g class="g-e" data-from="act" data-to="sense" data-loop="1"><line x1="176.1" y1="67.3" x2="63.9" y2="67.3"/><polygon points="63.9,67.3 69.9,64.7 69.9,69.9"/></g>
+<g class="g-e" data-from="record" data-to="decide"><line x1="162.5" y1="142.7" x2="124.5" y2="26.0"/><polygon points="124.5,26.0 128.9,30.9 123.9,32.5"/></g>
+<g class="g-e" data-from="sense" data-to="record"><line x1="63.2" y1="81.3" x2="147.8" y2="142.7"/><polygon points="147.8,142.7 141.4,141.3 144.4,137.1"/></g>
+<g class="g-e" data-from="send" data-to="decide"><line x1="77.5" y1="142.7" x2="115.5" y2="26.0"/><polygon points="115.5,26.0 116.1,32.5 111.1,30.9"/><polygon points="77.5,142.7 76.9,136.2 81.9,137.8"/></g>
+<text data-slot="sense" x="43.9" y="67.3" text-anchor="middle" dominant-baseline="central">感測</text>
+<text data-slot="decide" x="120.0" y="12.0" text-anchor="middle" dominant-baseline="central">判斷</text>
+<text data-slot="act" x="196.1" y="67.3" text-anchor="middle" dominant-baseline="central">執行</text>
+<text data-slot="record" x="167.0" y="156.7" text-anchor="middle" dominant-baseline="central">紀錄</text>
+<text data-slot="send" x="73.0" y="156.7" text-anchor="middle" dominant-baseline="central">傳送</text>
+</svg>
+<div class="caps">
+<div class="cap" aria-hidden="true">
+  <p class="lab">感測</p>
+  <p class="sent"><span class="ph">光達與攝影機看前方，</span><span class="ph">輪子編碼器算出走了多遠。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">判斷</p>
+  <p class="sent"><span class="ph">主控板規劃路線，</span><span class="ph">遇到障礙決定停下或繞過。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">執行</p>
+  <p class="sent">馬達驅動板控制左右輪的轉速。</p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">紀錄</p>
+  <p class="sent">存下店內地圖和每一趟的行駛紀錄。</p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">傳送</p>
+  <p class="sent"><span class="ph">透過 Wi-Fi 接收送餐指令，</span><span class="ph">回報位置與電量。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">互相影響</p>
+  <p class="sent"><span class="ph">編碼器量到輪子轉了多少，</span><span class="ph">主控板再修正馬達轉速。</span></p>
+</div>
+</div>
+</div>
+<div class="side-ex" data-ex="drone" hidden>
+<svg class="glyph" viewBox="0 0 240 170" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+<g class="g-e" data-from="sense" data-to="decide" data-loop="1"><line x1="63.2" y1="53.3" x2="100.7" y2="26.0"/><polygon points="100.7,26.0 97.4,31.6 94.3,27.4"/></g>
+<g class="g-e" data-from="decide" data-to="act" data-loop="1"><line x1="139.3" y1="26.0" x2="176.8" y2="53.3"/><polygon points="176.8,53.3 170.4,51.9 173.5,47.6"/></g>
+<g class="g-e" data-from="act" data-to="sense" data-loop="1"><line x1="176.1" y1="67.3" x2="63.9" y2="67.3"/><polygon points="63.9,67.3 69.9,64.7 69.9,69.9"/></g>
+<g class="g-e" data-from="sense" data-to="record"><line x1="63.2" y1="81.3" x2="147.8" y2="142.7"/><polygon points="147.8,142.7 141.4,141.3 144.4,137.1"/></g>
+<g class="g-e" data-from="send" data-to="decide"><line x1="77.5" y1="142.7" x2="115.5" y2="26.0"/><polygon points="115.5,26.0 116.1,32.5 111.1,30.9"/></g>
+<g class="g-e" data-from="sense" data-to="send"><line x1="48.5" y1="81.3" x2="68.4" y2="142.7"/><polygon points="68.4,142.7 64.1,137.8 69.0,136.2"/></g>
+<text data-slot="sense" x="43.9" y="67.3" text-anchor="middle" dominant-baseline="central">感測</text>
+<text data-slot="decide" x="120.0" y="12.0" text-anchor="middle" dominant-baseline="central">判斷</text>
+<text data-slot="act" x="196.1" y="67.3" text-anchor="middle" dominant-baseline="central">執行</text>
+<text data-slot="record" x="167.0" y="156.7" text-anchor="middle" dominant-baseline="central">紀錄</text>
+<text data-slot="send" x="73.0" y="156.7" text-anchor="middle" dominant-baseline="central">傳送</text>
+</svg>
+<div class="caps">
+<div class="cap" aria-hidden="true">
+  <p class="lab">感測</p>
+  <p class="sent"><span class="ph">慣性感測器（IMU）量傾斜，</span><span class="ph">GPS 定位，</span><span class="ph">氣壓計量高度。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">判斷</p>
+  <p class="sent"><span class="ph">飛控板依遙控指令和定位資料，</span><span class="ph">決定往哪飛、飛多高。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">執行</p>
+  <p class="sent">電子調速器控制四顆馬達的轉速。</p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">紀錄</p>
+  <p class="sent"><span class="ph">飛行紀錄存在飛控，</span><span class="ph">影片存在記憶卡。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">傳送</p>
+  <p class="sent"><span class="ph">遙控指令往上送，</span><span class="ph">即時影像與電量往回傳。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">互相影響</p>
+  <p class="sent"><span class="ph">IMU 量到機身傾斜，</span><span class="ph">飛控板立刻調整馬達轉速，</span><span class="ph">機身再回到水平。</span></p>
+</div>
+</div>
+</div>
+<div class="side-ex" data-ex="parking" hidden>
+<svg class="glyph" viewBox="0 0 240 170" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+<g class="g-e" data-from="sense" data-to="decide"><line x1="63.2" y1="53.3" x2="100.7" y2="26.0"/><polygon points="100.7,26.0 97.4,31.6 94.3,27.4"/></g>
+<g class="g-e" data-from="decide" data-to="act"><line x1="139.3" y1="26.0" x2="176.8" y2="53.3"/><polygon points="176.8,53.3 170.4,51.9 173.5,47.6"/></g>
+<g class="g-e" data-from="record" data-to="decide" data-loop="1"><line x1="162.5" y1="142.7" x2="124.5" y2="26.0"/><polygon points="124.5,26.0 128.9,30.9 123.9,32.5"/><polygon points="162.5,142.7 158.1,137.8 163.1,136.2"/></g>
+<g class="g-e" data-from="send" data-to="record" data-loop="1"><line x1="93.0" y1="156.7" x2="147.0" y2="156.7"/><polygon points="147.0,156.7 141.0,159.3 141.0,154.1"/><polygon points="93.0,156.7 99.0,154.1 99.0,159.3"/></g>
+<text data-slot="sense" x="43.9" y="67.3" text-anchor="middle" dominant-baseline="central">感測</text>
+<text data-slot="decide" x="120.0" y="12.0" text-anchor="middle" dominant-baseline="central">判斷</text>
+<text data-slot="act" x="196.1" y="67.3" text-anchor="middle" dominant-baseline="central">執行</text>
+<text data-slot="record" x="167.0" y="156.7" text-anchor="middle" dominant-baseline="central">紀錄</text>
+<text data-slot="send" x="73.0" y="156.7" text-anchor="middle" dominant-baseline="central">傳送</text>
+</svg>
+<div class="caps">
+<div class="cap" aria-hidden="true">
+  <p class="lab">感測</p>
+  <p class="sent"><span class="ph">地感線圈偵測到車，</span><span class="ph">攝影機拍下車牌。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">判斷</p>
+  <p class="sent"><span class="ph">辨識車牌，</span><span class="ph">比對是不是月租車。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">執行</p>
+  <p class="sent"><span class="ph">柵欄機抬起柵欄，</span><span class="ph">顯示幕秀出車牌。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">紀錄</p>
+  <p class="sent">存下車牌、進場時間與照片。</p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">傳送</p>
+  <p class="sent"><span class="ph">現場控制器把紀錄送到伺服器，</span><span class="ph">繳費機再用車牌查回來。</span></p>
+</div>
+<div class="cap" aria-hidden="true">
+  <p class="lab">互相影響</p>
+  <p class="sent"><span class="ph">月租名單由伺服器傳到現場，</span><span class="ph">判斷才知道這台車要不要收費。</span></p>
+</div>
+</div>
+</div>
+<!-- build:side:end -->
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="ask" aria-labelledby="ask-lab">
+  <p class="lab" id="ask-lab">每個部分都要問</p>
+  <ol class="reveal">
+    <li>資料存在哪裡？</li>
+    <li>怎麼傳過去？</li>
+    <li>用什麼硬體？</li>
+    <li id="ask-err">哪裡會出錯？</li>
+  </ol>
+</section>
+
+<section class="traps" aria-labelledby="ask-err">
+<!-- build:traps:start -->
+<ol class="reveal traps-list" data-ex="robot">
+  <li><span class="idx">送餐機器人 01 / 05</span><p class="q"><span class="ph">怕走到一半沒電，</span><span class="ph">剩多少電就該回去充電？</span></p></li>
+  <li><span class="idx">送餐機器人 02 / 05</span><p class="q"><span class="ph">有人突然走到前面，</span><span class="ph">要急停還是繞過？</span></p></li>
+  <li><span class="idx">送餐機器人 03 / 05</span><p class="q"><span class="ph">Wi-Fi 斷線，</span><span class="ph">機器人要停下還是繼續送？</span></p></li>
+  <li><span class="idx">送餐機器人 04 / 05</span><p class="q"><span class="ph">輪子打滑，</span><span class="ph">位置算錯了，</span><span class="ph">機器人怎麼發現？</span></p></li>
+  <li><span class="idx">送餐機器人 05 / 05</span><p class="q"><span class="ph">地板反光或桌腳太細，</span><span class="ph">感測器沒看到，</span><span class="ph">要加裝什麼？</span></p></li>
+</ol>
+<ol class="reveal traps-list" data-ex="drone" hidden>
+  <li><span class="idx">空拍機 01 / 05</span><p class="q"><span class="ph">遙控訊號斷了，</span><span class="ph">要原地降落還是自動返航？</span></p></li>
+  <li><span class="idx">空拍機 02 / 05</span><p class="q"><span class="ph">在室內或橋下收不到 GPS，</span><span class="ph">怎麼定位？</span></p></li>
+  <li><span class="idx">空拍機 03 / 05</span><p class="q"><span class="ph">風太大，</span><span class="ph">馬達出力不夠，</span><span class="ph">多大的風就不該飛？</span></p></li>
+  <li><span class="idx">空拍機 04 / 05</span><p class="q"><span class="ph">天氣冷，</span><span class="ph">電池電壓掉得太快，</span><span class="ph">起飛前要先做什麼？</span></p></li>
+  <li><span class="idx">空拍機 05 / 05</span><p class="q"><span class="ph">指南針被金屬干擾，</span><span class="ph">飛控怎麼知道方向錯了？</span></p></li>
+</ol>
+<ol class="reveal traps-list" data-ex="parking" hidden>
+  <li><span class="idx">停車場 01 / 05</span><p class="q"><span class="ph">網路斷了，</span><span class="ph">柵欄要不要開？</span></p></li>
+  <li><span class="idx">停車場 02 / 05</span><p class="q"><span class="ph">有人跟著前車出去，</span><span class="ph">柵欄要多快放下？</span></p></li>
+  <li><span class="idx">停車場 03 / 05</span><p class="q"><span class="ph">晚上或下雨，</span><span class="ph">車牌拍不清楚，</span><span class="ph">要放行還是人工確認？</span></p></li>
+  <li><span class="idx">停車場 04 / 05</span><p class="q"><span class="ph">車牌認錯一個字，</span><span class="ph">出場查不到進場紀錄，</span><span class="ph">要收多少錢？</span></p></li>
+  <li><span class="idx">停車場 05 / 05</span><p class="q"><span class="ph">柵欄放下前，</span><span class="ph">怎麼確定車子已經離開？</span></p></li>
+</ol>
+<!-- build:traps:end -->
+</section>
+
+<section class="next">
+  <div class="actions">
+    <a class="btn" href="handout.html">看講義 →</a>
+    <a class="more" href="#example">回到選單 ↑</a>
+  </div>
+</section>
+
+<script src="assets/main.js"></script>
+</body>
+</html>

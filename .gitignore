@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+._*
+
+# Editor settings
+.claude/settings.local.json
+.vscode/
+.idea/
+
+# Python caches and local environments
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/

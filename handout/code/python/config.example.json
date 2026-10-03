@@ -1,0 +1,12 @@
+{
+  "serial_port": "COM3",
+  "cooldown_seconds": 60,
+  "gmail": {
+    "sender": "your.alarm@gmail.com",
+    "app_password": "abcd efgh ijkl mnop",
+    "to": "you@example.com"
+  },
+  "discord": {
+    "webhook_url": "https://discord.com/api/webhooks/貼上你的網址"
+  }
+}

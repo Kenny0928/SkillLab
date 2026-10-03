@@ -1,0 +1,585 @@
+:root {
+  --paper: #fbfaf8;
+  --ink: #17181a;
+  --ink-2: #5c5e63;
+  --ink-3: #a3a5aa;
+  --rule: #e2e0db;
+  --accent: #e4572e;
+  --accent-tint: #fbe4dc;
+  --accent-text: #c8441c; /* accent at 4.6:1 for small text */
+  --ink-dim: #898b90;     /* dimmed large text, 3.3:1 */
+  --face-top: #ffffff;
+  --face-left: #f1efea;
+  --face-right: #e6e3dd;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --dur: 450ms;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--paper); -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: "Inter", "Noto Sans TC", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+h1, h2, p, ol { margin: 0; padding: 0; }
+
+/* ---------- hero ---------- */
+.hero {
+  position: relative;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.hero h1 {
+  font-size: clamp(64px, 17vw, 208px);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 0.9;
+}
+
+.hero .sub {
+  margin-top: 24px;
+  font-size: clamp(17px, 2vw, 22px);
+  font-weight: 400;
+  color: var(--ink-2);
+}
+
+.hero .core {
+  margin-top: 56px;
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.hero .tag {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  letter-spacing: .24em;
+  color: var(--ink-2);
+}
+
+.hero .tag::before,
+.hero .tag::after {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: var(--ink-3);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.hero .actions { margin-top: 48px; }
+
+.btn,
+.more {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.btn {
+  padding: 0 24px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.btn:hover { background: var(--accent); }
+
+.more { color: var(--ink-2); }
+.more:hover { color: var(--ink); }
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@media (max-width: 599px) {
+  .hero .core { margin-top: 40px; }
+  .actions { flex-direction: column; gap: 4px; }
+  .hero .actions { margin-top: 40px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+/* ---------- teardown ---------- */
+.teardown {
+  position: relative;
+  height: 800svh;
+}
+
+.steps {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 700svh;
+  pointer-events: none;
+}
+
+.trig { height: 100svh; }
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.stage-inner {
+  height: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 48px;
+  display: grid;
+  grid-template-columns: minmax(0, 64fr) minmax(0, 36fr);
+  column-gap: 48px;
+  align-items: center;
+}
+
+.fig {
+  min-width: 0;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+}
+
+.fig-ex {
+  grid-area: 1 / 1;
+  min-width: 0;
+  width: 100%;
+  transition: opacity 300ms var(--ease);
+}
+.fig-ex.is-in,
+.fig-ex.is-out { opacity: 0; }
+
+[hidden] { display: none !important; }
+
+.model {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 78svh;
+}
+
+.side {
+  container-type: inline-size;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.side-ex {
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* example menu: the system name. Large at step 0 (the only step that can switch), compact above the glyph afterwards */
+.tabs {
+  display: flex;
+  gap: 0.7em;
+  white-space: nowrap;
+  font-size: min(clamp(26px, 3.4vw, 40px), 8cqw);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  transition: font-size var(--dur) var(--ease);
+}
+
+.tab {
+  appearance: none;
+  background: none;
+  border: 0;
+  border-radius: 2px;
+  margin: 0;
+  padding: 0;
+  min-height: 44px;
+  font: inherit;
+  letter-spacing: inherit;
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: color var(--dur) var(--ease);
+}
+.tab:hover { color: var(--ink-2); }
+.tab[aria-selected="true"],
+.tab[aria-selected="true"]:hover { color: var(--ink); }
+
+/* steps 1-6: no switching mid-teardown, only the chosen name stays, as a label */
+.stage:not([data-step="0"]) .tabs { font-size: 13px; letter-spacing: 0; }
+.stage:not([data-step="0"]) .tab {
+  min-height: 0;
+  padding-block: 9px;
+  font-weight: 600;
+  pointer-events: none;
+  cursor: default;
+}
+.stage:not([data-step="0"]) .tab:not([aria-selected="true"]) { display: none; }
+
+/* desktop step 0: nothing below the menu yet, so let it centre on the drawing */
+@media (min-width: 900px) {
+  .stage[data-step="0"] .side-ex { display: none; }
+}
+
+html:not(.js) .tab:not([aria-selected="true"]) { display: none; }
+
+/* network glyph */
+.glyph {
+  display: block;
+  width: 240px;
+  height: auto;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+}
+.glyph text {
+  font-family: "Inter", "Noto Sans TC", system-ui, sans-serif;
+  font-size: 13px;
+  fill: var(--ink-2);
+  transition: fill var(--dur) var(--ease);
+}
+.glyph .g-e { color: var(--ink-3); transition: color var(--dur) var(--ease); }
+.glyph .g-e line { stroke: currentColor; stroke-width: 1; }
+.glyph .g-e polygon { fill: currentColor; stroke: none; }
+
+.stage:not([data-step="0"]) .glyph { opacity: 1; }
+
+.stage[data-step="1"] .glyph text[data-slot="sense"],
+.stage[data-step="2"] .glyph text[data-slot="decide"],
+.stage[data-step="3"] .glyph text[data-slot="act"],
+.stage[data-step="4"] .glyph text[data-slot="record"],
+.stage[data-step="5"] .glyph text[data-slot="send"] { fill: var(--accent-text); font-weight: 600; }
+
+.stage[data-step="1"] .glyph .g-e:is([data-from="sense"], [data-to="sense"]),
+.stage[data-step="2"] .glyph .g-e:is([data-from="decide"], [data-to="decide"]),
+.stage[data-step="3"] .glyph .g-e:is([data-from="act"], [data-to="act"]),
+.stage[data-step="4"] .glyph .g-e:is([data-from="record"], [data-to="record"]),
+.stage[data-step="5"] .glyph .g-e:is([data-from="send"], [data-to="send"]) { color: var(--ink-2); }
+
+.stage[data-step="6"] .glyph .g-e[data-loop="1"] { color: var(--accent); }
+.stage[data-step="6"] .glyph .g-e[data-loop="1"] line {
+  stroke-dasharray: 5 4;
+  animation: gflow 2.4s linear infinite;
+}
+@keyframes gflow { to { stroke-dashoffset: -9; } }
+
+.caps { display: grid; }
+
+.cap {
+  grid-area: 1 / 1;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), visibility 0s linear var(--dur);
+}
+
+.stage[data-step="1"] .cap:nth-child(1),
+.stage[data-step="2"] .cap:nth-child(2),
+.stage[data-step="3"] .cap:nth-child(3),
+.stage[data-step="4"] .cap:nth-child(4),
+.stage[data-step="5"] .cap:nth-child(5),
+.stage[data-step="6"] .cap:nth-child(6) {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition-delay: 0s;
+}
+
+.cap .sent { text-wrap: balance; }
+
+.cap .ph { white-space: nowrap; }
+
+.cap .lab {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: 12px;
+}
+
+.cap .sent {
+  max-width: 22em;
+  font-size: clamp(19px, 1.9vw, 24px);
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* ---------- drawing ---------- */
+.model :is(.f-top, .f-left, .f-right, .plate, .screen, .wheel) {
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--dur) var(--ease), stroke var(--dur) var(--ease);
+}
+.model .f-top { fill: var(--face-top); }
+.model .f-left { fill: var(--face-left); }
+.model .f-right { fill: var(--face-right); }
+.model .plate { fill: #fff; stroke-width: 1; }
+.model .screen { fill: var(--ink); }
+.model .wheel { fill: var(--ink); }
+.model .t-plate { font-family: var(--mono); font-weight: 500; fill: var(--ink); }
+.model .t-screen { font-family: var(--mono); font-weight: 500; fill: #fbfaf8; }
+
+.model .ground { fill: #fff; stroke: var(--rule); stroke-width: 1.25; vector-effect: non-scaling-stroke; }
+.model .lane-edge { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 10 8; vector-effect: non-scaling-stroke; }
+.model .stop { fill: var(--ink-3); stroke: none; }
+
+.model .loop {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.25;
+  stroke-dasharray: 6 4;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: fill var(--dur) var(--ease), stroke var(--dur) var(--ease);
+}
+
+.model .detail { stroke: var(--ink); stroke-width: 1; vector-effect: non-scaling-stroke; transition: stroke var(--dur) var(--ease); }
+.model .cone { stroke: var(--ink-3); stroke-width: 1; stroke-dasharray: 5 4; vector-effect: non-scaling-stroke; transition: stroke var(--dur) var(--ease); }
+
+.model .net {
+  fill: none;
+  stroke: var(--ink-3);
+  stroke-width: 1.25;
+  stroke-dasharray: 7 6;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+  transition: stroke var(--dur) var(--ease);
+}
+.model .net-head { fill: var(--ink-3); stroke: none; transition: fill var(--dur) var(--ease); }
+
+.model [data-slot]:not(.callout) { transition: opacity var(--dur) var(--ease); }
+
+/* callouts */
+.model .callout { opacity: 0; transition: opacity var(--dur) var(--ease); pointer-events: none; }
+.model .callout .lead { stroke: var(--accent); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.model .callout .dot { fill: var(--accent); r: 5px; }
+.model .callout .lbl { font-family: var(--mono); font-size: 22px; font-weight: 500; fill: var(--ink); }
+
+/* dim everything that is not active: steps 1-5 = one slot, step 6 = the parts flagged data-loop */
+/* dimmed parts stay opaque (no see-through): only strokes and dark fills are lightened */
+.stage:is([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"]) .model [data-slot]:not(.callout) :is(.f-top, .f-left, .f-right, .plate, .loop, .detail) { stroke: #cfcdc8; }
+.stage:is([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"]) .model [data-slot]:not(.callout) :is(.screen, .wheel) { fill: #cfcdc8; stroke: #cfcdc8; }
+.stage:is([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"]) .model [data-slot]:not(.callout) :is(.t-plate, .t-screen) { fill: #fff; }
+.stage:is([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"]) .model [data-slot]:not(.callout) :is(.cone, .net, .lane-edge) { stroke: #dcdad5; }
+.stage:is([data-step="1"], [data-step="2"], [data-step="3"], [data-step="4"], [data-step="5"], [data-step="6"]) .model [data-slot]:not(.callout) :is(.net-head, .stop) { fill: #dcdad5; }
+
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) :is(.f-top, .f-left, .f-right, .loop, .detail, .plate) { stroke: var(--accent); }
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) :is(.screen, .wheel) { fill: var(--ink); stroke: var(--accent); }
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) .t-screen { fill: #fbfaf8; }
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) .t-plate { fill: var(--ink); }
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) :is(.f-top, .loop) { fill: var(--accent-tint); }
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) .cone { stroke: var(--accent); }
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) .net { stroke: var(--accent); animation: flow 2.4s linear infinite; }
+:is(.stage[data-step="1"] .model [data-slot="sense"],
+  .stage[data-step="2"] .model [data-slot="decide"],
+  .stage[data-step="3"] .model [data-slot="act"],
+  .stage[data-step="4"] .model [data-slot="record"],
+  .stage[data-step="5"] .model [data-slot="send"],
+  .stage[data-step="6"] .model [data-loop="1"]):not(.callout) .net-head { fill: var(--accent); }
+
+@keyframes flow { to { stroke-dashoffset: -26; } }
+
+:is(.stage[data-step="1"] .model .callout[data-slot="sense"],
+  .stage[data-step="2"] .model .callout[data-slot="decide"],
+  .stage[data-step="3"] .model .callout[data-slot="act"],
+  .stage[data-step="4"] .model .callout[data-slot="record"],
+  .stage[data-step="5"] .model .callout[data-slot="send"],
+  .stage[data-step="6"] .model .callout[data-loop="1"]) { opacity: 1; }
+
+/* ---------- ask / traps ---------- */
+.ask,
+.traps {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding-inline: 48px;
+}
+
+.ask { padding-block: 24svh 0; }
+.traps { padding-top: 0; }
+
+.ask .lab {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-text);
+  margin-bottom: 12px;
+}
+
+.reveal { list-style: none; }
+.reveal .ph { white-space: nowrap; }
+
+.ask .reveal li {
+  font-size: clamp(36px, 6.4vw, 92px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-block: 0.3em;
+  text-wrap: balance;
+}
+
+.traps-list li {
+  min-height: 64svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.traps-list .idx {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  color: var(--ink-2);
+  margin-bottom: 16px;
+  transition: color var(--dur) var(--ease);
+}
+
+.traps-list .q {
+  max-width: 16em;
+  font-size: clamp(28px, 4.6vw, 64px);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.js .reveal li {
+  color: var(--ink-dim);
+  transition: color var(--dur) var(--ease);
+}
+.js .reveal li.is-on { color: var(--ink); }
+.traps-list li.is-on .idx { color: var(--accent-text); }
+
+/* ---------- end ---------- */
+.next {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 48px 28svh;
+}
+.next::before {
+  content: "";
+  display: block;
+  width: min(100%, 1184px);
+  margin-bottom: 28svh;
+  border-top: 1px solid var(--rule);
+}
+
+/* ---------- tablet / phone ---------- */
+@media (max-width: 899px) {
+  .stage-inner {
+    padding: 0 20px;
+    grid-template-columns: minmax(0, 1fr);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    gap: 28px;
+  }
+  .fig { height: auto; }
+  .model { max-height: 56svh; margin: 0 auto; }
+  .side, .side-ex { max-width: none; gap: 14px; }
+  .side-ex { gap: 14px; }
+  .model .callout .lbl { font-size: 30px; }
+  .model .callout .dot { r: 7px; }
+  .next { padding: 0 20px 28svh; }
+  .ask, .traps { padding-inline: 20px; }
+}
+
+@media (max-width: 599px) {
+  .model .callout .lbl { font-size: 38px; }
+  .model .callout .dot { r: 9px; }
+}
+
+@media (max-width: 399px) {
+  .glyph { width: 200px; }
+  .glyph text { font-size: 15.6px; }
+  .stage-inner { padding: 0 16px; }
+  .next { padding: 0 16px 28svh; }
+  .ask, .traps { padding-inline: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ---------- 3D figure: one render per step under the SVG overlay ---------- */
+.shot { display: grid; width: min(100%, calc(78svh * (var(--ar)))); margin: 0 auto; }
+.shot > * { grid-area: 1 / 1; width: 100%; height: auto; }
+.shot .model { max-height: none; }
+.shot-img { display: block; opacity: 0; transition: opacity var(--dur) var(--ease); }
+.stage[data-step="0"] .shot-img[data-s="0"] { opacity: 1; }
+.stage[data-step="1"] .shot-img[data-s="1"] { opacity: 1; }
+.stage[data-step="2"] .shot-img[data-s="2"] { opacity: 1; }
+.stage[data-step="3"] .shot-img[data-s="3"] { opacity: 1; }
+.stage[data-step="4"] .shot-img[data-s="4"] { opacity: 1; }
+.stage[data-step="5"] .shot-img[data-s="5"] { opacity: 1; }
+.stage[data-step="6"] .shot-img[data-s="6"] { opacity: 1; }
+@media (max-width: 899px) { .shot { width: min(100%, calc(56svh * (var(--ar)))); } }

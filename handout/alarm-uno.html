@@ -1,0 +1,2530 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>防盜系統 Arduino Uno 版｜SkillLab</title>
+<script>(function(){var o;try{o=localStorage.getItem('skilllab-os')}catch(e){}if(!/^(win|mac|linux)$/.test(o||'')){var u=navigator.userAgent;o=/Windows/.test(u)?'win':/Macintosh/.test(u)&&navigator.maxTouchPoints<2?'mac':/Linux|X11/.test(u)&&!/Android/.test(u)?'linux':'win'}document.documentElement.setAttribute('data-os',o)})()</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/handout.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
+  <a href="../handout.html">講義</a><span class="sep">/</span>
+  <span class="here">防盜系統・Uno 版</span>
+</div></header>
+
+<div class="page has-toc">
+  <header class="doc-head">
+    <p class="kicker">微專案 01｜Arduino Uno 版</p>
+    <h1>防盜系統</h1>
+    <p class="lead">Uno 負責偵測與警報，USB 接電腦，由 Python 寄 Gmail 通知。</p>
+    <p class="meta"><span><b>適用</b>　Arduino Uno R3 與更早的 Uno、相容板</span><span><b>零件</b>　HC-SR04・光敏電阻模組・旋鈕・有源蜂鳴器・全彩 LED</span></p>
+    <a class="switch" href="alarm-esp32.html">改看 ESP32 版 →</a>
+  </header>
+  <nav class="toc" aria-label="目錄">
+    <p class="toc-h">目錄</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span>成果與材料</a></li>
+      <li><a href="#s2"><span class="n">02</span>系統架構</a></li>
+      <li><a href="#s3"><span class="n">03</span>動手做</a></li>
+      <li><a href="#s4"><span class="n">04</span>整合驗收</a></li>
+      <li><a href="#s5"><span class="n">05</span>什麼情況下會失效</a></li>
+      <li><a href="#s6"><span class="n">06</span>延伸挑戰</a></li>
+      <li><a href="#s7"><span class="n">07</span>附錄</a></li>
+    </ol>
+  </nav>
+  <main class="doc">
+    <section class="sec" id="s1" aria-labelledby="s1-h">
+      <p class="sec-no">01</p>
+      <h2 id="s1-h">成果與材料</h2>
+      <p>做完以後：</p>
+      <ul class="prose">
+        <li>有人經過門口，或盒子被打開，Uno 倒數 10 秒後響警報、亮紅燈。</li>
+        <li>手機收到 Gmail 或 Discord 通知。</li>
+        <li>在電腦的網頁儀表板上看即時讀值，用按鈕布防、撤防、靜音。</li>
+      </ul>
+<div class="scenes">
+<figure class="scene">
+<svg class="dg" viewBox="0 0 480 300" role="img" aria-label="門口俯視圖：HC-SR04 裝在門框一側，有人經過時量到的距離比基準距離短" xmlns="http://www.w3.org/2000/svg">
+  <rect class="shade" x="20" y="140" width="130" height="20"/>
+  <rect class="shade" x="330" y="140" width="130" height="20"/>
+  <line class="ln2 dash" x1="162" y1="150" x2="330" y2="150"/>
+  <line class="hl" x1="162" y1="150" x2="214" y2="150"/>
+  <rect class="tint" x="150" y="142" width="12" height="16"/>
+  <ellipse class="face" cx="246" cy="150" rx="32" ry="16"/>
+  <circle class="face" cx="246" cy="150" r="11"/>
+  <line class="ln2" x1="246" y1="52" x2="246" y2="122"/>
+  <polygon points="246,130 241,120 251,120" fill="#a3a5aa"/>
+  <line class="ln2" x1="162" y1="200" x2="330" y2="200"/>
+  <line class="ln2" x1="162" y1="193" x2="162" y2="207"/>
+  <line class="ln2" x1="330" y1="193" x2="330" y2="207"/>
+  <text x="214" y="120" text-anchor="end">量到的距離</text>
+  <text x="246" y="228" text-anchor="middle" style="fill:#5c5e63">基準距離</text>
+  <text x="156" y="272" text-anchor="middle">HC-SR04</text>
+  <line class="ln2" x1="156" y1="166" x2="156" y2="252"/>
+  <text class="tm" x="30" y="70">門外</text>
+  <text class="tm" x="30" y="250">室內</text>
+</svg>
+<figcaption><p class="t">門口</p><p class="d">HC-SR04 裝在門框一側，對著另一側。平常量到的是到對面的距離；有人經過時距離突然變短，就判定有人。</p></figcaption>
+</figure>
+<figure class="scene">
+<svg class="dg" viewBox="0 0 480 300" role="img" aria-label="盒子側視圖：光敏電阻模組放在盒子裡，盒蓋打開時光線照進來" xmlns="http://www.w3.org/2000/svg">
+  <line class="hl dash" x1="70" y1="60" x2="226" y2="228"/>
+  <line class="hl dash" x1="100" y1="40" x2="234" y2="224"/>
+  <line class="hl dash" x1="130" y1="30" x2="242" y2="222"/>
+  <rect class="face" x="120" y="150" width="240" height="110"/>
+  <polygon class="shade" points="360,150 160,40 156,47 356,157"/>
+  <circle class="tint" cx="240" cy="236" r="9"/>
+  <line class="ln" x1="236" y1="245" x2="236" y2="260"/>
+  <line class="ln" x1="244" y1="245" x2="244" y2="260"/>
+  <text x="240" y="288" text-anchor="middle">光敏電阻模組</text>
+</svg>
+<figcaption><p class="t">抽屜或盒子</p><p class="d">光敏電阻模組放在裡面。關著的時候是暗的，被打開就變亮。</p></figcaption>
+</figure>
+      </div>
+      <h3>做完你會</h3>
+      <ul class="prose">
+        <li>讀類比感測器（光敏電阻模組、旋鈕）和超音波測距。</li>
+        <li>用狀態和計時寫出倒數與警報，程式不會卡住。</li>
+        <li>讓 Arduino 和電腦上的 Python 透過序列埠互傳文字。</li>
+        <li>用 Python 寄 Gmail、發 Discord 訊息、開網頁儀表板。</li>
+        <li>測出系統在什麼情況下會漏報、誤報。</li>
+      </ul>
+      <h3>材料</h3>
+      <div class="table-wrap"><table class="tbl stack">
+        <thead><tr><th scope="col">零件</th><th scope="col">數量</th><th scope="col">說明</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Arduino Uno R3</th><td data-label="數量">1</td><td data-label="說明">原廠或相容板都可以</td></tr>
+          <tr><th scope="row">HC-SR04 超音波模組</th><td data-label="數量">1</td><td data-label="說明">四支腳：VCC、Trig、Echo、GND</td></tr>
+          <tr><th scope="row">光敏電阻模組</th><td data-label="數量">1</td><td data-label="說明">有 VCC、GND、DO、AO 四支腳的版本</td></tr>
+          <tr><th scope="row">旋鈕（10 kΩ 可變電阻）</th><td data-label="數量">1</td><td data-label="說明">三支腳；買模組版也可以</td></tr>
+          <tr><th scope="row">有源蜂鳴器</th><td data-label="數量">1</td><td data-label="說明">品名要寫「有源」</td></tr>
+          <tr><th scope="row">全彩 LED</th><td data-label="數量">1</td><td data-label="說明">共陰極；共陽極也可以，程式要改一個設定</td></tr>
+          <tr><th scope="row">220 Ω 電阻</th><td data-label="數量">3</td><td data-label="說明">全彩 LED 用</td></tr>
+          <tr><th scope="row">麵包板</th><td data-label="數量">1</td><td data-label="說明">半尺寸（30 排）</td></tr>
+          <tr><th scope="row">杜邦線</th><td data-label="數量">約 20</td><td data-label="說明">公對公、公對母各一些；模組的排針要用公對母</td></tr>
+          <tr><th scope="row">USB 傳輸線</th><td data-label="數量">1</td><td data-label="說明">要能傳資料，不是只能充電的線；Uno R3 是 USB-B 接頭</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">每個零件的規格和限制在附錄。</p>
+      <h3>先讀</h3>
+      <ul class="prose">
+        <li><a href="setup.html">環境安裝</a>：裝好 Arduino IDE、uv 和課程資料夾。</li>
+        <li>電路與麵包板、Arduino 程式、數位與類比訊號、序列埠：基礎講義，製作中。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s2" aria-labelledby="s2-h">
+      <p class="sec-no">02</p>
+      <h2 id="s2-h">系統架構</h2>
+      <p>用兩張圖看這個系統：裝置圖看板子上的零件怎麼分工，系統圖看資料怎麼從板子送到手機。</p>
+      <h3>裝置圖</h3>
+      <figure class="figure arch">
+        <div class="arch-dev">
+          <div class="arch-box"><p class="arch-h">輸入</p><ul><li>HC-SR04<span>距離</span></li><li>光敏電阻模組<span>亮度</span></li><li>旋鈕<span>觸發距離</span></li></ul></div>
+          <p class="arch-arrow" aria-hidden="true"></p>
+          <div class="arch-box is-core"><p class="arch-h">處理</p><ul><li>Arduino Uno<span>判斷狀態、倒數</span></li></ul></div>
+          <p class="arch-arrow" aria-hidden="true"></p>
+          <div class="arch-box"><p class="arch-h">輸出</p><ul><li>有源蜂鳴器<span>警報聲</span></li><li>全彩 LED<span>狀態燈號</span></li></ul></div>
+        </div>
+        <dl class="arch-bar"><div><dt>電源</dt><dd>USB 5V，由電腦供電</dd></div><div><dt>通訊</dt><dd>USB 序列埠，和電腦互傳文字</dd></div></dl>
+      </figure>
+      <h3>系統圖</h3>
+      <figure class="figure arch">
+        <ol class="arch-sys">
+          <li class="arch-box is-core"><p class="arch-h">裝置</p><p class="arch-m">Arduino Uno 和感測器</p></li>
+          <li class="arch-link">USB 序列埠</li>
+          <li class="arch-box"><p class="arch-h">閘道</p><p class="arch-m">電腦上的 Python</p></li>
+          <li class="arch-link">網際網路</li>
+          <li class="arch-box"><p class="arch-h">雲端服務</p><p class="arch-m">Gmail、Discord</p></li>
+          <li class="arch-link"></li>
+          <li class="arch-box"><p class="arch-h">應用</p><p class="arch-m">手機收到通知</p></li>
+        </ol>
+        <p class="arch-side">閘道也直接提供<b>網頁儀表板</b>，同一個網路裡的電腦、手機用瀏覽器打開。</p>
+      </figure>
+      <p>Uno 不能上網，所以由電腦上的 Python 當閘道，把板子送來的文字轉成通知。</p>
+      <p class="note">對照課本的物聯網三層架構：感知層是裝置；網路層是 USB 序列埠、閘道和網際網路；應用層是雲端服務和應用。</p>
+    </section>
+    <section class="sec" id="s3" aria-labelledby="s3-h">
+      <p class="sec-no">03</p>
+      <h2 id="s3-h">動手做</h2>
+      <p>一共 8 個步驟，每一步都在前一步的接線上加零件。做到這一步的「完成標準」再往下。每一步都附上請 AI 幫忙的提示詞，打開「你可以請 AI 幫你這樣做」就看得到。</p>
+      <ol class="ex-index lead-in">
+        <li><a href="#step1"><span class="n">步驟 1</span>讀取光敏電阻模組<span class="k">Arduino</span></a></li>
+        <li><a href="#step2"><span class="n">步驟 2</span>讀取 HC-SR04 距離<span class="k">Arduino</span></a></li>
+        <li><a href="#step3"><span class="n">步驟 3</span>距離太近就響蜂鳴器、亮紅燈<span class="k">Arduino</span></a></li>
+        <li><a href="#step4"><span class="n">步驟 4</span>用旋鈕調整觸發距離<span class="k">Arduino</span></a></li>
+        <li><a href="#step5"><span class="n">步驟 5</span>防盜主程式（步驟 6、7、8 共用）<span class="k">Arduino</span></a></li>
+        <li><a href="#step6"><span class="n">步驟 6</span>用 Python 寄 Gmail<span class="k">Python</span></a></li>
+        <li><a href="#step7"><span class="n">步驟 7</span>用 Python 發 Discord 訊息（選做）<span class="k">Python</span></a></li>
+        <li><a href="#step8"><span class="n">步驟 8</span>網頁儀表板（選做）<span class="k">Python</span></a></li>
+      </ol>
+      <details class="fold" id="wokwi">
+        <summary><span><span class="tag">教學</span>沒有零件也能先在 Wokwi 模擬</span></summary>
+        <div class="fold-body">
+          <p>步驟 1 到 5 可以在 Wokwi 網站上模擬，先確認接線和程式，再接實物。</p>
+          <ol class="prose">
+            <li>打開 <a href="https://wokwi.com/projects/new/arduino-uno">wokwi.com/projects/new/arduino-uno</a>，不用登入。</li>
+            <li>下載這一步的 diagram.json，用文字編輯器打開、全選複製，貼到 Wokwi 的 diagram.json 分頁，取代原本的內容。</li>
+            <li>把這一步的程式貼到 sketch.ino 分頁。</li>
+            <li>按綠色的 ▶ 開始模擬。</li>
+            <li>模擬中點一下零件可以改數值：超音波可以調距離，光敏電阻模組可以調亮度，旋鈕可以轉。</li>
+          </ol>
+          <p class="note">免費版要排隊等編譯，伺服器忙的時候會等很久或失敗，稍後再試。Wokwi 只模擬板子這一端，步驟 6 到 8 的 Python 要接真的板子。</p>
+        </div>
+      </details>
+
+      <article class="ex" id="step1" aria-labelledby="step1-h">
+        <p class="ex-no">步驟 1</p>
+        <h3 id="step1-h">讀取光敏電阻模組</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>光敏電阻模組 AO → A0</span></p>
+        <p class="ex-goal"><b>目標</b>：讀出亮度，印到序列埠監控視窗。</p>
+        <p class="ex-h">接線</p>
+        <figure class="figure ex-wire">
+          <a href="../assets/handout/wokwi/uno-step1.webp"><img src="../assets/handout/wokwi/uno-step1.webp" alt="步驟 1 接線圖：Uno 的 5V、GND 接到麵包板上方的電源排；光敏電阻模組的 VCC、GND 接電源排，AO 接 A0" width="1400" height="1637" loading="lazy"></a>
+          <figcaption>Wokwi 接線圖，點圖看原尺寸・<a href="code/wokwi/uno-step1/diagram.json" download="diagram.json">下載 diagram.json</a></figcaption>
+        </figure>
+        <ul class="prose">
+          <li>Uno 的 5V 接麵包板上方紅色的 + 排，GND 接藍色的 − 排。之後每個零件都從這兩排取電。</li>
+          <li>光敏電阻模組：VCC 接 + 排，GND 接 − 排，AO 接 A0。DO 不用接。</li>
+        </ul>
+        <p class="ex-h">程式</p>
+        <p>每 0.2 秒讀一次 A0，印出「亮度:數值」。</p>
+<!-- code:uno/ldr_read/ldr_read.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">ldr_read.ino</span><span class="code-lines">18 行</span></span><button class="copy" type="button" aria-label="複製 ldr_read.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 步驟 1：讀取光敏電阻模組</span>
+<span class="c">// 接線：模組 AO → A0、VCC → 5V、GND → GND（DO 不用接）</span>
+<span class="c">// 常見的模組越亮讀值越小，有些模組相反</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">LDR_PIN</span> = <span class="n">A0</span>;        <span class="c">// 光敏電阻模組 AO</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">INTERVAL_MS</span> = <span class="n">200</span>;   <span class="c">// 每隔多久讀一次</span>
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">9600</span>);
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="t">int</span> value = <span class="f">analogRead</span>(<span class="n">LDR_PIN</span>);  <span class="c">// 0～1023</span>
+  <span class="c">// 格式「名稱:數值」，序列繪圖家也能直接畫成曲線</span>
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"亮度:"</span>));
+  <span class="t">Serial</span>.<span class="f">println</span>(value);
+  <span class="f">delay</span>(<span class="n">INTERVAL_MS</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 1 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">我用 Arduino Uno R3 和光敏電阻模組（VCC、GND、DO、AO 四支腳），AO 接 A0。
+請寫一支 Arduino 程式：每 0.2 秒用 analogRead 讀一次 A0，用 Serial 印出「亮度:數值」，鮑率 9600。
+只用 Arduino 內建的函式，不要用其他程式庫。每一段加上中文註解。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>板子型號、模組有哪幾支腳、接到哪一個腳位、想要的輸出格式。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>Serial.begin 的數字是 9600，和序列埠監控視窗的設定一樣。</li>
+              <li>讀的是 A0。</li>
+              <li>沒有 #include 你沒裝的程式庫。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>上傳後按 Arduino IDE 右上角的放大鏡打開序列埠監控視窗，鮑率選 9600，每秒出現約 5 行「亮度:數值」。用手遮住模組、再用手機手電筒照，數值往相反的方向變化。旁邊的折線圖示可以打開序列繪圖家，看數值的曲線。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>數值一直是 0 或 1023</b>：AO 沒接好，或接到了 DO。</li>
+              <li><b>數值完全不變</b>：模組的 VCC、GND 沒接到電源排，或 Uno 的 5V、GND 沒接到電源排。</li>
+              <li><b>畫面全是亂碼</b>：序列埠監控視窗的鮑率不是 9600。</li>
+              <li><b>模組上的 DO 燈一下亮一下暗</b>：那是模組自己的門檻比較，和 AO 的數值無關。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>類比輸入</dt><dd>A0 到 A5 可以讀電壓，0–5V 換算成 0–1023。</dd>
+          <dt>電源排</dt><dd>麵包板上下兩側的長排孔。同一排整排相通，紅色 + 接 5V，藍色 − 接 GND。</dd>
+          <dt>序列埠監控視窗</dt><dd>Arduino IDE 裡顯示板子用 Serial 印出的文字的視窗，也可以從這裡傳文字給板子。</dd>
+          <dt>鮑率</dt><dd>序列埠每秒傳送的位元數。板子和視窗要設定成一樣，否則會看到亂碼。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="step2" aria-labelledby="step2-h">
+        <p class="ex-no">步驟 2</p>
+        <h3 id="step2-h">讀取 HC-SR04 距離</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>新增：Trig → D4</span><span>Echo → D3</span></p>
+        <p class="ex-goal"><b>目標</b>：量出前方物體的距離，單位是公分。</p>
+        <p class="ex-h">接線</p>
+        <figure class="figure ex-wire">
+          <a href="../assets/handout/wokwi/uno-step2.webp"><img src="../assets/handout/wokwi/uno-step2.webp" alt="步驟 2 接線圖：在步驟 1 之外加上 HC-SR04，VCC、GND 接電源排，Trig 接 D4，Echo 接 D3" width="1400" height="1637" loading="lazy"></a>
+          <figcaption>Wokwi 接線圖，點圖看原尺寸・<a href="code/wokwi/uno-step2/diagram.json" download="diagram.json">下載 diagram.json</a></figcaption>
+        </figure>
+        <ul class="prose">
+          <li>HC-SR04：VCC 接 + 排，GND 接 − 排，Trig 接 D4，Echo 接 D3。</li>
+        </ul>
+        <p class="ex-h">程式</p>
+        <p>每 0.1 秒量一次距離；沒有收到回波時印出提示，不印 0。</p>
+<!-- code:uno/hcsr04_read/hcsr04_read.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">hcsr04_read.ino</span><span class="code-lines">33 行</span></span><button class="copy" type="button" aria-label="複製 hcsr04_read.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 步驟 2：讀取 HC-SR04 距離</span>
+<span class="c">// 接線：HC-SR04 Trig → D4、Echo → D3、VCC → 5V、GND → GND</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">TRIG_PIN</span> = <span class="n">4</span>;       <span class="c">// 超音波 Trig</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">ECHO_PIN</span> = <span class="n">3</span>;       <span class="c">// 超音波 Echo</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">INTERVAL_MS</span> = <span class="n">100</span>;  <span class="c">// 兩次量測間隔（要 ≥ 60 ms，避免收到上次的回波）</span>
+
+<span class="c">// 回傳距離（cm）；沒有收到回波時回傳 -1</span>
+<span class="t">float</span> <span class="f">readDistanceCm</span>() {
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);  <span class="f">delayMicroseconds</span>(<span class="n">2</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">HIGH</span>); <span class="f">delayMicroseconds</span>(<span class="n">10</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);
+  <span class="t">unsigned</span> <span class="t">long</span> us = <span class="f">pulseIn</span>(<span class="n">ECHO_PIN</span>, <span class="n">HIGH</span>, <span class="n">30000UL</span>);  <span class="c">// 最多等 30 ms（約 5 m）</span>
+  <span class="k">if</span> (us == <span class="n">0</span>) <span class="k">return</span> -<span class="n">1</span>;
+  <span class="k">return</span> us / <span class="n">58.0</span>;  <span class="c">// 聲音來回，每 58 µs 約 1 cm</span>
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">9600</span>);
+  <span class="f">pinMode</span>(<span class="n">TRIG_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">ECHO_PIN</span>, <span class="n">INPUT</span>);
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="t">float</span> cm = <span class="f">readDistanceCm</span>();
+  <span class="k">if</span> (cm &lt; <span class="n">0</span>) {
+    <span class="t">Serial</span>.<span class="f">println</span>(<span class="f">F</span>(<span class="s">"距離(cm):沒有回波（太遠、角度不對或接線錯誤）"</span>));
+  } <span class="k">else</span> {
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"距離(cm):"</span>));
+    <span class="t">Serial</span>.<span class="f">println</span>(cm, <span class="n">1</span>);
+  }
+  <span class="f">delay</span>(<span class="n">INTERVAL_MS</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 2 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">我用 Arduino Uno R3 和 HC-SR04 超音波模組，Trig 接 D4、Echo 接 D3，VCC 接 5V。
+請寫一支程式：每 0.1 秒量一次距離，用公分印到序列埠，鮑率 9600，格式是「距離(cm):數值」。
+用 pulseIn 等回波時設定 30 毫秒的逾時；沒收到回波時印出「沒有回波」，不要印 0。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>腳位、量測間隔、沒有回波時要怎麼處理。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>TRIG_PIN 是 4、ECHO_PIN 是 3，和接線一樣。</li>
+              <li>pulseIn 有第三個參數（逾時）。沒有的話，量不到時程式會卡住約 1 秒。</li>
+              <li>距離的算法是微秒除以 58，或乘 0.0343 再除以 2。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>用捲尺對照 10 cm、30 cm、100 cm 時的讀值，誤差在 1–2 cm 內。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>一直印出「沒有回波」</b>：Trig、Echo 接反，或 VCC 沒有接到 + 排。</li>
+              <li><b>對著衣服、沙發量，讀值亂跳</b>：軟的材質會吸收聲波，先對著牆壁或書本測試。</li>
+              <li><b>小於 2 cm 量不準</b>：HC-SR04 能量的最短距離約 2 cm。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>數位腳位</dt><dd>D0 到 D13，只有高電位（5V）和低電位（0V）兩種狀態。</dd>
+          <dt>pulseIn</dt><dd>量一支腳維持高電位多少微秒。HC-SR04 用 Echo 高電位的時間表示聲波來回花了多久。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="step3" aria-labelledby="step3-h">
+        <p class="ex-no">步驟 3</p>
+        <h3 id="step3-h">距離太近就響蜂鳴器、亮紅燈</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>新增：全彩 LED R → D11、G → D10、B → D9</span><span>有源蜂鳴器 + → D12</span></p>
+        <p class="ex-goal"><b>目標</b>：依距離切換燈號，太近時蜂鳴器響。</p>
+        <p class="ex-h">接線</p>
+        <figure class="figure ex-wire">
+          <a href="../assets/handout/wokwi/uno-step3.webp"><img src="../assets/handout/wokwi/uno-step3.webp" alt="步驟 3 接線圖：全彩 LED 插在麵包板上半部，三顆 220 歐姆電阻跨過中間的溝接到下半部，再接到 D11、D10、D9；蜂鳴器正極接 D12，負極接 Uno 的 GND" width="1400" height="1637" loading="lazy"></a>
+          <figcaption>Wokwi 接線圖，點圖看原尺寸・<a href="code/wokwi/uno-step3/diagram.json" download="diagram.json">下載 diagram.json</a></figcaption>
+        </figure>
+        <ul class="prose">
+          <li>全彩 LED 插在麵包板上半部，最長的共用腳接 − 排。紅、綠、藍三腳各接一顆 220 Ω 電阻，電阻跨過中間的溝到下半部，再從下半部接到 D11、D10、D9。</li>
+          <li>有源蜂鳴器：正極（長腳）接 D12，負極接 Uno 排針上 13 旁邊的 GND。</li>
+        </ul>
+        <p class="ex-h">程式</p>
+        <p>物體在 30 cm 內：紅燈加蜂鳴器；30–60 cm：黃燈；更遠：綠燈。距離取最近三次讀值的中間值，偶爾一次讀錯不會誤觸發。</p>
+<!-- code:uno/distance_alarm/distance_alarm.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">distance_alarm.ino</span><span class="code-lines">103 行</span></span><button class="copy" type="button" aria-label="複製 distance_alarm.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 步驟 3：距離太近就響蜂鳴器、亮紅燈</span>
+<span class="c">// 接線：HC-SR04 Trig → D4、Echo → D3（VCC 接 5V、GND 接 GND）</span>
+<span class="c">//       有源蜂鳴器 + → D12（− 接 GND）</span>
+<span class="c">//       全彩 LED R → D11、G → D10、B → D9（各經 220 Ω；共用腳接 GND，共陽極接 5V）</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">TRIG_PIN</span> = <span class="n">4</span>;                <span class="c">// 超音波 Trig</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">ECHO_PIN</span> = <span class="n">3</span>;                <span class="c">// 超音波 Echo</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">BUZZER_PIN</span> = <span class="n">12</span>;             <span class="c">// 有源蜂鳴器</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">R_PIN</span> = <span class="n">11</span>;                  <span class="c">// LED 紅（PWM）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">G_PIN</span> = <span class="n">10</span>;                  <span class="c">// LED 綠（PWM）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">B_PIN</span> = <span class="n">9</span>;                   <span class="c">// LED 藍（PWM）</span>
+
+<span class="k">const</span> <span class="t">float</span> <span class="n">TRIGGER_CM</span> = <span class="n">30</span>;           <span class="c">// 小於這個距離：觸發</span>
+<span class="k">const</span> <span class="t">float</span> <span class="n">WARN_CM</span> = <span class="n">60</span>;              <span class="c">// 小於這個距離：接近</span>
+<span class="k">const</span> <span class="t">float</span> <span class="n">FAR_CM</span> = <span class="n">999</span>;              <span class="c">// 沒有回波時當作「很遠」</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">MEASURE_MS</span> = <span class="n">70</span>;   <span class="c">// 兩次量測間隔（要 ≥ 60 ms）</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">PRINT_MS</span> = <span class="n">300</span>;    <span class="c">// 每隔多久印一行</span>
+
+<span class="k">const</span> <span class="t">bool</span> <span class="n">COMMON_ANODE</span> = <span class="n">false</span>;       <span class="c">// 共陽極 LED 改成 true，共用腳改接 5V</span>
+<span class="k">const</span> <span class="t">bool</span> <span class="n">BUZZER_ACTIVE_LOW</span> = <span class="n">false</span>;  <span class="c">// 三腳模組若是低電位觸發改成 true</span>
+
+<span class="t">float</span> history[<span class="n">3</span>] = {<span class="n">FAR_CM</span>, <span class="n">FAR_CM</span>, <span class="n">FAR_CM</span>};  <span class="c">// 最近 3 次量測</span>
+<span class="t">int</span> historyIndex = <span class="n">0</span>;
+<span class="t">unsigned</span> <span class="t">long</span> lastPrint = <span class="n">0</span>;
+
+<span class="c">// 回傳距離（cm）；沒有收到回波時回傳 -1</span>
+<span class="t">float</span> <span class="f">readDistanceCm</span>() {
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);  <span class="f">delayMicroseconds</span>(<span class="n">2</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">HIGH</span>); <span class="f">delayMicroseconds</span>(<span class="n">10</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);
+  <span class="t">unsigned</span> <span class="t">long</span> us = <span class="f">pulseIn</span>(<span class="n">ECHO_PIN</span>, <span class="n">HIGH</span>, <span class="n">30000UL</span>);  <span class="c">// 最多等 30 ms（約 5 m）</span>
+  <span class="k">if</span> (us == <span class="n">0</span>) <span class="k">return</span> -<span class="n">1</span>;
+  <span class="k">return</span> us / <span class="n">58.0</span>;
+}
+
+<span class="c">// 三個數取中間值：偶爾一次量錯也不會影響結果</span>
+<span class="t">float</span> <span class="f">median3</span>(<span class="t">float</span> a, <span class="t">float</span> b, <span class="t">float</span> c) {
+  <span class="t">float</span> lo = <span class="f">min</span>(a, b);
+  <span class="t">float</span> hi = <span class="f">max</span>(a, b);
+  <span class="k">return</span> <span class="f">max</span>(lo, <span class="f">min</span>(hi, c));
+}
+
+<span class="t">void</span> <span class="f">setColor</span>(<span class="t">int</span> r, <span class="t">int</span> g, <span class="t">int</span> b) {
+  <span class="k">if</span> (<span class="n">COMMON_ANODE</span>) { r = <span class="n">255</span> - r; g = <span class="n">255</span> - g; b = <span class="n">255</span> - b; }
+  <span class="f">analogWrite</span>(<span class="n">R_PIN</span>, r);
+  <span class="f">analogWrite</span>(<span class="n">G_PIN</span>, g);
+  <span class="f">analogWrite</span>(<span class="n">B_PIN</span>, b);
+}
+
+<span class="t">void</span> <span class="f">buzzer</span>(<span class="t">bool</span> on) {
+  <span class="f">digitalWrite</span>(<span class="n">BUZZER_PIN</span>, (on != <span class="n">BUZZER_ACTIVE_LOW</span>) ? <span class="n">HIGH</span> : <span class="n">LOW</span>);
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">9600</span>);
+  <span class="f">pinMode</span>(<span class="n">TRIG_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">ECHO_PIN</span>, <span class="n">INPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">BUZZER_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">R_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">G_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">B_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">buzzer</span>(<span class="n">false</span>);  <span class="c">// 先關掉，低電位觸發的模組開機才不會響</span>
+  <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">255</span>, <span class="n">0</span>);
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="c">// 量一次，放進最近 3 次的紀錄；-1（沒有回波）當作很遠</span>
+  <span class="t">float</span> d = <span class="f">readDistanceCm</span>();
+  history[historyIndex] = (d &lt; <span class="n">0</span>) ? <span class="n">FAR_CM</span> : d;
+  historyIndex = (historyIndex + <span class="n">1</span>) % <span class="n">3</span>;
+  <span class="t">float</span> m = <span class="f">median3</span>(history[<span class="n">0</span>], history[<span class="n">1</span>], history[<span class="n">2</span>]);
+
+  <span class="k">const</span> <span class="t">__FlashStringHelper</span> *status;
+  <span class="k">if</span> (m &lt; <span class="n">TRIGGER_CM</span>) {
+    <span class="f">setColor</span>(<span class="n">255</span>, <span class="n">0</span>, <span class="n">0</span>);
+    <span class="f">buzzer</span>(<span class="n">true</span>);
+    status = <span class="f">F</span>(<span class="s">"觸發"</span>);
+  } <span class="k">else</span> <span class="k">if</span> (m &lt; <span class="n">WARN_CM</span>) {
+    <span class="f">setColor</span>(<span class="n">255</span>, <span class="n">120</span>, <span class="n">0</span>);
+    <span class="f">buzzer</span>(<span class="n">false</span>);
+    status = <span class="f">F</span>(<span class="s">"接近"</span>);
+  } <span class="k">else</span> {
+    <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">255</span>, <span class="n">0</span>);
+    <span class="f">buzzer</span>(<span class="n">false</span>);
+    status = <span class="f">F</span>(<span class="s">"安全"</span>);
+  }
+
+  <span class="c">// 用 millis() 控制印出頻率，不要每圈都印</span>
+  <span class="k">if</span> (<span class="f">millis</span>() - lastPrint &gt;= <span class="n">PRINT_MS</span>) {
+    lastPrint = <span class="f">millis</span>();
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"距離 "</span>));
+    <span class="k">if</span> (m &gt;= <span class="n">FAR_CM</span>) {
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"—"</span>));
+    } <span class="k">else</span> {
+      <span class="t">Serial</span>.<span class="f">print</span>(m, <span class="n">1</span>);
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">" cm"</span>));
+    }
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"｜"</span>));
+    <span class="t">Serial</span>.<span class="f">println</span>(status);
+  }
+
+  <span class="f">delay</span>(<span class="n">MEASURE_MS</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 3 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">我用 Arduino Uno R3。HC-SR04 的 Trig 接 D4、Echo 接 D3；共陰極全彩 LED 的紅、綠、藍各經 220 Ω 接 D11、D10、D9；有源蜂鳴器正極接 D12。
+請寫一支程式：距離小於 30 cm 亮紅燈、蜂鳴器響；30 到 60 cm 亮黃燈；更遠亮綠燈。
+距離取最近三次讀值的中間值，避免偶爾一次讀錯就觸發。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>接線、LED 是共陰極還是共陽極、每一段距離對應的燈號。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>黃燈是紅燈加綠燈一起亮。</li>
+              <li>控制 LED 的三支腳都是排針上有 ~ 記號的 PWM 腳位。</li>
+              <li>蜂鳴器用 digitalWrite 控制，沒有用 tone()。有源蜂鳴器用 tone() 會發出破音。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>手從遠處慢慢靠近感測器，燈號依序由綠變黃再變紅，紅燈時蜂鳴器響。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>顏色全部不對、該亮的不亮</b>：買到的是共陽極 LED。把程式開頭的 COMMON_ANODE 改成 true，共用腳改接 + 排。</li>
+              <li><b>只有某一色不亮</b>：那一色的腳接錯，或 220 Ω 電阻沒插好。</li>
+              <li><b>蜂鳴器平常一直響、靠近反而停</b>：三腳蜂鳴器模組是低電位觸發，把 BUZZER_ACTIVE_LOW 改成 true。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>PWM</dt><dd>用很快的開、關模擬不同亮度，analogWrite 的 0–255。只有排針上標 ~ 的腳位可以用。</dd>
+          <dt>共陰極、共陽極</dt><dd>全彩 LED 三色共用的那支腳接 GND 是共陰極，接 5V 是共陽極，兩種的程式相反。</dd>
+          <dt>中間值</dt><dd>三個數排好後取中間那個，可以去掉偶爾一次的錯誤讀值。</dd>
+          <dt>有源蜂鳴器</dt><dd>內建震盪電路，通電就響，只有一個音高。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="step4" aria-labelledby="step4-h">
+        <p class="ex-no">步驟 4</p>
+        <h3 id="step4-h">用旋鈕調整觸發距離</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>新增：旋鈕 → A1</span></p>
+        <p class="ex-goal"><b>目標</b>：用旋鈕設定多近才算有人，範圍 5–100 cm。</p>
+        <p class="ex-h">接線</p>
+        <figure class="figure ex-wire">
+          <a href="../assets/handout/wokwi/uno-step4.webp"><img src="../assets/handout/wokwi/uno-step4.webp" alt="步驟 4 接線圖：在步驟 3 之外加上旋鈕，兩側的腳接電源排，中間的腳接 A1" width="1400" height="1637" loading="lazy"></a>
+          <figcaption>Wokwi 接線圖，點圖看原尺寸・<a href="code/wokwi/uno-step4/diagram.json" download="diagram.json">下載 diagram.json</a></figcaption>
+        </figure>
+        <ul class="prose">
+          <li>旋鈕：GND 接 − 排，VCC 接 + 排，中間的 SIG 接 A1。轉的方向和讀值相反時，把兩側的腳對調。</li>
+        </ul>
+        <p class="ex-h">程式</p>
+        <p>旋鈕轉到一端是 5 cm，轉到另一端是 100 cm；黃燈範圍是觸發距離的兩倍。</p>
+<!-- code:uno/knob_threshold/knob_threshold.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">knob_threshold.ino</span><span class="code-lines">111 行</span></span><button class="copy" type="button" aria-label="複製 knob_threshold.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 步驟 4：用旋鈕調整觸發距離</span>
+<span class="c">// 接線：旋鈕 中間腳 → A1（兩側腳接 5V 與 GND）</span>
+<span class="c">//       HC-SR04 Trig → D4、Echo → D3（VCC 接 5V、GND 接 GND）</span>
+<span class="c">//       有源蜂鳴器 + → D12（− 接 GND）</span>
+<span class="c">//       全彩 LED R → D11、G → D10、B → D9（各經 220 Ω；共用腳接 GND，共陽極接 5V）</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">KNOB_PIN</span> = <span class="n">A1</span>;               <span class="c">// 旋鈕中間腳</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">TRIG_PIN</span> = <span class="n">4</span>;                <span class="c">// 超音波 Trig</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">ECHO_PIN</span> = <span class="n">3</span>;                <span class="c">// 超音波 Echo</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">BUZZER_PIN</span> = <span class="n">12</span>;             <span class="c">// 有源蜂鳴器</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">R_PIN</span> = <span class="n">11</span>;                  <span class="c">// LED 紅（PWM）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">G_PIN</span> = <span class="n">10</span>;                  <span class="c">// LED 綠（PWM）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">B_PIN</span> = <span class="n">9</span>;                   <span class="c">// LED 藍（PWM）</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">MIN_CM</span> = <span class="n">5</span>;                  <span class="c">// 旋鈕轉到最左：觸發距離 5 cm</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">MAX_CM</span> = <span class="n">100</span>;                <span class="c">// 旋鈕轉到最右：觸發距離 100 cm</span>
+<span class="k">const</span> <span class="t">float</span> <span class="n">FAR_CM</span> = <span class="n">999</span>;              <span class="c">// 沒有回波時當作「很遠」</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">MEASURE_MS</span> = <span class="n">70</span>;   <span class="c">// 兩次量測間隔（要 ≥ 60 ms）</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">PRINT_MS</span> = <span class="n">300</span>;    <span class="c">// 每隔多久印一行</span>
+
+<span class="k">const</span> <span class="t">bool</span> <span class="n">COMMON_ANODE</span> = <span class="n">false</span>;       <span class="c">// 共陽極 LED 改成 true，共用腳改接 5V</span>
+<span class="k">const</span> <span class="t">bool</span> <span class="n">BUZZER_ACTIVE_LOW</span> = <span class="n">false</span>;  <span class="c">// 三腳模組若是低電位觸發改成 true</span>
+
+<span class="t">float</span> history[<span class="n">3</span>] = {<span class="n">FAR_CM</span>, <span class="n">FAR_CM</span>, <span class="n">FAR_CM</span>};  <span class="c">// 最近 3 次量測</span>
+<span class="t">int</span> historyIndex = <span class="n">0</span>;
+<span class="t">unsigned</span> <span class="t">long</span> lastPrint = <span class="n">0</span>;
+
+<span class="c">// 回傳距離（cm）；沒有收到回波時回傳 -1</span>
+<span class="t">float</span> <span class="f">readDistanceCm</span>() {
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);  <span class="f">delayMicroseconds</span>(<span class="n">2</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">HIGH</span>); <span class="f">delayMicroseconds</span>(<span class="n">10</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);
+  <span class="t">unsigned</span> <span class="t">long</span> us = <span class="f">pulseIn</span>(<span class="n">ECHO_PIN</span>, <span class="n">HIGH</span>, <span class="n">30000UL</span>);  <span class="c">// 最多等 30 ms（約 5 m）</span>
+  <span class="k">if</span> (us == <span class="n">0</span>) <span class="k">return</span> -<span class="n">1</span>;
+  <span class="k">return</span> us / <span class="n">58.0</span>;
+}
+
+<span class="c">// 三個數取中間值：偶爾一次量錯也不會影響結果</span>
+<span class="t">float</span> <span class="f">median3</span>(<span class="t">float</span> a, <span class="t">float</span> b, <span class="t">float</span> c) {
+  <span class="t">float</span> lo = <span class="f">min</span>(a, b);
+  <span class="t">float</span> hi = <span class="f">max</span>(a, b);
+  <span class="k">return</span> <span class="f">max</span>(lo, <span class="f">min</span>(hi, c));
+}
+
+<span class="t">void</span> <span class="f">setColor</span>(<span class="t">int</span> r, <span class="t">int</span> g, <span class="t">int</span> b) {
+  <span class="k">if</span> (<span class="n">COMMON_ANODE</span>) { r = <span class="n">255</span> - r; g = <span class="n">255</span> - g; b = <span class="n">255</span> - b; }
+  <span class="f">analogWrite</span>(<span class="n">R_PIN</span>, r);
+  <span class="f">analogWrite</span>(<span class="n">G_PIN</span>, g);
+  <span class="f">analogWrite</span>(<span class="n">B_PIN</span>, b);
+}
+
+<span class="t">void</span> <span class="f">buzzer</span>(<span class="t">bool</span> on) {
+  <span class="f">digitalWrite</span>(<span class="n">BUZZER_PIN</span>, (on != <span class="n">BUZZER_ACTIVE_LOW</span>) ? <span class="n">HIGH</span> : <span class="n">LOW</span>);
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">9600</span>);
+  <span class="f">pinMode</span>(<span class="n">TRIG_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">ECHO_PIN</span>, <span class="n">INPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">BUZZER_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">R_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">G_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">B_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">buzzer</span>(<span class="n">false</span>);  <span class="c">// 先關掉，低電位觸發的模組開機才不會響</span>
+  <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">255</span>, <span class="n">0</span>);
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="c">// 旋鈕決定觸發距離；接近距離固定是它的 2 倍</span>
+  <span class="t">int</span> triggerCm = <span class="f">map</span>(<span class="f">analogRead</span>(<span class="n">KNOB_PIN</span>), <span class="n">0</span>, <span class="n">1023</span>, <span class="n">MIN_CM</span>, <span class="n">MAX_CM</span>);
+  <span class="t">int</span> warnCm = triggerCm * <span class="n">2</span>;
+
+  <span class="c">// 量一次，放進最近 3 次的紀錄；-1（沒有回波）當作很遠</span>
+  <span class="t">float</span> d = <span class="f">readDistanceCm</span>();
+  history[historyIndex] = (d &lt; <span class="n">0</span>) ? <span class="n">FAR_CM</span> : d;
+  historyIndex = (historyIndex + <span class="n">1</span>) % <span class="n">3</span>;
+  <span class="t">float</span> m = <span class="f">median3</span>(history[<span class="n">0</span>], history[<span class="n">1</span>], history[<span class="n">2</span>]);
+
+  <span class="k">const</span> <span class="t">__FlashStringHelper</span> *status;
+  <span class="k">if</span> (m &lt; triggerCm) {
+    <span class="f">setColor</span>(<span class="n">255</span>, <span class="n">0</span>, <span class="n">0</span>);
+    <span class="f">buzzer</span>(<span class="n">true</span>);
+    status = <span class="f">F</span>(<span class="s">"觸發"</span>);
+  } <span class="k">else</span> <span class="k">if</span> (m &lt; warnCm) {
+    <span class="f">setColor</span>(<span class="n">255</span>, <span class="n">120</span>, <span class="n">0</span>);
+    <span class="f">buzzer</span>(<span class="n">false</span>);
+    status = <span class="f">F</span>(<span class="s">"接近"</span>);
+  } <span class="k">else</span> {
+    <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">255</span>, <span class="n">0</span>);
+    <span class="f">buzzer</span>(<span class="n">false</span>);
+    status = <span class="f">F</span>(<span class="s">"安全"</span>);
+  }
+
+  <span class="c">// 用 millis() 控制印出頻率，不要每圈都印</span>
+  <span class="k">if</span> (<span class="f">millis</span>() - lastPrint &gt;= <span class="n">PRINT_MS</span>) {
+    lastPrint = <span class="f">millis</span>();
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"觸發距離 "</span>));
+    <span class="t">Serial</span>.<span class="f">print</span>(triggerCm);
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">" cm｜量到 "</span>));
+    <span class="k">if</span> (m &gt;= <span class="n">FAR_CM</span>) {
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"—"</span>));
+    } <span class="k">else</span> {
+      <span class="t">Serial</span>.<span class="f">print</span>(m, <span class="n">1</span>);
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">" cm"</span>));
+    }
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"｜"</span>));
+    <span class="t">Serial</span>.<span class="f">println</span>(status);
+  }
+
+  <span class="f">delay</span>(<span class="n">MEASURE_MS</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 4 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">這是我目前的程式：（貼上步驟 3 的程式）
+請加上旋鈕：旋鈕中間的腳接 A1，讀值 0–1023 換算成觸發距離 5–100 cm，取代原本固定的 30 cm；黃燈範圍改成觸發距離的兩倍。每 0.5 秒在序列埠印出觸發距離。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>目前的程式、旋鈕接哪一支腳、要換算的範圍。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>用 map(讀值, 0, 1023, 5, 100) 或同樣的算法換算。</li>
+              <li>原本的 30 和 60 都改成跟著旋鈕變。</li>
+              <li>AI 只改了需要改的地方：在 VS Code 的「原始檔控制」看改了哪幾行。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>轉動旋鈕，序列埠監控視窗裡的「觸發距離」跟著變。把觸發距離調得比手的位置遠，紅燈就亮、蜂鳴器響。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>觸發距離小幅跳動</b>：類比讀值本來就會跳 1、2 個數。想更穩，可以請 AI 加上平均。</li>
+              <li><b>旋鈕轉到最小</b>：等於關掉偵測，任何人都能轉，見第 05 節。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>map()</dt><dd>把一個範圍的數字等比例換算到另一個範圍。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="step5" aria-labelledby="step5-h">
+        <p class="ex-no">步驟 5</p>
+        <h3 id="step5-h">防盜主程式</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>接線和步驟 4 相同</span><span>步驟 6、7、8 共用</span></p>
+        <p class="ex-goal"><b>目標</b>：加上布防、倒數、警報這些狀態，並用序列埠和電腦互傳文字。</p>
+        <p>步驟 1 到 4 是看到什麼就做什麼。防盜系統要記得現在在哪個狀態：撤防時有人走過不用管，布防時才要警報，警報前還要留時間給主人撤防。</p>
+        <p class="ex-h">狀態</p>
+<ol class="states">
+        <li class="st"><p class="st-name">撤防</p><p class="st-out">蜂鳴器不響・綠燈</p></li>
+        <li class="tr">電腦送出 ARM（儀表板按「布防」）</li>
+        <li class="st"><p class="st-name">離開倒數 10 秒</p><p class="st-out">每秒短嗶一聲・黃燈閃</p></li>
+        <li class="tr">倒數結束，量一次亮度基準值</li>
+        <li class="st"><p class="st-name">布防</p><p class="st-out">藍燈</p></li>
+        <li class="tr">比觸發距離近，或盒子裡的亮度改變</li>
+        <li class="st"><p class="st-name">進入倒數 10 秒</p><p class="st-out">每秒短嗶兩聲・黃燈快閃</p></li>
+        <li class="tr">倒數結束還沒撤防</li>
+        <li class="st is-alarm"><p class="st-name">警報</p><p class="st-out">蜂鳴器連續響・紅燈・送出通知</p></li>
+      </ol>
+<p class="st-loop"><b>任何時候</b>送出 DISARM（儀表板按「撤防」），都會回到撤防。<br>警報時送出 <b>MUTE</b>（「靜音」）：蜂鳴器停止，仍然是警報狀態。<br><b>測試模式</b>：送出 MODE,TEST 後亮紫燈、蜂鳴器不響，偵測到就立刻回報，不倒數；送出 MODE,DETECT 回到撤防。</p>
+        <ul class="prose">
+          <li><b>基準值</b>：布防那一刻量一次盒子裡的亮度，之後亮度和基準值差超過門檻才算偵測到，變亮或變暗都算；距離則直接和旋鈕設定的觸發距離比較。</li>
+          <li><b>進入倒數</b>：讓主人有時間撤防；倒數結束還沒撤防，才進入警報。</li>
+        </ul>
+        <p class="ex-h">和電腦互傳的文字</p>
+        <p>Uno 和 Python 之間先約定好每一行文字的意思。格式先定好，Uno 端和 Python 端就能分開請 AI 寫、分開測試。</p>
+<div class="table-wrap"><table class="tbl stack">
+        <thead><tr><th scope="col">方向</th><th scope="col">送出的文字</th><th scope="col">意思</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">READ,42,640,30,ARMED</span></td><td data-label="意思">每 0.25 秒一次：距離（cm，-1 表示沒有回波）、亮度、觸發距離、目前狀態。超過 3 秒沒收到，就當作板子離線</td></tr>
+          <tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">STATE,ARMED</span></td><td data-label="意思">狀態改變；後面是新的狀態：DISARMED、EXIT、ARMED、ENTRY、ALARM、TEST（測試模式）。開機時會先送出 STATE,DISARMED</td></tr>
+          <tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">DETECT,DIST</span>／<span class="pin">DETECT,LIGHT</span></td><td data-label="意思">哪一個感測器偵測到</td></tr>
+          <tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">TEST,PING,42,640</span></td><td data-label="意思">測試模式收到 TEST 時的回覆：距離、亮度</td></tr>
+          <tr><th scope="row">板子 → 電腦</th><td data-label="送出的文字"><span class="pin">TEST,DIST,28</span>／<span class="pin">TEST,LIGHT,812</span></td><td data-label="意思">測試模式中哪一個感測器偵測到，後面是當時的距離或亮度；不倒數，立刻送出</td></tr>
+                    <tr><th scope="row">電腦 → 板子</th><td data-label="送出的文字"><span class="pin">ARM</span>／<span class="pin">DISARM</span></td><td data-label="意思">布防／撤防</td></tr>
+          <tr><th scope="row">電腦 → 板子</th><td data-label="送出的文字"><span class="pin">STATUS</span></td><td data-label="意思">要板子回報目前狀態</td></tr>
+          <tr><th scope="row">電腦 → 板子</th><td data-label="送出的文字"><span class="pin">MUTE</span></td><td data-label="意思">讓蜂鳴器停止，狀態不變</td></tr>
+          <tr><th scope="row">電腦 → 板子</th><td data-label="送出的文字"><span class="pin">MODE,TEST</span>／<span class="pin">MODE,DETECT</span></td><td data-label="意思">進入測試模式（紫燈、蜂鳴器不響）／回到偵測模式（撤防）</td></tr>
+          <tr><th scope="row">電腦 → 板子</th><td data-label="送出的文字"><span class="pin">TEST</span></td><td data-label="意思">測試模式中要板子回覆一行 TEST,PING；不在測試模式時回覆 ERR,TEST</td></tr>
+        </tbody>
+      </table></div>
+        <p class="ex-h">程式</p>
+        <p>電腦送出 ARM 才布防，倒數和警報都在 Uno 上完成，每 0.25 秒送出一行讀值。步驟 6、7、8 都用這支程式，燒錄一次就好。</p>
+        <p>另外有<b>測試模式</b>：收到 MODE,TEST 後亮紫燈、蜂鳴器不響。這時輸入 TEST，或感測器偵測到東西，Uno 會立刻送出一行 TEST 開頭的訊息，Python 收到就送出測試通知。測試模式不會警報，測完要送出 MODE,DETECT；步驟 6、7、8 的程式結束時會自動送出。</p>
+<!-- code:uno/alarm_uno/alarm_uno.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">alarm_uno.ino</span><span class="code-lines">280 行</span></span><button class="copy" type="button" aria-label="複製 alarm_uno.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 步驟 5：防盜主程式（步驟 6 Gmail、步驟 7 Discord、步驟 8 儀表板共用）</span>
+<span class="c">// 接線：光敏電阻模組 AO → A0（VCC 接 5V、GND 接 GND）</span>
+<span class="c">//       旋鈕 中間腳 → A1（兩側腳接 5V 與 GND）</span>
+<span class="c">//       HC-SR04 Trig → D4、Echo → D3（VCC 接 5V、GND 接 GND）</span>
+<span class="c">//       有源蜂鳴器 + → D12（− 接 GND）</span>
+<span class="c">//       全彩 LED R → D11、G → D10、B → D9（各經 220 Ω；共用腳接 GND，共陽極接 5V）</span>
+<span class="c">// 序列埠指令（一行一個，結尾換行，不分大小寫）：</span>
+<span class="c">//   ARM、DISARM、MUTE、STATUS</span>
+<span class="c">//   MODE,TEST   進入測試模式</span>
+<span class="c">//   MODE,DETECT 回到偵測模式</span>
+<span class="c">//   TEST        測試模式中送出測試事件</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">LDR_PIN</span> = <span class="n">A0</span>;                <span class="c">// 光敏電阻模組 AO</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">KNOB_PIN</span> = <span class="n">A1</span>;               <span class="c">// 旋鈕中間腳</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">TRIG_PIN</span> = <span class="n">4</span>;                <span class="c">// 超音波 Trig</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">ECHO_PIN</span> = <span class="n">3</span>;                <span class="c">// 超音波 Echo</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">BUZZER_PIN</span> = <span class="n">12</span>;             <span class="c">// 有源蜂鳴器</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">R_PIN</span> = <span class="n">11</span>;                  <span class="c">// LED 紅（PWM）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">G_PIN</span> = <span class="n">10</span>;                  <span class="c">// LED 綠（PWM）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">B_PIN</span> = <span class="n">9</span>;                   <span class="c">// LED 藍（PWM）</span>
+
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">EXIT_MS</span> = <span class="n">10000</span>;   <span class="c">// 離開倒數</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">ENTRY_MS</span> = <span class="n">10000</span>;  <span class="c">// 進入倒數（時間內要用 DISARM 解除）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">LIGHT_DELTA</span> = <span class="n">150</span>;           <span class="c">// 亮度和基準差這麼多，就當作盒子被打開（變亮或變暗都算，模組的方向不一定）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">MIN_CM</span> = <span class="n">5</span>;                  <span class="c">// 旋鈕最左：觸發距離</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">MAX_CM</span> = <span class="n">100</span>;                <span class="c">// 旋鈕最右：觸發距離</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">REPORT_MS</span> = <span class="n">250</span>;   <span class="c">// 回報間隔</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">MEASURE_MS</span> = <span class="n">70</span>;   <span class="c">// 兩次量測間隔（要 ≥ 60 ms）</span>
+<span class="k">const</span> <span class="t">float</span> <span class="n">FAR_CM</span> = <span class="n">999</span>;              <span class="c">// 沒有回波時當作「很遠」</span>
+
+<span class="k">const</span> <span class="t">bool</span> <span class="n">COMMON_ANODE</span> = <span class="n">false</span>;       <span class="c">// 共陽極 LED 改成 true，共用腳改接 5V</span>
+<span class="k">const</span> <span class="t">bool</span> <span class="n">BUZZER_ACTIVE_LOW</span> = <span class="n">false</span>;  <span class="c">// 三腳模組若是低電位觸發改成 true</span>
+
+<span class="k">enum</span> <span class="t">State</span> { <span class="n">DISARMED</span>, <span class="n">EXIT</span>, <span class="n">ARMED</span>, <span class="n">ENTRY</span>, <span class="n">ALARM</span>, <span class="n">TEST</span> };
+
+<span class="t">State</span> state = <span class="n">DISARMED</span>;
+<span class="t">unsigned</span> <span class="t">long</span> stateStart = <span class="n">0</span>;          <span class="c">// 進入目前狀態的時間</span>
+<span class="t">bool</span> muted = <span class="n">false</span>;                    <span class="c">// ALARM 時是否已靜音</span>
+<span class="t">float</span> history[<span class="n">3</span>] = {<span class="n">FAR_CM</span>, <span class="n">FAR_CM</span>, <span class="n">FAR_CM</span>};  <span class="c">// 最近 3 次量測</span>
+<span class="t">int</span> historyIndex = <span class="n">0</span>;
+<span class="t">unsigned</span> <span class="t">long</span> lastMeasure = <span class="n">0</span>;
+<span class="t">unsigned</span> <span class="t">long</span> lastReport = <span class="n">0</span>;
+<span class="t">bool</span> newDistance = <span class="n">false</span>;              <span class="c">// 這一圈是否有新的距離</span>
+<span class="t">float</span> distanceCm = <span class="n">FAR_CM</span>;             <span class="c">// 中位數距離</span>
+<span class="t">int</span> light = <span class="n">0</span>;                         <span class="c">// 光線 0～1023</span>
+<span class="t">int</span> lightBaseline = <span class="n">0</span>;                 <span class="c">// 開始警戒時的光線</span>
+<span class="t">int</span> triggerCm = <span class="n">MAX_CM</span>;                <span class="c">// 旋鈕決定的觸發距離</span>
+<span class="t">int</span> nearCount = <span class="n">0</span>;                     <span class="c">// 連續幾次距離小於觸發距離</span>
+<span class="t">int</span> testBaseline = <span class="n">0</span>;                  <span class="c">// 進入測試模式時的光線</span>
+<span class="t">bool</span> testDistSent = <span class="n">false</span>;             <span class="c">// 測試模式：這一次靠近是否已回報</span>
+<span class="t">bool</span> testLightSent = <span class="n">false</span>;            <span class="c">// 測試模式：這一次亮光是否已回報</span>
+<span class="t">char</span> cmdBuf[<span class="n">16</span>];                       <span class="c">// 指令緩衝（最多 15 字元）</span>
+<span class="t">int</span> cmdLen = <span class="n">0</span>;
+<span class="t">bool</span> cmdOverflow = <span class="n">false</span>;
+
+<span class="c">// 回傳距離（cm）；沒有收到回波時回傳 -1</span>
+<span class="t">float</span> <span class="f">readDistanceCm</span>() {
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);  <span class="f">delayMicroseconds</span>(<span class="n">2</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">HIGH</span>); <span class="f">delayMicroseconds</span>(<span class="n">10</span>);
+  <span class="f">digitalWrite</span>(<span class="n">TRIG_PIN</span>, <span class="n">LOW</span>);
+  <span class="t">unsigned</span> <span class="t">long</span> us = <span class="f">pulseIn</span>(<span class="n">ECHO_PIN</span>, <span class="n">HIGH</span>, <span class="n">30000UL</span>);  <span class="c">// 最多等 30 ms（約 5 m）</span>
+  <span class="k">if</span> (us == <span class="n">0</span>) <span class="k">return</span> -<span class="n">1</span>;
+  <span class="k">return</span> us / <span class="n">58.0</span>;
+}
+
+<span class="c">// 三個數取中間值：偶爾一次量錯也不會影響結果</span>
+<span class="t">float</span> <span class="f">median3</span>(<span class="t">float</span> a, <span class="t">float</span> b, <span class="t">float</span> c) {
+  <span class="t">float</span> lo = <span class="f">min</span>(a, b);
+  <span class="t">float</span> hi = <span class="f">max</span>(a, b);
+  <span class="k">return</span> <span class="f">max</span>(lo, <span class="f">min</span>(hi, c));
+}
+
+<span class="t">void</span> <span class="f">setColor</span>(<span class="t">int</span> r, <span class="t">int</span> g, <span class="t">int</span> b) {
+  <span class="k">if</span> (<span class="n">COMMON_ANODE</span>) { r = <span class="n">255</span> - r; g = <span class="n">255</span> - g; b = <span class="n">255</span> - b; }
+  <span class="f">analogWrite</span>(<span class="n">R_PIN</span>, r);
+  <span class="f">analogWrite</span>(<span class="n">G_PIN</span>, g);
+  <span class="f">analogWrite</span>(<span class="n">B_PIN</span>, b);
+}
+
+<span class="t">void</span> <span class="f">buzzer</span>(<span class="t">bool</span> on) {
+  <span class="f">digitalWrite</span>(<span class="n">BUZZER_PIN</span>, (on != <span class="n">BUZZER_ACTIVE_LOW</span>) ? <span class="n">HIGH</span> : <span class="n">LOW</span>);
+}
+
+<span class="k">const</span> <span class="t">__FlashStringHelper</span> *<span class="f">stateName</span>(<span class="t">State</span> s) {
+  <span class="k">switch</span> (s) {
+    <span class="k">case</span> <span class="n">DISARMED</span>: <span class="k">return</span> <span class="f">F</span>(<span class="s">"DISARMED"</span>);
+    <span class="k">case</span> <span class="n">EXIT</span>:     <span class="k">return</span> <span class="f">F</span>(<span class="s">"EXIT"</span>);
+    <span class="k">case</span> <span class="n">ARMED</span>:    <span class="k">return</span> <span class="f">F</span>(<span class="s">"ARMED"</span>);
+    <span class="k">case</span> <span class="n">ENTRY</span>:    <span class="k">return</span> <span class="f">F</span>(<span class="s">"ENTRY"</span>);
+    <span class="k">case</span> <span class="n">ALARM</span>:    <span class="k">return</span> <span class="f">F</span>(<span class="s">"ALARM"</span>);
+    <span class="k">case</span> <span class="n">TEST</span>:     <span class="k">return</span> <span class="f">F</span>(<span class="s">"TEST"</span>);
+    <span class="k">default</span>:       <span class="k">return</span> <span class="f">F</span>(<span class="s">"?"</span>);
+  }
+}
+
+<span class="t">void</span> <span class="f">printState</span>() {
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"STATE,"</span>));
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="f">stateName</span>(state));
+}
+
+<span class="c">// 換狀態：重設計時、靜音與連續偵測次數，並通知電腦</span>
+<span class="t">void</span> <span class="f">setState</span>(<span class="t">State</span> s) {
+  state = s;
+  stateStart = <span class="f">millis</span>();
+  muted = <span class="n">false</span>;
+  nearCount = <span class="n">0</span>;
+  <span class="f">printState</span>();
+}
+
+<span class="c">// 讀三個感測器；距離每 MEASURE_MS 才量一次</span>
+<span class="t">void</span> <span class="f">readSensors</span>() {
+  triggerCm = <span class="f">map</span>(<span class="f">analogRead</span>(<span class="n">KNOB_PIN</span>), <span class="n">0</span>, <span class="n">1023</span>, <span class="n">MIN_CM</span>, <span class="n">MAX_CM</span>);
+  light = <span class="f">analogRead</span>(<span class="n">LDR_PIN</span>);
+
+  newDistance = <span class="n">false</span>;
+  <span class="k">if</span> (<span class="f">millis</span>() - lastMeasure &gt;= <span class="n">MEASURE_MS</span>) {
+    lastMeasure = <span class="f">millis</span>();
+    <span class="t">float</span> d = <span class="f">readDistanceCm</span>();  <span class="c">// 最久等 30 ms，其餘時間都不會卡住</span>
+    history[historyIndex] = (d &lt; <span class="n">0</span>) ? <span class="n">FAR_CM</span> : d;
+    historyIndex = (historyIndex + <span class="n">1</span>) % <span class="n">3</span>;
+    distanceCm = <span class="f">median3</span>(history[<span class="n">0</span>], history[<span class="n">1</span>], history[<span class="n">2</span>]);
+    newDistance = <span class="n">true</span>;
+  }
+}
+
+<span class="t">void</span> <span class="f">handleCommand</span>(<span class="k">const</span> <span class="t">char</span> *cmd) {
+  <span class="k">if</span> (<span class="f">strcasecmp</span>(cmd, <span class="s">"ARM"</span>) == <span class="n">0</span>) {
+    <span class="k">if</span> (state == <span class="n">DISARMED</span>) <span class="f">setState</span>(<span class="n">EXIT</span>);
+  } <span class="k">else</span> <span class="k">if</span> (<span class="f">strcasecmp</span>(cmd, <span class="s">"DISARM"</span>) == <span class="n">0</span>) {
+    <span class="k">if</span> (state != <span class="n">DISARMED</span>) <span class="f">setState</span>(<span class="n">DISARMED</span>);
+  } <span class="k">else</span> <span class="k">if</span> (<span class="f">strcasecmp</span>(cmd, <span class="s">"MUTE"</span>) == <span class="n">0</span>) {
+    <span class="k">if</span> (state == <span class="n">ALARM</span>) muted = <span class="n">true</span>;
+  } <span class="k">else</span> <span class="k">if</span> (<span class="f">strcasecmp</span>(cmd, <span class="s">"STATUS"</span>) == <span class="n">0</span>) {
+    <span class="f">printState</span>();
+  } <span class="k">else</span> <span class="k">if</span> (<span class="f">strcasecmp</span>(cmd, <span class="s">"MODE,TEST"</span>) == <span class="n">0</span>) {
+    testBaseline = light;  <span class="c">// 以此刻的亮度當測試基準</span>
+    testDistSent = <span class="n">false</span>;
+    testLightSent = <span class="n">false</span>;
+    <span class="f">setState</span>(<span class="n">TEST</span>);
+  } <span class="k">else</span> <span class="k">if</span> (<span class="f">strcasecmp</span>(cmd, <span class="s">"MODE,DETECT"</span>) == <span class="n">0</span>) {
+    <span class="k">if</span> (state == <span class="n">TEST</span>) <span class="f">setState</span>(<span class="n">DISARMED</span>);
+  } <span class="k">else</span> <span class="k">if</span> (<span class="f">strcasecmp</span>(cmd, <span class="s">"TEST"</span>) == <span class="n">0</span>) {
+    <span class="k">if</span> (state == <span class="n">TEST</span>) {
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"TEST,PING,"</span>));
+      <span class="t">Serial</span>.<span class="f">print</span>(distanceCm &gt;= <span class="n">FAR_CM</span> ? -<span class="n">1</span> : (<span class="t">int</span>)distanceCm);
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">','</span>);
+      <span class="t">Serial</span>.<span class="f">println</span>(light);
+    } <span class="k">else</span> {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="f">F</span>(<span class="s">"ERR,TEST"</span>));
+    }
+  } <span class="k">else</span> {
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"ERR,"</span>));
+    <span class="t">Serial</span>.<span class="f">println</span>(cmd);
+  }
+}
+
+<span class="c">// 一次讀一個字元，收到換行才處理整行指令</span>
+<span class="t">void</span> <span class="f">readCommands</span>() {
+  <span class="k">while</span> (<span class="t">Serial</span>.<span class="f">available</span>() &gt; <span class="n">0</span>) {
+    <span class="t">char</span> c = <span class="t">Serial</span>.<span class="f">read</span>();
+    <span class="k">if</span> (c == <span class="s">'\r'</span>) <span class="k">continue</span>;
+    <span class="k">if</span> (c != <span class="s">'\n'</span>) {
+      <span class="k">if</span> (cmdLen &lt; <span class="n">15</span>) cmdBuf[cmdLen++] = c;
+      <span class="k">else</span> cmdOverflow = <span class="n">true</span>;
+      <span class="k">continue</span>;
+    }
+    cmdBuf[cmdLen] = <span class="s">'\0'</span>;
+    <span class="k">if</span> (cmdLen &gt; <span class="n">0</span> || cmdOverflow) <span class="f">handleCommand</span>(cmdBuf);
+    cmdLen = <span class="n">0</span>;
+    cmdOverflow = <span class="n">false</span>;
+  }
+}
+
+<span class="t">void</span> <span class="f">updateState</span>() {
+  <span class="t">unsigned</span> <span class="t">long</span> elapsed = <span class="f">millis</span>() - stateStart;
+
+  <span class="k">if</span> (state == <span class="n">EXIT</span> &amp;&amp; elapsed &gt;= <span class="n">EXIT_MS</span>) {
+    lightBaseline = light;  <span class="c">// 以此刻的亮度當基準</span>
+    <span class="f">setState</span>(<span class="n">ARMED</span>);
+  } <span class="k">else</span> <span class="k">if</span> (state == <span class="n">ARMED</span>) {
+    <span class="c">// 距離要連續 2 次（新的中位數）小於觸發距離才算，避免誤報</span>
+    <span class="k">if</span> (newDistance) nearCount = (distanceCm &lt; triggerCm) ? nearCount + <span class="n">1</span> : <span class="n">0</span>;
+    <span class="k">if</span> (nearCount &gt;= <span class="n">2</span>) {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="f">F</span>(<span class="s">"DETECT,DIST"</span>));
+      <span class="f">setState</span>(<span class="n">ENTRY</span>);
+    } <span class="k">else</span> <span class="k">if</span> (<span class="f">abs</span>(light - lightBaseline) &gt; <span class="n">LIGHT_DELTA</span>) {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="f">F</span>(<span class="s">"DETECT,LIGHT"</span>));
+      <span class="f">setState</span>(<span class="n">ENTRY</span>);
+    }
+  } <span class="k">else</span> <span class="k">if</span> (state == <span class="n">ENTRY</span> &amp;&amp; elapsed &gt;= <span class="n">ENTRY_MS</span>) {
+    <span class="f">setState</span>(<span class="n">ALARM</span>);
+  } <span class="k">else</span> <span class="k">if</span> (state == <span class="n">TEST</span>) {
+    <span class="c">// 距離：連續 2 次小於觸發距離才回報一次；離開範圍後才會再回報</span>
+    <span class="k">if</span> (newDistance) nearCount = (distanceCm &lt; triggerCm) ? nearCount + <span class="n">1</span> : <span class="n">0</span>;
+    <span class="k">if</span> (nearCount &gt;= <span class="n">2</span> &amp;&amp; !testDistSent) {
+      testDistSent = <span class="n">true</span>;
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"TEST,DIST,"</span>));
+      <span class="t">Serial</span>.<span class="f">println</span>((<span class="t">int</span>)distanceCm);
+    } <span class="k">else</span> <span class="k">if</span> (newDistance &amp;&amp; nearCount == <span class="n">0</span>) {
+      testDistSent = <span class="n">false</span>;
+    }
+    <span class="c">// 光線：和基準差很多就回報一次；回到接近基準才會再回報</span>
+    <span class="k">if</span> (!testLightSent &amp;&amp; <span class="f">abs</span>(light - testBaseline) &gt; <span class="n">LIGHT_DELTA</span>) {
+      testLightSent = <span class="n">true</span>;
+      <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"TEST,LIGHT,"</span>));
+      <span class="t">Serial</span>.<span class="f">println</span>(light);
+    } <span class="k">else</span> <span class="k">if</span> (<span class="f">abs</span>(light - testBaseline) &lt; <span class="n">LIGHT_DELTA</span> / <span class="n">2</span>) {
+      testLightSent = <span class="n">false</span>;
+    }
+  }
+}
+
+<span class="t">void</span> <span class="f">updateOutputs</span>() {
+  <span class="t">unsigned</span> <span class="t">long</span> elapsed = <span class="f">millis</span>() - stateStart;
+  <span class="t">unsigned</span> <span class="t">long</span> t = elapsed % <span class="n">1000</span>;  <span class="c">// 這一秒內的第幾毫秒</span>
+
+  <span class="k">switch</span> (state) {
+    <span class="k">case</span> <span class="n">DISARMED</span>:
+      <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">255</span>, <span class="n">0</span>);
+      <span class="f">buzzer</span>(<span class="n">false</span>);
+      <span class="k">break</span>;
+    <span class="k">case</span> <span class="n">EXIT</span>:  <span class="c">// 黃燈每 500 ms 閃一次；每秒開頭嗶 100 ms</span>
+      <span class="k">if</span> ((elapsed / <span class="n">500</span>) % <span class="n">2</span> == <span class="n">0</span>) <span class="f">setColor</span>(<span class="n">255</span>, <span class="n">120</span>, <span class="n">0</span>);
+      <span class="k">else</span> <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">0</span>, <span class="n">0</span>);
+      <span class="f">buzzer</span>(t &lt; <span class="n">100</span>);
+      <span class="k">break</span>;
+    <span class="k">case</span> <span class="n">ARMED</span>:
+      <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">0</span>, <span class="n">255</span>);
+      <span class="f">buzzer</span>(<span class="n">false</span>);
+      <span class="k">break</span>;
+    <span class="k">case</span> <span class="n">ENTRY</span>:  <span class="c">// 黃燈每 150 ms 閃一次；每秒嗶兩聲（0 ms 與 200 ms 開始，各 80 ms）</span>
+      <span class="k">if</span> ((elapsed / <span class="n">150</span>) % <span class="n">2</span> == <span class="n">0</span>) <span class="f">setColor</span>(<span class="n">255</span>, <span class="n">120</span>, <span class="n">0</span>);
+      <span class="k">else</span> <span class="f">setColor</span>(<span class="n">0</span>, <span class="n">0</span>, <span class="n">0</span>);
+      <span class="f">buzzer</span>(t &lt; <span class="n">80</span> || (t &gt;= <span class="n">200</span> &amp;&amp; t &lt; <span class="n">280</span>));
+      <span class="k">break</span>;
+    <span class="k">case</span> <span class="n">ALARM</span>:
+      <span class="f">setColor</span>(<span class="n">255</span>, <span class="n">0</span>, <span class="n">0</span>);
+      <span class="f">buzzer</span>(!muted);
+      <span class="k">break</span>;
+    <span class="k">case</span> <span class="n">TEST</span>:  <span class="c">// 測試模式：紫燈恆亮、蜂鳴器不響</span>
+      <span class="f">setColor</span>(<span class="n">160</span>, <span class="n">0</span>, <span class="n">255</span>);
+      <span class="f">buzzer</span>(<span class="n">false</span>);
+      <span class="k">break</span>;
+  }
+}
+
+<span class="c">// 格式固定，網頁儀表板會解析：READ,距離,光線,觸發距離,狀態</span>
+<span class="t">void</span> <span class="f">report</span>() {
+  <span class="k">if</span> (<span class="f">millis</span>() - lastReport &lt; <span class="n">REPORT_MS</span>) <span class="k">return</span>;
+  lastReport = <span class="f">millis</span>();
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="f">F</span>(<span class="s">"READ,"</span>));
+  <span class="t">Serial</span>.<span class="f">print</span>(distanceCm &gt;= <span class="n">FAR_CM</span> ? -<span class="n">1</span> : (<span class="t">int</span>)distanceCm);
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">','</span>);
+  <span class="t">Serial</span>.<span class="f">print</span>(light);
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">','</span>);
+  <span class="t">Serial</span>.<span class="f">print</span>(triggerCm);
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">','</span>);
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="f">stateName</span>(state));
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">9600</span>);
+  <span class="f">pinMode</span>(<span class="n">TRIG_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">ECHO_PIN</span>, <span class="n">INPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">BUZZER_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">R_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">G_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">pinMode</span>(<span class="n">B_PIN</span>, <span class="n">OUTPUT</span>);
+  <span class="f">buzzer</span>(<span class="n">false</span>);  <span class="c">// 先關掉，低電位觸發的模組開機才不會響</span>
+  <span class="f">printState</span>();
+}
+
+<span class="c">// 全程不用 delay()，每件事都靠 millis() 計時，所以倒數中也能即時收指令</span>
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="f">readCommands</span>();
+  <span class="f">readSensors</span>();
+  <span class="f">updateState</span>();
+  <span class="f">updateOutputs</span>();
+  <span class="f">report</span>();
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 5 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">我在做 Arduino Uno 防盜系統，接線如下：（貼上附錄的接線表）
+請依照這個狀態圖寫主程式：撤防 →（收到 ARM）→ 離開倒數 10 秒 → 布防 →（距離比觸發距離近，或亮度和基準值差太多）→ 進入倒數 10 秒 → 警報。任何時候收到 DISARM 回到撤防；警報時收到 MUTE 讓蜂鳴器停止。
+每個狀態的燈號和聲音：（貼上狀態圖的燈號和聲音）
+序列埠的指令和回報照這個格式，鮑率 9600：（貼上事件格式表）
+倒數和嗶聲用 millis() 計時，不要用 delay()，倒數中也要能收到 DISARM。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>接線表、狀態圖、每個狀態的燈號和聲音、事件格式表。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>loop() 裡沒有長的 delay()。上傳後在倒數中輸入 DISARM，要立刻回到綠燈。</li>
+              <li>指令收到換行才處理，序列埠監控視窗的行尾要選有換行的選項。</li>
+              <li>開機時先送出 STATE,DISARMED。</li>
+              <li>沒有大量使用 String。Uno 只有 2 KB 記憶體，跑幾個小時後可能當機。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>上傳後打開序列埠監控視窗，鮑率選 9600，右下角的行尾設定選有換行（NL）的選項，Uno 才會收到整行指令。依序輸入：</p>
+        <ul class="prose">
+          <li>ARM：黃燈閃、每秒嗶一聲，10 秒後變藍燈。手靠近後進入倒數，再過 10 秒變紅燈、蜂鳴器響。輸入 DISARM 回到綠燈。</li>
+          <li>MODE,TEST：變紫燈。輸入 TEST，出現 TEST,PING 開頭的一行；手靠近超音波，出現 TEST,DIST；遮住或照亮光敏電阻模組，出現 TEST,LIGHT。</li>
+          <li>MODE,DETECT：回到綠燈。</li>
+        </ul>
+        <p class="note">READ 每 0.25 秒一行，指令的回覆很快就被往上推，要往回找。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>輸入指令沒有反應</b>：行尾設定沒有選換行。</li>
+              <li><b>打開序列埠監控視窗後，燈號回到綠色</b>：打開時 Uno 會重新開機，回到撤防。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">要先決定的事</p>
+        <ul class="prose">
+          <li>斷電再通電之後，要回到斷電前的狀態，還是一律從撤防開始？這支程式一律從撤防開始。</li>
+          <li>沒有接電腦時要怎麼布防？這支程式只能從序列埠或儀表板下指令。</li>
+          <li>警報要響多久？響完要自動回到布防嗎？這支程式會一直響到撤防或靜音。</li>
+        </ul>
+        <p>想改成別的做法，見第 06 節的延伸挑戰。</p>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>狀態機</dt><dd>程式記住現在在哪個狀態，收到事件就換到下一個狀態。</dd>
+          <dt>millis()</dt><dd>板子開機到現在的毫秒數。用它計時，程式不會停下來等。</dd>
+          <dt>布防、撤防</dt><dd>開始警戒、解除警戒。</dd>
+          <dt>基準值</dt><dd>布防那一刻量到的亮度，之後拿來比較有沒有變化。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="step6" aria-labelledby="step6-h">
+        <p class="ex-no">步驟 6</p>
+        <h3 id="step6-h">用 Python 寄 Gmail</h3>
+        <p class="ex-tags"><span class="kind">Python</span><span>Uno 燒步驟 5</span></p>
+        <p class="ex-goal"><b>目標</b>：警報時寄 Gmail 通知。</p>
+        <p>Uno 不能上網，由電腦上的 Python 當閘道：讀序列埠，收到 STATE,ALARM 就寄信。執行後先選模式：</p>
+        <ul class="prose">
+          <li><b>1 偵測模式</b>：自動送出 ARM 布防，進入警報就寄信，60 秒內不重複寄。</li>
+          <li><b>2 測試模式</b>：Uno 亮紫燈、蜂鳴器不響。輸入 TEST，或手靠近超音波、遮住或照亮光敏電阻模組，就寄一封標示【測試】的信；10 秒內只寄一封。</li>
+          <li><b>3 只檢查帳號</b>：不用接板子，直接寄一封測試信。</li>
+        </ul>
+        <p class="note">執行中可以直接輸入 ARM、DISARM、MUTE 這些指令，Python 會轉給 Uno；輸入 Q 結束。</p>
+<details class="fold">
+          <summary><span><span class="tag">教學</span>Gmail 設定：建立應用程式密碼</span></summary>
+          <div class="fold-body">
+            <ol class="prose">
+              <li>準備一個個人 Gmail 帳號，建議另外開一個專門寄通知的帳號。學校或公司的帳號通常不能建立應用程式密碼。</li>
+              <li>到 Google 帳戶的「安全性」頁面，開啟「兩步驟驗證」。沒有開兩步驟驗證，就不能建立應用程式密碼。</li>
+              <li>打開 <a href="https://myaccount.google.com/apppasswords">myaccount.google.com/apppasswords</a>，輸入一個名稱（例如「防盜系統」），按「建立」。</li>
+              <li>畫面會顯示 16 個字元的密碼，複製後貼到 config.json 的 app_password。這組密碼只會顯示一次。</li>
+              <li>以後改了 Google 帳戶密碼，所有應用程式密碼都會失效，要重新建立。</li>
+            </ol>
+            <p class="note">2026 年 10 月確認：個人 Gmail 仍可以用應用程式密碼透過 smtp.gmail.com 寄信。帳號只設定安全金鑰、啟用進階保護，或是學校、公司帳號時，看不到這個選項。</p>
+          </div>
+        </details>
+        <p class="ex-h">設定檔</p>
+        <p>在課程資料夾建立 config.json，步驟 6、7、8 共用這個檔案。serial_port 填板子的序列埠名稱：Windows 像 COM3，macOS 是 /dev/cu.usbmodem 或 /dev/cu.usbserial 開頭，Linux 是 /dev/ttyACM0 或 /dev/ttyUSB0，查法見<a href="setup.html#s2">環境安裝</a>講義。</p>
+<!-- code:python/config.example.json name=config.json -->
+<div class="code" data-lang="json">
+<div class="code-bar"><span><span class="code-name">config.json</span><span class="code-lines">12 行</span></span><button class="copy" type="button" aria-label="複製 config.json">複製</button></div>
+<pre tabindex="0"><code data-lang="json">{
+  <span class="a">"serial_port"</span>: <span class="s">"COM3"</span>,
+  <span class="a">"cooldown_seconds"</span>: <span class="n">60</span>,
+  <span class="a">"gmail"</span>: {
+    <span class="a">"sender"</span>: <span class="s">"your.alarm@gmail.com"</span>,
+    <span class="a">"app_password"</span>: <span class="s">"abcd efgh ijkl mnop"</span>,
+    <span class="a">"to"</span>: <span class="s">"you@example.com"</span>
+  },
+  <span class="a">"discord"</span>: {
+    <span class="a">"webhook_url"</span>: <span class="s">"https://discord.com/api/webhooks/貼上你的網址"</span>
+  }
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <p class="note">config.json 裡有應用程式密碼，不要截圖，也不要貼給 AI 或上傳到 GitHub。</p>
+        <p class="ex-h">程式</p>
+        <p>存成課程資料夾裡的 gmail_alert.py，在課程資料夾執行。</p>
+<!-- code:python/gmail_alert.py -->
+<div class="code" data-lang="py">
+<div class="code-bar"><span><span class="code-name">gmail_alert.py</span><span class="code-lines">287 行</span></span><button class="copy" type="button" aria-label="複製 gmail_alert.py">複製</button></div>
+<pre tabindex="0"><code data-lang="py"><span class="s">"""
+步驟 6：用 Python 寄 Gmail（Uno 燒步驟 5 的主程式）
+執行：uv run gmail_alert.py [--port 序列埠] [--mode detect|test|check]（在課程資料夾裡執行）
+不加 --mode 會先問要用哪一種模式。
+需要套件：pyserial
+"""</span>
+
+<span class="k">import</span> argparse
+<span class="k">import</span> json
+<span class="k">import</span> math
+<span class="k">import</span> smtplib
+<span class="k">import</span> ssl
+<span class="k">import</span> sys
+<span class="k">import</span> threading
+<span class="k">import</span> time
+<span class="k">from</span> datetime <span class="k">import</span> datetime
+<span class="k">from</span> email.message <span class="k">import</span> <span class="t">EmailMessage</span>
+<span class="k">from</span> pathlib <span class="k">import</span> <span class="t">Path</span>
+
+<span class="k">import</span> serial
+<span class="k">import</span> serial.tools.list_ports
+
+<span class="n">CONFIG_PATH</span> = <span class="t">Path</span>(__file__).<span class="f">with_name</span>(<span class="s">"config.json"</span>)
+
+<span class="c"># config.example.json 裡的範例值，還沒改掉就代表「沒填」</span>
+<span class="n">PLACEHOLDERS</span> = {
+    <span class="s">"gmail.sender"</span>: <span class="s">"your.alarm@gmail.com"</span>,
+    <span class="s">"gmail.app_password"</span>: <span class="s">"abcd efgh ijkl mnop"</span>,
+    <span class="s">"gmail.to"</span>: <span class="s">"you@example.com"</span>,
+    <span class="s">"discord.webhook_url"</span>: <span class="s">"https://discord.com/api/webhooks/貼上你的網址"</span>,
+}
+
+<span class="n">TEST_SUBJECT</span> = <span class="s">"【防盜系統】測試信"</span>
+<span class="n">TEST_BODY</span> = <span class="s">"這是一封測試信，收到代表 Gmail 設定正確。"</span>
+<span class="c"># 測試通知的冷卻時間，避免連按洗版</span>
+<span class="n">TEST_COOLDOWN</span> = <span class="n">10</span>
+
+<span class="c"># Uno 在測試模式送來的 TEST,xxx 對應的說明</span>
+<span class="n">TEST_WHAT</span> = {
+    <span class="s">"TEST,PING"</span>: <span class="s">"收到 TEST 指令"</span>,
+    <span class="s">"TEST,DIST"</span>: <span class="s">"超音波偵測到物體"</span>,
+    <span class="s">"TEST,LIGHT"</span>: <span class="s">"光敏電阻變亮"</span>,
+}
+
+
+<span class="c"># ---------- 三支程式共用的小工具（內容都一樣）----------</span>
+
+<span class="k">def</span> <span class="f">get_field</span>(cfg: <span class="t">dict</span>, name: <span class="t">str</span>):
+    <span class="s">"""用 "gmail.sender" 這種寫法取出設定值，找不到就回傳 None。"""</span>
+    value = cfg
+    <span class="k">for</span> key <span class="k">in</span> name.<span class="f">split</span>(<span class="s">"."</span>):
+        <span class="k">if</span> <span class="k">not</span> <span class="f">isinstance</span>(value, <span class="t">dict</span>):
+            <span class="k">return</span> <span class="n">None</span>
+        value = value.<span class="f">get</span>(key)
+    <span class="k">return</span> value
+
+
+<span class="k">def</span> <span class="f">missing_fields</span>(cfg: <span class="t">dict</span>, names) -&gt; <span class="t">list</span>:
+    <span class="s">"""回傳還沒填（空的或還是範例值）的欄位名稱。"""</span>
+    missing = []
+    <span class="k">for</span> name <span class="k">in</span> names:
+        value = <span class="f">get_field</span>(cfg, name)
+        <span class="k">if</span> value <span class="k">is</span> <span class="n">None</span> <span class="k">or</span> <span class="t">str</span>(value).<span class="f">strip</span>() == <span class="s">""</span> <span class="k">or</span> value == <span class="n">PLACEHOLDERS</span>.<span class="f">get</span>(name):
+            missing.<span class="f">append</span>(name)
+    <span class="k">return</span> missing
+
+
+<span class="k">def</span> <span class="f">load_config</span>(required=()) -&gt; <span class="t">dict</span>:
+    <span class="s">"""讀取同資料夾的 config.json，必要欄位沒填就結束程式。"""</span>
+    <span class="k">if</span> <span class="k">not</span> <span class="n">CONFIG_PATH</span>.<span class="f">exists</span>():
+        <span class="f">print</span>(<span class="s">"找不到 config.json：請把 config.example.json 複製一份改名為 config.json，"</span>
+              <span class="s">"再填入你的資料。"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">try</span>:
+        cfg = json.<span class="f">loads</span>(<span class="n">CONFIG_PATH</span>.<span class="f">read_text</span>(encoding=<span class="s">"utf-8"</span>))
+    <span class="k">except</span> json.<span class="t">JSONDecodeError</span> <span class="k">as</span> error:
+        <span class="f">print</span>(<span class="s">f"config.json 格式錯誤：{</span>error<span class="s">}"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">for</span> name <span class="k">in</span> <span class="f">missing_fields</span>(cfg, required):
+        <span class="f">print</span>(<span class="s">f"config.json 的 {</span>name<span class="s">} 還沒填"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">return</span> cfg
+
+
+<span class="k">def</span> <span class="f">wait_for_boot</span>(ser, timeout: <span class="t">float</span> = <span class="n">5.0</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""Uno 開機會先送出 STATE,DISARMED；等到它（或已經在跑的 READ）才送指令，指令才不會遺失。"""</span>
+    deadline = time.<span class="f">monotonic</span>() + timeout
+    <span class="k">while</span> time.<span class="f">monotonic</span>() &lt; deadline:
+        line = ser.<span class="f">readline</span>().<span class="f">decode</span>(<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>).<span class="f">strip</span>()
+        <span class="k">if</span> line.<span class="f">startswith</span>(<span class="s">"STATE,"</span>) <span class="k">or</span> line.<span class="f">startswith</span>(<span class="s">"READ,"</span>):
+            <span class="k">return</span> <span class="n">True</span>
+    <span class="k">return</span> <span class="n">False</span>
+
+
+<span class="k">def</span> <span class="f">open_serial</span>(port: <span class="t">str</span>):
+    <span class="s">"""開啟序列埠，並等 Uno 開機完成（開啟序列埠時 Uno 會重新開機）。"""</span>
+    <span class="k">try</span>:
+        ser = serial.<span class="t">Serial</span>(port, <span class="n">9600</span>, timeout=<span class="n">1</span>)
+    <span class="k">except</span> (serial.<span class="t">SerialException</span>, <span class="t">OSError</span>) <span class="k">as</span> error:
+        <span class="f">print</span>(error)
+        <span class="f">print</span>(<span class="s">"可用的序列埠："</span>)
+        <span class="k">for</span> item <span class="k">in</span> serial.tools.list_ports.<span class="f">comports</span>():
+            <span class="f">print</span>(item.device)
+        <span class="f">print</span>(<span class="s">"Arduino IDE 的序列埠監控視窗開著的話，要先關掉。"</span>)
+        <span class="k">if</span> sys.platform.<span class="f">startswith</span>(<span class="s">"linux"</span>) <span class="k">and</span> <span class="s">"Permission denied"</span> <span class="k">in</span> <span class="t">str</span>(error):
+            <span class="f">print</span>(<span class="s">"Linux 要先把帳號加入 dialout 群組：sudo usermod -a -G dialout $USER，"</span>
+                  <span class="s">"登出再登入後生效。"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="f">print</span>(<span class="s">"序列埠已開啟，等 Uno 開機…"</span>)
+    <span class="k">if</span> <span class="k">not</span> <span class="f">wait_for_boot</span>(ser):
+        <span class="f">print</span>(<span class="s">"5 秒內沒有收到 Uno 的訊息：確認板子已燒錄步驟 5 的主程式。"</span>)
+        ser.<span class="f">close</span>()
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">return</span> ser
+
+
+<span class="k">def</span> <span class="f">is_alarm</span>(line: <span class="t">str</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""步驟 5 的主程式進入警報時會送出 STATE,ALARM。"""</span>
+    <span class="k">return</span> line == <span class="s">"STATE,ALARM"</span>
+
+
+<span class="c"># ---------- 寄信 ----------</span>
+
+<span class="k">def</span> <span class="f">alarm_message</span>(line: <span class="t">str</span>) -&gt; <span class="t">tuple</span>:
+    <span class="s">"""警報信的主旨與內容。"""</span>
+    now = datetime.<span class="f">now</span>().<span class="f">strftime</span>(<span class="s">"%Y-%m-%d %H:%M:%S"</span>)
+    <span class="k">return</span> <span class="s">"【防盜系統】偵測到入侵"</span>, <span class="s">f"時間：{</span>now<span class="s">}\n訊息：{</span>line<span class="s">}"</span>
+
+
+<span class="k">def</span> <span class="f">test_message</span>(line: <span class="t">str</span>) -&gt; <span class="t">tuple</span>:
+    <span class="s">"""測試信的主旨與內容（不是警報）。"""</span>
+    now = datetime.<span class="f">now</span>().<span class="f">strftime</span>(<span class="s">"%Y-%m-%d %H:%M:%S"</span>)
+    what = <span class="n">TEST_WHAT</span>.<span class="f">get</span>(<span class="s">","</span>.<span class="f">join</span>(line.<span class="f">split</span>(<span class="s">","</span>)[:<span class="n">2</span>]), <span class="s">"測試"</span>)
+    <span class="k">return</span> (<span class="s">f"【防盜系統・測試】{</span>what<span class="s">}"</span>,
+            <span class="s">f"這是測試信，不是警報。\n時間：{</span>now<span class="s">}\n來源：{</span>what<span class="s">}\n訊息：{</span>line<span class="s">}"</span>)
+
+
+<span class="k">def</span> <span class="f">send_gmail</span>(cfg: <span class="t">dict</span>, subject: <span class="t">str</span>, body: <span class="t">str</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""寄一封信，成功回傳 True。"""</span>
+    gmail = cfg[<span class="s">"gmail"</span>]
+    msg = <span class="t">EmailMessage</span>()
+    msg[<span class="s">"Subject"</span>] = subject
+    msg[<span class="s">"From"</span>] = gmail[<span class="s">"sender"</span>]
+    msg[<span class="s">"To"</span>] = gmail[<span class="s">"to"</span>]
+    msg.<span class="f">set_content</span>(body)
+    <span class="c"># Google 把應用程式密碼顯示成 4 組，中間有空格，登入時要去掉</span>
+    password = gmail[<span class="s">"app_password"</span>].<span class="f">replace</span>(<span class="s">" "</span>, <span class="s">""</span>)
+    <span class="k">try</span>:
+        <span class="k">with</span> smtplib.<span class="f">SMTP_SSL</span>(<span class="s">"smtp.gmail.com"</span>, <span class="n">465</span>,
+                              context=ssl.<span class="f">create_default_context</span>(), timeout=<span class="n">20</span>) <span class="k">as</span> server:
+            server.<span class="f">login</span>(gmail[<span class="s">"sender"</span>], password)
+            server.<span class="f">send_message</span>(msg)
+    <span class="k">except</span> smtplib.<span class="t">SMTPAuthenticationError</span>:
+        <span class="f">print</span>(<span class="s">"登入失敗：請確認用的是「應用程式密碼」而不是 Gmail 密碼，"</span>
+              <span class="s">"且帳號已開啟兩步驟驗證。"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="k">except</span> ssl.<span class="t">SSLCertVerificationError</span>:
+        <span class="f">print</span>(<span class="s">"憑證驗證失敗：在課程資料夾用 uv run 執行，才會用到 uv 裝的 Python。"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="k">except</span> <span class="t">Exception</span> <span class="k">as</span> error:
+        <span class="f">print</span>(<span class="s">f"寄信失敗：{</span>error<span class="s">}"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="f">print</span>(<span class="s">"已寄出 Gmail"</span>)
+    <span class="k">return</span> <span class="n">True</span>
+
+
+<span class="c"># ---------- 主程式 ----------</span>
+
+<span class="n">MENU</span> = <span class="s">"""選擇模式：
+  1 偵測模式：自動布防，警報時寄信
+  2 測試模式：輸入 TEST 或觸發感測器，就寄一封【測試】信
+  3 只檢查帳號：不用接板子，寄一封測試信"""</span>
+<span class="n">MODES</span> = {<span class="s">"1"</span>: <span class="s">"detect"</span>, <span class="s">"2"</span>: <span class="s">"test"</span>, <span class="s">"3"</span>: <span class="s">"check"</span>}
+
+
+<span class="k">def</span> <span class="f">choose_mode</span>() -&gt; <span class="t">str</span>:
+    <span class="s">"""顯示選單，一直問到答案是 1、2 或 3。"""</span>
+    <span class="f">print</span>(<span class="n">MENU</span>)
+    <span class="k">while</span> <span class="n">True</span>:
+        <span class="k">try</span>:
+            answer = <span class="f">input</span>(<span class="s">"請輸入 1、2 或 3："</span>).<span class="f">strip</span>()
+        <span class="k">except</span> <span class="t">EOFError</span>:
+            sys.<span class="f">exit</span>(<span class="n">1</span>)
+        <span class="k">if</span> answer <span class="k">in</span> <span class="n">MODES</span>:
+            <span class="k">return</span> <span class="n">MODES</span>[answer]
+
+
+<span class="k">def</span> <span class="f">keyboard_loop</span>(ser, write_lock, stop):
+    <span class="s">"""背景執行緒：讀鍵盤，輸入 Q 就結束，其他文字原樣送給 Uno。"""</span>
+    <span class="k">while</span> <span class="n">True</span>:
+        <span class="k">try</span>:
+            text = <span class="f">input</span>().<span class="f">strip</span>()
+        <span class="k">except</span> <span class="t">EOFError</span>:
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="k">not</span> text:
+            <span class="k">continue</span>
+        <span class="k">if</span> text.<span class="f">lower</span>() == <span class="s">"q"</span>:
+            stop.<span class="t">set</span>()
+            <span class="k">return</span>
+        <span class="k">try</span>:
+            <span class="k">with</span> write_lock:
+                ser.<span class="f">write</span>(<span class="s">f"{</span>text<span class="s">}\n"</span>.<span class="f">encode</span>())
+        <span class="k">except</span> (serial.<span class="t">SerialException</span>, <span class="t">OSError</span>) <span class="k">as</span> error:
+            <span class="f">print</span>(error)
+            stop.<span class="t">set</span>()
+            <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="f">main</span>():
+    parser = argparse.<span class="t">ArgumentParser</span>()
+    parser.<span class="f">add_argument</span>(<span class="s">"--port"</span>, help=<span class="s">"序列埠，會蓋過 config.json 的 serial_port"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--mode"</span>, choices=[<span class="s">"detect"</span>, <span class="s">"test"</span>, <span class="s">"check"</span>],
+                        help=<span class="s">"跳過選單，直接選模式"</span>)
+    args = parser.<span class="f">parse_args</span>()
+    mode = args.mode <span class="k">or</span> <span class="f">choose_mode</span>()
+
+    required = [<span class="s">"gmail.sender"</span>, <span class="s">"gmail.app_password"</span>, <span class="s">"gmail.to"</span>]
+    <span class="k">if</span> mode == <span class="s">"check"</span>:
+        cfg = <span class="f">load_config</span>(required)
+        sys.<span class="f">exit</span>(<span class="n">0</span> <span class="k">if</span> <span class="f">send_gmail</span>(cfg, <span class="n">TEST_SUBJECT</span>, <span class="n">TEST_BODY</span>) <span class="k">else</span> <span class="n">1</span>)
+
+    <span class="k">if</span> <span class="k">not</span> args.port:
+        required.<span class="f">append</span>(<span class="s">"serial_port"</span>)
+    cfg = <span class="f">load_config</span>(required)
+    cooldown = cfg.<span class="f">get</span>(<span class="s">"cooldown_seconds"</span>, <span class="n">60</span>)
+    ser = <span class="f">open_serial</span>(args.port <span class="k">or</span> cfg[<span class="s">"serial_port"</span>])
+    write_lock = threading.<span class="t">Lock</span>()
+    stop = threading.<span class="t">Event</span>()
+    last_alarm = <span class="n">None</span>  <span class="c"># 上次寄出警報的時間</span>
+    last_test = <span class="n">None</span>   <span class="c"># 上次寄出測試的時間</span>
+
+    <span class="k">def</span> <span class="f">send_command</span>(cmd: <span class="t">str</span>):
+        <span class="k">with</span> write_lock:
+            ser.<span class="f">write</span>(<span class="s">f"{</span>cmd<span class="s">}\n"</span>.<span class="f">encode</span>())
+
+    <span class="k">try</span>:
+        <span class="k">if</span> mode == <span class="s">"test"</span>:
+            <span class="f">send_command</span>(<span class="s">"MODE,TEST"</span>)
+            <span class="f">print</span>(<span class="s">"測試模式：Uno 亮紫燈、蜂鳴器不響。輸入 TEST，或手靠近超音波、照亮光敏電阻，"</span>
+                  <span class="s">"就會寄出測試信。輸入 Q 結束。"</span>)
+        <span class="k">else</span>:
+            <span class="f">send_command</span>(<span class="s">"ARM"</span>)
+            <span class="f">print</span>(<span class="s">"已送出 ARM：10 秒後開始偵測。可以輸入 DISARM、MUTE、STATUS，輸入 Q 結束。"</span>)
+        threading.<span class="t">Thread</span>(target=keyboard_loop, args=(ser, write_lock, stop),
+                         daemon=<span class="n">True</span>).<span class="f">start</span>()
+
+        <span class="k">while</span> <span class="k">not</span> stop.<span class="f">is_set</span>():
+            line = ser.<span class="f">readline</span>().<span class="f">decode</span>(<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>).<span class="f">strip</span>()
+            <span class="k">if</span> <span class="k">not</span> line:
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="k">not</span> line.<span class="f">startswith</span>(<span class="s">"READ,"</span>):  <span class="c"># READ 每 0.25 秒一行，印出來會洗版</span>
+                <span class="f">print</span>(<span class="s">f"{</span>datetime.now():%H:%M:%S<span class="s">} {</span>line<span class="s">}"</span>)
+            <span class="k">if</span> line == <span class="s">"ERR,TEST"</span>:
+                <span class="f">print</span>(<span class="s">"TEST 只能在測試模式使用：重新執行並選 2。"</span>)
+            <span class="k">elif</span> <span class="f">is_alarm</span>(line):
+                <span class="k">if</span> last_alarm <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> time.<span class="f">monotonic</span>() - last_alarm &lt; cooldown:
+                    left = math.<span class="f">ceil</span>(cooldown - (time.<span class="f">monotonic</span>() - last_alarm))
+                    <span class="f">print</span>(<span class="s">f"冷卻中，{</span>left<span class="s">} 秒內不再通知"</span>)
+                    <span class="k">continue</span>
+                subject, body = <span class="f">alarm_message</span>(line)
+                <span class="k">if</span> <span class="f">send_gmail</span>(cfg, subject, body):
+                    last_alarm = time.<span class="f">monotonic</span>()
+            <span class="k">elif</span> line.<span class="f">startswith</span>(<span class="s">"TEST,"</span>):
+                <span class="k">if</span> last_test <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> time.<span class="f">monotonic</span>() - last_test &lt; <span class="n">TEST_COOLDOWN</span>:
+                    left = math.<span class="f">ceil</span>(<span class="n">TEST_COOLDOWN</span> - (time.<span class="f">monotonic</span>() - last_test))
+                    <span class="f">print</span>(<span class="s">f"冷卻中，{</span>left<span class="s">} 秒內不再寄測試信"</span>)
+                    <span class="k">continue</span>
+                subject, body = <span class="f">test_message</span>(line)
+                <span class="k">if</span> <span class="f">send_gmail</span>(cfg, subject, body):
+                    last_test = time.<span class="f">monotonic</span>()
+        <span class="f">print</span>(<span class="s">"已結束。"</span>)
+    <span class="k">except</span> <span class="t">KeyboardInterrupt</span>:
+        <span class="f">print</span>(<span class="s">"已結束。"</span>)
+    <span class="k">except</span> serial.<span class="t">SerialException</span> <span class="k">as</span> error:
+        <span class="f">print</span>(error)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">finally</span>:
+        <span class="k">if</span> mode == <span class="s">"test"</span>:  <span class="c"># 不要讓板子一直停在安靜的測試模式</span>
+            <span class="k">try</span>:
+                <span class="f">send_command</span>(<span class="s">"MODE,DETECT"</span>)
+            <span class="k">except</span> <span class="t">Exception</span>:
+                <span class="k">pass</span>
+        ser.<span class="f">close</span>()
+
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    <span class="f">main</span>()
+</code></pre>
+</div>
+<!-- /code -->
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 步驟 6 執行指令">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run gmail_alert.py</code></pre>
+</div>
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 6 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">我有一支 Arduino 程式，會從序列埠（鮑率 9600）送出一行一行的文字，格式如下：（貼上事件格式表）
+請用 Python 寫一支程式：用 pyserial 讀序列埠，收到 STATE,ALARM 時用 smtplib 透過 smtp.gmail.com 寄一封信。
+帳號、應用程式密碼、收件人、序列埠名稱都從同一個資料夾的 config.json 讀，不要寫在程式裡。同一次警報 60 秒內只寄一封。
+打開序列埠後，等收到 STATE, 或 READ, 開頭的一行再送指令。
+我用 uv 管理套件，用 uv run 執行。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>事件格式表、config.json 的欄位名稱（只給欄位名稱，不要給真的密碼）、你的作業系統。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>程式裡沒有出現密碼，密碼只在 config.json。</li>
+              <li>有冷卻時間，同一次警報不會寄出幾十封信。</li>
+              <li>AI 叫你 pip install 時，改用 uv add。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>照 3 → 2 → 1 的順序測。先選 3，到收件匣找測試信，也看一下垃圾郵件，收到代表帳號設定正確。再選 2，輸入 TEST，收到【測試】信，代表 Uno、序列埠、Python、Gmail 整條路都通；手靠近超音波、遮住或照亮光敏電阻模組，也各會收到一封。最後選 1，等 10 秒布防完成，手靠近，再過 10 秒進入警報，記下幾秒後收到信。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>「登入失敗」</b>：用的是 Gmail 密碼而不是應用程式密碼，或改過帳戶密碼。</li>
+              <li><b>打不開序列埠</b>：Arduino IDE 的序列埠監控視窗還開著，先關掉。</li>
+              <li><b>「5 秒內沒有收到 Uno 的訊息」</b>：板子上燒的不是步驟 5 的主程式。</li>
+              <li><b>「TEST 只能在測試模式使用」</b>：用偵測模式執行時輸入了 TEST，重新執行並選 2。</li>
+              <li><b>出現 No module named 'serial'</b>：沒有在課程資料夾用 uv run 執行。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="note">想改用 LINE、Telegram 或其他服務，見附錄的通知服務比較。</p>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>閘道</dt><dd>把一種連線轉成另一種的中間站。這裡是電腦，把 USB 序列埠的文字轉成網路通知。</dd>
+          <dt>SMTP</dt><dd>寄信用的通訊協定，Gmail 的寄信伺服器是 smtp.gmail.com。</dd>
+          <dt>應用程式密碼</dt><dd>Google 給程式登入用的 16 個字元密碼，可以隨時撤銷，不會用到帳號本身的密碼。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="step7" aria-labelledby="step7-h">
+        <p class="ex-no">步驟 7</p>
+        <h3 id="step7-h">用 Python 發 Discord 訊息</h3>
+        <p class="ex-tags"><span class="kind">Python</span><span>Uno 燒步驟 5</span><span>選做</span></p>
+        <p class="ex-goal"><b>目標</b>：警報時發 Discord 訊息。</p>
+        <p>流程和三種模式都和步驟 6 相同，改成發到 Discord 頻道。Webhook 不需要建立機器人，一個網址就能發訊息。</p>
+<details class="fold">
+          <summary><span><span class="tag">教學</span>Discord 設定：建立 Webhook</span></summary>
+          <div class="fold-body">
+            <ol class="prose">
+              <li>需要一個你有「管理 Webhook」權限的伺服器。最簡單是自己開一個：在左側伺服器列表按「＋」，選「建立我的伺服器（Create My Own）」。Discord 帳號須年滿 13 歲。</li>
+              <li>在伺服器名稱上按右鍵（手機長按），進入「伺服器設定」→「整合（Integrations）」→「Webhook」。</li>
+              <li>按「新 Webhook（New Webhook）」，設定名稱（訊息會用這個名稱發出），選擇要發到哪個文字頻道。</li>
+              <li>按「複製 Webhook 網址（Copy Webhook URL）」，貼到 config.json 的 webhook_url。</li>
+              <li>網址就是密碼：拿到網址的人都能往這個頻道發訊息。外流時回到同一頁刪除這個 Webhook，再建一個新的。</li>
+            </ol>
+            <p class="note">2026 年 10 月確認：Discord Webhook 仍可使用，一則訊息最多 2000 個字元。</p>
+          </div>
+        </details>
+        <p class="ex-h">程式</p>
+        <p>存成課程資料夾裡的 discord_alert.py，config.json 的 webhook_url 填好後執行。</p>
+<!-- code:python/discord_alert.py -->
+<div class="code" data-lang="py">
+<div class="code-bar"><span><span class="code-name">discord_alert.py</span><span class="code-lines">281 行</span></span><button class="copy" type="button" aria-label="複製 discord_alert.py">複製</button></div>
+<pre tabindex="0"><code data-lang="py"><span class="s">"""
+步驟 7：用 Python 發 Discord 訊息（Uno 燒步驟 5 的主程式）
+執行：uv run discord_alert.py [--port 序列埠] [--mode detect|test|check]（在課程資料夾裡執行）
+不加 --mode 會先問要用哪一種模式。
+需要套件：pyserial、requests
+"""</span>
+
+<span class="k">import</span> argparse
+<span class="k">import</span> json
+<span class="k">import</span> math
+<span class="k">import</span> sys
+<span class="k">import</span> threading
+<span class="k">import</span> time
+<span class="k">from</span> datetime <span class="k">import</span> datetime
+<span class="k">from</span> pathlib <span class="k">import</span> <span class="t">Path</span>
+
+<span class="k">import</span> requests
+<span class="k">import</span> serial
+<span class="k">import</span> serial.tools.list_ports
+
+<span class="n">CONFIG_PATH</span> = <span class="t">Path</span>(__file__).<span class="f">with_name</span>(<span class="s">"config.json"</span>)
+
+<span class="c"># config.example.json 裡的範例值，還沒改掉就代表「沒填」</span>
+<span class="n">PLACEHOLDERS</span> = {
+    <span class="s">"gmail.sender"</span>: <span class="s">"your.alarm@gmail.com"</span>,
+    <span class="s">"gmail.app_password"</span>: <span class="s">"abcd efgh ijkl mnop"</span>,
+    <span class="s">"gmail.to"</span>: <span class="s">"you@example.com"</span>,
+    <span class="s">"discord.webhook_url"</span>: <span class="s">"https://discord.com/api/webhooks/貼上你的網址"</span>,
+}
+
+<span class="n">TEST_TEXT</span> = <span class="s">"【防盜系統】測試訊息：收到代表 Discord 設定正確。"</span>
+<span class="c"># 測試通知的冷卻時間，避免連按洗版</span>
+<span class="n">TEST_COOLDOWN</span> = <span class="n">10</span>
+
+<span class="c"># Uno 在測試模式送來的 TEST,xxx 對應的說明</span>
+<span class="n">TEST_WHAT</span> = {
+    <span class="s">"TEST,PING"</span>: <span class="s">"收到 TEST 指令"</span>,
+    <span class="s">"TEST,DIST"</span>: <span class="s">"超音波偵測到物體"</span>,
+    <span class="s">"TEST,LIGHT"</span>: <span class="s">"光敏電阻變亮"</span>,
+}
+
+
+<span class="c"># ---------- 三支程式共用的小工具（內容都一樣）----------</span>
+
+<span class="k">def</span> <span class="f">get_field</span>(cfg: <span class="t">dict</span>, name: <span class="t">str</span>):
+    <span class="s">"""用 "gmail.sender" 這種寫法取出設定值，找不到就回傳 None。"""</span>
+    value = cfg
+    <span class="k">for</span> key <span class="k">in</span> name.<span class="f">split</span>(<span class="s">"."</span>):
+        <span class="k">if</span> <span class="k">not</span> <span class="f">isinstance</span>(value, <span class="t">dict</span>):
+            <span class="k">return</span> <span class="n">None</span>
+        value = value.<span class="f">get</span>(key)
+    <span class="k">return</span> value
+
+
+<span class="k">def</span> <span class="f">missing_fields</span>(cfg: <span class="t">dict</span>, names) -&gt; <span class="t">list</span>:
+    <span class="s">"""回傳還沒填（空的或還是範例值）的欄位名稱。"""</span>
+    missing = []
+    <span class="k">for</span> name <span class="k">in</span> names:
+        value = <span class="f">get_field</span>(cfg, name)
+        <span class="k">if</span> value <span class="k">is</span> <span class="n">None</span> <span class="k">or</span> <span class="t">str</span>(value).<span class="f">strip</span>() == <span class="s">""</span> <span class="k">or</span> value == <span class="n">PLACEHOLDERS</span>.<span class="f">get</span>(name):
+            missing.<span class="f">append</span>(name)
+    <span class="k">return</span> missing
+
+
+<span class="k">def</span> <span class="f">load_config</span>(required=()) -&gt; <span class="t">dict</span>:
+    <span class="s">"""讀取同資料夾的 config.json，必要欄位沒填就結束程式。"""</span>
+    <span class="k">if</span> <span class="k">not</span> <span class="n">CONFIG_PATH</span>.<span class="f">exists</span>():
+        <span class="f">print</span>(<span class="s">"找不到 config.json：請把 config.example.json 複製一份改名為 config.json，"</span>
+              <span class="s">"再填入你的資料。"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">try</span>:
+        cfg = json.<span class="f">loads</span>(<span class="n">CONFIG_PATH</span>.<span class="f">read_text</span>(encoding=<span class="s">"utf-8"</span>))
+    <span class="k">except</span> json.<span class="t">JSONDecodeError</span> <span class="k">as</span> error:
+        <span class="f">print</span>(<span class="s">f"config.json 格式錯誤：{</span>error<span class="s">}"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">for</span> name <span class="k">in</span> <span class="f">missing_fields</span>(cfg, required):
+        <span class="f">print</span>(<span class="s">f"config.json 的 {</span>name<span class="s">} 還沒填"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">return</span> cfg
+
+
+<span class="k">def</span> <span class="f">wait_for_boot</span>(ser, timeout: <span class="t">float</span> = <span class="n">5.0</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""Uno 開機會先送出 STATE,DISARMED；等到它（或已經在跑的 READ）才送指令，指令才不會遺失。"""</span>
+    deadline = time.<span class="f">monotonic</span>() + timeout
+    <span class="k">while</span> time.<span class="f">monotonic</span>() &lt; deadline:
+        line = ser.<span class="f">readline</span>().<span class="f">decode</span>(<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>).<span class="f">strip</span>()
+        <span class="k">if</span> line.<span class="f">startswith</span>(<span class="s">"STATE,"</span>) <span class="k">or</span> line.<span class="f">startswith</span>(<span class="s">"READ,"</span>):
+            <span class="k">return</span> <span class="n">True</span>
+    <span class="k">return</span> <span class="n">False</span>
+
+
+<span class="k">def</span> <span class="f">open_serial</span>(port: <span class="t">str</span>):
+    <span class="s">"""開啟序列埠，並等 Uno 開機完成（開啟序列埠時 Uno 會重新開機）。"""</span>
+    <span class="k">try</span>:
+        ser = serial.<span class="t">Serial</span>(port, <span class="n">9600</span>, timeout=<span class="n">1</span>)
+    <span class="k">except</span> (serial.<span class="t">SerialException</span>, <span class="t">OSError</span>) <span class="k">as</span> error:
+        <span class="f">print</span>(error)
+        <span class="f">print</span>(<span class="s">"可用的序列埠："</span>)
+        <span class="k">for</span> item <span class="k">in</span> serial.tools.list_ports.<span class="f">comports</span>():
+            <span class="f">print</span>(item.device)
+        <span class="f">print</span>(<span class="s">"Arduino IDE 的序列埠監控視窗開著的話，要先關掉。"</span>)
+        <span class="k">if</span> sys.platform.<span class="f">startswith</span>(<span class="s">"linux"</span>) <span class="k">and</span> <span class="s">"Permission denied"</span> <span class="k">in</span> <span class="t">str</span>(error):
+            <span class="f">print</span>(<span class="s">"Linux 要先把帳號加入 dialout 群組：sudo usermod -a -G dialout $USER，"</span>
+                  <span class="s">"登出再登入後生效。"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="f">print</span>(<span class="s">"序列埠已開啟，等 Uno 開機…"</span>)
+    <span class="k">if</span> <span class="k">not</span> <span class="f">wait_for_boot</span>(ser):
+        <span class="f">print</span>(<span class="s">"5 秒內沒有收到 Uno 的訊息：確認板子已燒錄步驟 5 的主程式。"</span>)
+        ser.<span class="f">close</span>()
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">return</span> ser
+
+
+<span class="k">def</span> <span class="f">is_alarm</span>(line: <span class="t">str</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""步驟 5 的主程式進入警報時會送出 STATE,ALARM。"""</span>
+    <span class="k">return</span> line == <span class="s">"STATE,ALARM"</span>
+
+
+<span class="c"># ---------- 發訊息 ----------</span>
+
+<span class="k">def</span> <span class="f">alarm_text</span>(line: <span class="t">str</span>) -&gt; <span class="t">str</span>:
+    <span class="s">"""警報訊息的內容。"""</span>
+    now = datetime.<span class="f">now</span>().<span class="f">strftime</span>(<span class="s">"%Y-%m-%d %H:%M:%S"</span>)
+    <span class="k">return</span> <span class="s">f"【防盜系統】偵測到入侵\n時間：{</span>now<span class="s">}\n訊息：{</span>line<span class="s">}"</span>
+
+
+<span class="k">def</span> <span class="f">test_text</span>(line: <span class="t">str</span>) -&gt; <span class="t">str</span>:
+    <span class="s">"""測試訊息的內容（不是警報）。"""</span>
+    now = datetime.<span class="f">now</span>().<span class="f">strftime</span>(<span class="s">"%Y-%m-%d %H:%M:%S"</span>)
+    what = <span class="n">TEST_WHAT</span>.<span class="f">get</span>(<span class="s">","</span>.<span class="f">join</span>(line.<span class="f">split</span>(<span class="s">","</span>)[:<span class="n">2</span>]), <span class="s">"測試"</span>)
+    <span class="k">return</span> <span class="s">f"【防盜系統・測試】{</span>what<span class="s">}\n這是測試訊息，不是警報。\n時間：{</span>now<span class="s">}\n訊息：{</span>line<span class="s">}"</span>
+
+
+<span class="k">def</span> <span class="f">send_discord</span>(cfg: <span class="t">dict</span>, text: <span class="t">str</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""發一則訊息到 Discord 頻道，成功回傳 True。"""</span>
+    url = cfg[<span class="s">"discord"</span>][<span class="s">"webhook_url"</span>]
+    <span class="k">try</span>:
+        <span class="c"># 這裡用 requests，不用內建的 urllib：</span>
+        <span class="c"># urllib 沒帶 User-Agent，會被 Discord 前面的 Cloudflare 擋下（403 / error 1010）</span>
+        response = requests.<span class="f">post</span>(url, json={<span class="s">"content"</span>: text[:<span class="n">2000</span>]}, timeout=<span class="n">10</span>)
+    <span class="k">except</span> requests.<span class="t">RequestException</span> <span class="k">as</span> error:
+        <span class="f">print</span>(<span class="s">f"連線失敗：{</span>error<span class="s">}"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+
+    code = response.status_code
+    <span class="k">if</span> code <span class="k">in</span> (<span class="n">200</span>, <span class="n">204</span>):
+        <span class="f">print</span>(<span class="s">"已發到 Discord"</span>)
+        <span class="k">return</span> <span class="n">True</span>
+    <span class="k">if</span> code == <span class="n">429</span>:
+        <span class="k">try</span>:
+            wait = response.<span class="f">json</span>().<span class="f">get</span>(<span class="s">"retry_after"</span>, <span class="s">"?"</span>)
+        <span class="k">except</span> <span class="t">ValueError</span>:
+            wait = <span class="s">"?"</span>
+        <span class="f">print</span>(<span class="s">f"發太快被限流，請等 {</span>wait<span class="s">} 秒"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="k">if</span> code <span class="k">in</span> (<span class="n">401</span>, <span class="n">403</span>, <span class="n">404</span>):
+        <span class="f">print</span>(<span class="s">f"Webhook 無效（{</span>code<span class="s">}）：網址可能被刪除或複製不完整。"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="f">print</span>(<span class="s">f"Discord 回應 {</span>code<span class="s">}：{</span>response.text[:200]<span class="s">}"</span>)
+    <span class="k">return</span> <span class="n">False</span>
+
+
+<span class="c"># ---------- 主程式 ----------</span>
+
+<span class="n">MENU</span> = <span class="s">"""選擇模式：
+  1 偵測模式：自動布防，警報時發訊息
+  2 測試模式：輸入 TEST 或觸發感測器，就發一則【測試】訊息
+  3 只檢查帳號：不用接板子，發一則測試訊息"""</span>
+<span class="n">MODES</span> = {<span class="s">"1"</span>: <span class="s">"detect"</span>, <span class="s">"2"</span>: <span class="s">"test"</span>, <span class="s">"3"</span>: <span class="s">"check"</span>}
+
+
+<span class="k">def</span> <span class="f">choose_mode</span>() -&gt; <span class="t">str</span>:
+    <span class="s">"""顯示選單，一直問到答案是 1、2 或 3。"""</span>
+    <span class="f">print</span>(<span class="n">MENU</span>)
+    <span class="k">while</span> <span class="n">True</span>:
+        <span class="k">try</span>:
+            answer = <span class="f">input</span>(<span class="s">"請輸入 1、2 或 3："</span>).<span class="f">strip</span>()
+        <span class="k">except</span> <span class="t">EOFError</span>:
+            sys.<span class="f">exit</span>(<span class="n">1</span>)
+        <span class="k">if</span> answer <span class="k">in</span> <span class="n">MODES</span>:
+            <span class="k">return</span> <span class="n">MODES</span>[answer]
+
+
+<span class="k">def</span> <span class="f">keyboard_loop</span>(ser, write_lock, stop):
+    <span class="s">"""背景執行緒：讀鍵盤，輸入 Q 就結束，其他文字原樣送給 Uno。"""</span>
+    <span class="k">while</span> <span class="n">True</span>:
+        <span class="k">try</span>:
+            text = <span class="f">input</span>().<span class="f">strip</span>()
+        <span class="k">except</span> <span class="t">EOFError</span>:
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="k">not</span> text:
+            <span class="k">continue</span>
+        <span class="k">if</span> text.<span class="f">lower</span>() == <span class="s">"q"</span>:
+            stop.<span class="t">set</span>()
+            <span class="k">return</span>
+        <span class="k">try</span>:
+            <span class="k">with</span> write_lock:
+                ser.<span class="f">write</span>(<span class="s">f"{</span>text<span class="s">}\n"</span>.<span class="f">encode</span>())
+        <span class="k">except</span> (serial.<span class="t">SerialException</span>, <span class="t">OSError</span>) <span class="k">as</span> error:
+            <span class="f">print</span>(error)
+            stop.<span class="t">set</span>()
+            <span class="k">return</span>
+
+
+<span class="k">def</span> <span class="f">main</span>():
+    parser = argparse.<span class="t">ArgumentParser</span>()
+    parser.<span class="f">add_argument</span>(<span class="s">"--port"</span>, help=<span class="s">"序列埠，會蓋過 config.json 的 serial_port"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--mode"</span>, choices=[<span class="s">"detect"</span>, <span class="s">"test"</span>, <span class="s">"check"</span>],
+                        help=<span class="s">"跳過選單，直接選模式"</span>)
+    args = parser.<span class="f">parse_args</span>()
+    mode = args.mode <span class="k">or</span> <span class="f">choose_mode</span>()
+
+    required = [<span class="s">"discord.webhook_url"</span>]
+    <span class="k">if</span> mode == <span class="s">"check"</span>:
+        cfg = <span class="f">load_config</span>(required)
+        sys.<span class="f">exit</span>(<span class="n">0</span> <span class="k">if</span> <span class="f">send_discord</span>(cfg, <span class="n">TEST_TEXT</span>) <span class="k">else</span> <span class="n">1</span>)
+
+    <span class="k">if</span> <span class="k">not</span> args.port:
+        required.<span class="f">append</span>(<span class="s">"serial_port"</span>)
+    cfg = <span class="f">load_config</span>(required)
+    cooldown = cfg.<span class="f">get</span>(<span class="s">"cooldown_seconds"</span>, <span class="n">60</span>)
+    ser = <span class="f">open_serial</span>(args.port <span class="k">or</span> cfg[<span class="s">"serial_port"</span>])
+    write_lock = threading.<span class="t">Lock</span>()
+    stop = threading.<span class="t">Event</span>()
+    last_alarm = <span class="n">None</span>  <span class="c"># 上次發出警報的時間</span>
+    last_test = <span class="n">None</span>   <span class="c"># 上次發出測試的時間</span>
+
+    <span class="k">def</span> <span class="f">send_command</span>(cmd: <span class="t">str</span>):
+        <span class="k">with</span> write_lock:
+            ser.<span class="f">write</span>(<span class="s">f"{</span>cmd<span class="s">}\n"</span>.<span class="f">encode</span>())
+
+    <span class="k">try</span>:
+        <span class="k">if</span> mode == <span class="s">"test"</span>:
+            <span class="f">send_command</span>(<span class="s">"MODE,TEST"</span>)
+            <span class="f">print</span>(<span class="s">"測試模式：Uno 亮紫燈、蜂鳴器不響。輸入 TEST，或手靠近超音波、照亮光敏電阻，"</span>
+                  <span class="s">"就會發出測試訊息。輸入 Q 結束。"</span>)
+        <span class="k">else</span>:
+            <span class="f">send_command</span>(<span class="s">"ARM"</span>)
+            <span class="f">print</span>(<span class="s">"已送出 ARM：10 秒後開始偵測。可以輸入 DISARM、MUTE、STATUS，輸入 Q 結束。"</span>)
+        threading.<span class="t">Thread</span>(target=keyboard_loop, args=(ser, write_lock, stop),
+                         daemon=<span class="n">True</span>).<span class="f">start</span>()
+
+        <span class="k">while</span> <span class="k">not</span> stop.<span class="f">is_set</span>():
+            line = ser.<span class="f">readline</span>().<span class="f">decode</span>(<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>).<span class="f">strip</span>()
+            <span class="k">if</span> <span class="k">not</span> line:
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="k">not</span> line.<span class="f">startswith</span>(<span class="s">"READ,"</span>):  <span class="c"># READ 每 0.25 秒一行，印出來會洗版</span>
+                <span class="f">print</span>(<span class="s">f"{</span>datetime.now():%H:%M:%S<span class="s">} {</span>line<span class="s">}"</span>)
+            <span class="k">if</span> line == <span class="s">"ERR,TEST"</span>:
+                <span class="f">print</span>(<span class="s">"TEST 只能在測試模式使用：重新執行並選 2。"</span>)
+            <span class="k">elif</span> <span class="f">is_alarm</span>(line):
+                <span class="k">if</span> last_alarm <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> time.<span class="f">monotonic</span>() - last_alarm &lt; cooldown:
+                    left = math.<span class="f">ceil</span>(cooldown - (time.<span class="f">monotonic</span>() - last_alarm))
+                    <span class="f">print</span>(<span class="s">f"冷卻中，{</span>left<span class="s">} 秒內不再通知"</span>)
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="f">send_discord</span>(cfg, <span class="f">alarm_text</span>(line)):
+                    last_alarm = time.<span class="f">monotonic</span>()
+            <span class="k">elif</span> line.<span class="f">startswith</span>(<span class="s">"TEST,"</span>):
+                <span class="k">if</span> last_test <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> time.<span class="f">monotonic</span>() - last_test &lt; <span class="n">TEST_COOLDOWN</span>:
+                    left = math.<span class="f">ceil</span>(<span class="n">TEST_COOLDOWN</span> - (time.<span class="f">monotonic</span>() - last_test))
+                    <span class="f">print</span>(<span class="s">f"冷卻中，{</span>left<span class="s">} 秒內不再發測試訊息"</span>)
+                    <span class="k">continue</span>
+                <span class="k">if</span> <span class="f">send_discord</span>(cfg, <span class="f">test_text</span>(line)):
+                    last_test = time.<span class="f">monotonic</span>()
+        <span class="f">print</span>(<span class="s">"已結束。"</span>)
+    <span class="k">except</span> <span class="t">KeyboardInterrupt</span>:
+        <span class="f">print</span>(<span class="s">"已結束。"</span>)
+    <span class="k">except</span> serial.<span class="t">SerialException</span> <span class="k">as</span> error:
+        <span class="f">print</span>(error)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">finally</span>:
+        <span class="k">if</span> mode == <span class="s">"test"</span>:  <span class="c"># 不要讓板子一直停在安靜的測試模式</span>
+            <span class="k">try</span>:
+                <span class="f">send_command</span>(<span class="s">"MODE,DETECT"</span>)
+            <span class="k">except</span> <span class="t">Exception</span>:
+                <span class="k">pass</span>
+        ser.<span class="f">close</span>()
+
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    <span class="f">main</span>()
+</code></pre>
+</div>
+<!-- /code -->
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 步驟 7 執行指令">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run discord_alert.py</code></pre>
+</div>
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 7 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">這是我寄 Gmail 的 Python 程式：（貼上 gmail_alert.py）
+請改成發到 Discord：用 requests 對 config.json 裡的 webhook_url 送出 POST，內容放在 JSON 的 content 欄位。
+收到 HTTP 429 時，照回應裡的秒數等待後再送一次。其他功能和冷卻時間都不變。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>目前的程式、config.json 的欄位名稱（不要給真的 Webhook 網址）。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>Webhook 網址從 config.json 讀，不在程式裡。</li>
+              <li>用 requests 送出。用 Python 內建的 urllib 又沒有設定 User-Agent，會被 Discord 擋下。</li>
+              <li>一則訊息不超過 2000 個字元。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>一樣照 3 → 2 → 1 的順序：選 3，頻道裡出現測試訊息；選 2，輸入 TEST，出現【測試】訊息；選 1，觸發一次完整警報。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>回應 403（error code 1010）</b>：用 Python 內建的 urllib 發送又沒有設定 User-Agent，被 Discord 前面的 Cloudflare 擋下。範例用 requests，不會遇到。</li>
+              <li><b>回應 404</b>：Webhook 已經被刪除，或網址沒有複製完整。</li>
+              <li><b>回應 429</b>：發太快被限流，要等回應裡的秒數再發。範例的冷卻時間就是為了避免這件事。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>Webhook</dt><dd>一個網址，對它送出資料，就會在指定的頻道發一則訊息。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="step8" aria-labelledby="step8-h">
+        <p class="ex-no">步驟 8</p>
+        <h3 id="step8-h">網頁儀表板</h3>
+        <p class="ex-tags"><span class="kind">Python</span><span>Uno 燒步驟 5</span><span>選做</span></p>
+        <p class="ex-goal"><b>目標</b>：在網頁上看即時讀值，用按鈕布防、撤防。</p>
+        <p>電腦上的 Python 開一個網頁，即時顯示距離、亮度、觸發距離和狀態。按鈕可以布防、撤防、靜音，也可以切到測試模式、送出測試通知。config.json 填了 Gmail 或 Discord，警報和測試時就會送出通知，結果顯示在事件紀錄裡。</p>
+        <p class="ex-h">程式</p>
+        <p>存成課程資料夾裡的 dashboard.py，和 gmail_alert.py、discord_alert.py 放在同一個資料夾，才會送出通知。</p>
+<!-- code:python/dashboard.py -->
+<div class="code" data-lang="py">
+<div class="code-bar"><span><span class="code-name">dashboard.py</span><span class="code-lines">508 行</span></span><button class="copy" type="button" aria-label="複製 dashboard.py">複製</button></div>
+<pre tabindex="0"><code data-lang="py"><span class="s">"""
+步驟 8：網頁儀表板（Uno 燒步驟 5 的主程式）
+執行：uv run dashboard.py [--port 序列埠] [--web-port 8000]（在課程資料夾裡執行）
+需要套件：pyserial、flask、requests
+"""</span>
+
+<span class="k">import</span> argparse
+<span class="k">import</span> json
+<span class="k">import</span> logging
+<span class="k">import</span> math
+<span class="k">import</span> sys
+<span class="k">import</span> threading
+<span class="k">import</span> time
+<span class="k">from</span> collections <span class="k">import</span> deque
+<span class="k">from</span> datetime <span class="k">import</span> datetime
+<span class="k">from</span> pathlib <span class="k">import</span> <span class="t">Path</span>
+
+<span class="k">import</span> serial
+<span class="k">import</span> serial.tools.list_ports
+<span class="k">from</span> flask <span class="k">import</span> <span class="t">Flask</span>, jsonify, request
+
+<span class="c"># 通知功能來自步驟 6、7（放在同一個資料夾）。匯入失敗就當作沒有這個通知。</span>
+<span class="k">try</span>:
+    <span class="k">from</span> gmail_alert <span class="k">import</span> alarm_message, test_message, send_gmail
+<span class="k">except</span> <span class="t">Exception</span>:
+    send_gmail = <span class="n">None</span>
+<span class="k">try</span>:
+    <span class="k">from</span> discord_alert <span class="k">import</span> alarm_text, test_text, send_discord
+<span class="k">except</span> <span class="t">Exception</span>:
+    send_discord = <span class="n">None</span>
+
+<span class="n">CONFIG_PATH</span> = <span class="t">Path</span>(__file__).<span class="f">with_name</span>(<span class="s">"config.json"</span>)
+
+<span class="c"># config.example.json 裡的範例值，還沒改掉就代表「沒填」</span>
+<span class="n">PLACEHOLDERS</span> = {
+    <span class="s">"gmail.sender"</span>: <span class="s">"your.alarm@gmail.com"</span>,
+    <span class="s">"gmail.app_password"</span>: <span class="s">"abcd efgh ijkl mnop"</span>,
+    <span class="s">"gmail.to"</span>: <span class="s">"you@example.com"</span>,
+    <span class="s">"discord.webhook_url"</span>: <span class="s">"https://discord.com/api/webhooks/貼上你的網址"</span>,
+}
+
+<span class="n">STATE_TEXT</span> = {
+    <span class="s">"DISARMED"</span>: <span class="s">"撤防"</span>,
+    <span class="s">"EXIT"</span>: <span class="s">"離開倒數"</span>,
+    <span class="s">"ARMED"</span>: <span class="s">"布防"</span>,
+    <span class="s">"ENTRY"</span>: <span class="s">"進入倒數"</span>,
+    <span class="s">"ALARM"</span>: <span class="s">"警報"</span>,
+    <span class="s">"TEST"</span>: <span class="s">"測試模式"</span>,
+}
+<span class="n">COMMANDS</span> = (<span class="s">"ARM"</span>, <span class="s">"DISARM"</span>, <span class="s">"MUTE"</span>, <span class="s">"STATUS"</span>, <span class="s">"TEST"</span>, <span class="s">"MODE,TEST"</span>, <span class="s">"MODE,DETECT"</span>)
+
+<span class="c"># 測試通知的冷卻時間，避免連按洗版</span>
+<span class="n">TEST_COOLDOWN</span> = <span class="n">10</span>
+
+<span class="c"># Uno 在測試模式送來的 TEST,xxx 對應的說明</span>
+<span class="n">TEST_WHAT_TEXT</span> = {
+    <span class="s">"PING"</span>: <span class="s">"收到 TEST 指令"</span>,
+    <span class="s">"DIST"</span>: <span class="s">"超音波偵測到物體"</span>,
+    <span class="s">"LIGHT"</span>: <span class="s">"光敏電阻變亮"</span>,
+}
+
+
+<span class="c"># ---------- 三支程式共用的小工具（內容都一樣）----------</span>
+
+<span class="k">def</span> <span class="f">get_field</span>(cfg: <span class="t">dict</span>, name: <span class="t">str</span>):
+    <span class="s">"""用 "gmail.sender" 這種寫法取出設定值，找不到就回傳 None。"""</span>
+    value = cfg
+    <span class="k">for</span> key <span class="k">in</span> name.<span class="f">split</span>(<span class="s">"."</span>):
+        <span class="k">if</span> <span class="k">not</span> <span class="f">isinstance</span>(value, <span class="t">dict</span>):
+            <span class="k">return</span> <span class="n">None</span>
+        value = value.<span class="f">get</span>(key)
+    <span class="k">return</span> value
+
+
+<span class="k">def</span> <span class="f">missing_fields</span>(cfg: <span class="t">dict</span>, names) -&gt; <span class="t">list</span>:
+    <span class="s">"""回傳還沒填（空的或還是範例值）的欄位名稱。"""</span>
+    missing = []
+    <span class="k">for</span> name <span class="k">in</span> names:
+        value = <span class="f">get_field</span>(cfg, name)
+        <span class="k">if</span> value <span class="k">is</span> <span class="n">None</span> <span class="k">or</span> <span class="t">str</span>(value).<span class="f">strip</span>() == <span class="s">""</span> <span class="k">or</span> value == <span class="n">PLACEHOLDERS</span>.<span class="f">get</span>(name):
+            missing.<span class="f">append</span>(name)
+    <span class="k">return</span> missing
+
+
+<span class="k">def</span> <span class="f">load_config</span>(required=()) -&gt; <span class="t">dict</span>:
+    <span class="s">"""讀取同資料夾的 config.json，必要欄位沒填就結束程式。"""</span>
+    <span class="k">if</span> <span class="k">not</span> <span class="n">CONFIG_PATH</span>.<span class="f">exists</span>():
+        <span class="f">print</span>(<span class="s">"找不到 config.json：請把 config.example.json 複製一份改名為 config.json，"</span>
+              <span class="s">"再填入你的資料。"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">try</span>:
+        cfg = json.<span class="f">loads</span>(<span class="n">CONFIG_PATH</span>.<span class="f">read_text</span>(encoding=<span class="s">"utf-8"</span>))
+    <span class="k">except</span> json.<span class="t">JSONDecodeError</span> <span class="k">as</span> error:
+        <span class="f">print</span>(<span class="s">f"config.json 格式錯誤：{</span>error<span class="s">}"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">for</span> name <span class="k">in</span> <span class="f">missing_fields</span>(cfg, required):
+        <span class="f">print</span>(<span class="s">f"config.json 的 {</span>name<span class="s">} 還沒填"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">return</span> cfg
+
+
+<span class="k">def</span> <span class="f">wait_for_boot</span>(ser, timeout: <span class="t">float</span> = <span class="n">5.0</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""Uno 開機會先送出 STATE,DISARMED；等到它（或已經在跑的 READ）才送指令，指令才不會遺失。"""</span>
+    deadline = time.<span class="f">monotonic</span>() + timeout
+    <span class="k">while</span> time.<span class="f">monotonic</span>() &lt; deadline:
+        line = ser.<span class="f">readline</span>().<span class="f">decode</span>(<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>).<span class="f">strip</span>()
+        <span class="k">if</span> line.<span class="f">startswith</span>(<span class="s">"STATE,"</span>) <span class="k">or</span> line.<span class="f">startswith</span>(<span class="s">"READ,"</span>):
+            <span class="k">return</span> <span class="n">True</span>
+    <span class="k">return</span> <span class="n">False</span>
+
+
+<span class="k">def</span> <span class="f">open_serial</span>(port: <span class="t">str</span>):
+    <span class="s">"""開啟序列埠，並等 Uno 開機完成（開啟序列埠時 Uno 會重新開機）。"""</span>
+    <span class="k">try</span>:
+        ser = serial.<span class="t">Serial</span>(port, <span class="n">9600</span>, timeout=<span class="n">1</span>)
+    <span class="k">except</span> (serial.<span class="t">SerialException</span>, <span class="t">OSError</span>) <span class="k">as</span> error:
+        <span class="f">print</span>(error)
+        <span class="f">print</span>(<span class="s">"可用的序列埠："</span>)
+        <span class="k">for</span> item <span class="k">in</span> serial.tools.list_ports.<span class="f">comports</span>():
+            <span class="f">print</span>(item.device)
+        <span class="f">print</span>(<span class="s">"Arduino IDE 的序列埠監控視窗開著的話，要先關掉。"</span>)
+        <span class="k">if</span> sys.platform.<span class="f">startswith</span>(<span class="s">"linux"</span>) <span class="k">and</span> <span class="s">"Permission denied"</span> <span class="k">in</span> <span class="t">str</span>(error):
+            <span class="f">print</span>(<span class="s">"Linux 要先把帳號加入 dialout 群組：sudo usermod -a -G dialout $USER，"</span>
+                  <span class="s">"登出再登入後生效。"</span>)
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="f">print</span>(<span class="s">"序列埠已開啟，等 Uno 開機…"</span>)
+    <span class="k">if</span> <span class="k">not</span> <span class="f">wait_for_boot</span>(ser):
+        <span class="f">print</span>(<span class="s">"5 秒內沒有收到 Uno 的訊息：確認板子已燒錄步驟 5 的主程式。"</span>)
+        ser.<span class="f">close</span>()
+        sys.<span class="f">exit</span>(<span class="n">1</span>)
+    <span class="k">return</span> ser
+
+
+<span class="c"># ---------- 解析 Uno 傳來的一行 ----------</span>
+
+<span class="k">def</span> <span class="f">parse_line</span>(line: <span class="t">str</span>):
+    <span class="s">"""把一行文字變成 dict；看不懂或數字壞掉就回傳 None。"""</span>
+    parts = line.<span class="f">strip</span>().<span class="f">split</span>(<span class="s">","</span>)
+    kind = parts[<span class="n">0</span>]
+    <span class="k">try</span>:
+        <span class="k">if</span> kind == <span class="s">"READ"</span> <span class="k">and</span> <span class="f">len</span>(parts) == <span class="n">5</span>:
+            <span class="k">return</span> {<span class="s">"type"</span>: <span class="s">"read"</span>, <span class="s">"dist"</span>: <span class="t">int</span>(parts[<span class="n">1</span>]), <span class="s">"light"</span>: <span class="t">int</span>(parts[<span class="n">2</span>]),
+                    <span class="s">"threshold"</span>: <span class="t">int</span>(parts[<span class="n">3</span>]), <span class="s">"state"</span>: parts[<span class="n">4</span>]}
+        <span class="k">if</span> kind == <span class="s">"STATE"</span> <span class="k">and</span> <span class="f">len</span>(parts) == <span class="n">2</span>:
+            <span class="k">return</span> {<span class="s">"type"</span>: <span class="s">"state"</span>, <span class="s">"state"</span>: parts[<span class="n">1</span>]}
+        <span class="k">if</span> kind == <span class="s">"DETECT"</span> <span class="k">and</span> <span class="f">len</span>(parts) == <span class="n">2</span> <span class="k">and</span> parts[<span class="n">1</span>] <span class="k">in</span> (<span class="s">"DIST"</span>, <span class="s">"LIGHT"</span>):
+            <span class="k">return</span> {<span class="s">"type"</span>: <span class="s">"detect"</span>, <span class="s">"what"</span>: parts[<span class="n">1</span>]}
+        <span class="k">if</span> kind == <span class="s">"TEST"</span> <span class="k">and</span> <span class="f">len</span>(parts) == <span class="n">4</span> <span class="k">and</span> parts[<span class="n">1</span>] == <span class="s">"PING"</span>:
+            <span class="k">return</span> {<span class="s">"type"</span>: <span class="s">"test"</span>, <span class="s">"what"</span>: <span class="s">"PING"</span>, <span class="s">"dist"</span>: <span class="t">int</span>(parts[<span class="n">2</span>]),
+                    <span class="s">"light"</span>: <span class="t">int</span>(parts[<span class="n">3</span>])}
+        <span class="k">if</span> kind == <span class="s">"TEST"</span> <span class="k">and</span> <span class="f">len</span>(parts) == <span class="n">3</span> <span class="k">and</span> parts[<span class="n">1</span>] == <span class="s">"DIST"</span>:
+            <span class="k">return</span> {<span class="s">"type"</span>: <span class="s">"test"</span>, <span class="s">"what"</span>: <span class="s">"DIST"</span>, <span class="s">"dist"</span>: <span class="t">int</span>(parts[<span class="n">2</span>])}
+        <span class="k">if</span> kind == <span class="s">"TEST"</span> <span class="k">and</span> <span class="f">len</span>(parts) == <span class="n">3</span> <span class="k">and</span> parts[<span class="n">1</span>] == <span class="s">"LIGHT"</span>:
+            <span class="k">return</span> {<span class="s">"type"</span>: <span class="s">"test"</span>, <span class="s">"what"</span>: <span class="s">"LIGHT"</span>, <span class="s">"light"</span>: <span class="t">int</span>(parts[<span class="n">2</span>])}
+        <span class="k">if</span> kind == <span class="s">"ERR"</span> <span class="k">and</span> <span class="f">len</span>(parts) &gt;= <span class="n">2</span>:
+            <span class="k">return</span> {<span class="s">"type"</span>: <span class="s">"err"</span>, <span class="s">"text"</span>: <span class="s">","</span>.<span class="f">join</span>(parts[<span class="n">1</span>:])}
+    <span class="k">except</span> <span class="t">ValueError</span>:
+        <span class="k">return</span> <span class="n">None</span>
+    <span class="k">return</span> <span class="n">None</span>
+
+
+<span class="c"># ---------- 共用狀態 ----------</span>
+
+<span class="k">class</span> <span class="t">Board</span>:
+    <span class="s">"""存放最新的資料。讀序列埠的執行緒和網頁會同時用，所以要上鎖。"""</span>
+
+    <span class="k">def</span> <span class="f">__init__</span>(self):
+        self.lock = threading.<span class="t">Lock</span>()
+        self.dist = <span class="n">None</span>
+        self.light = <span class="n">None</span>
+        self.threshold = <span class="n">None</span>
+        self.state = <span class="n">None</span>
+        self.last_seen = <span class="n">None</span>  <span class="c"># 最後一次收到有效資料的時間</span>
+        self.events = <span class="f">deque</span>(maxlen=<span class="n">50</span>)
+
+    <span class="k">def</span> <span class="f">add_event</span>(self, text: <span class="t">str</span>):
+        <span class="k">with</span> self.lock:
+            self.<span class="f">_add_event</span>(text)
+
+    <span class="k">def</span> <span class="f">_add_event</span>(self, text: <span class="t">str</span>):
+        self.events.<span class="f">append</span>({<span class="s">"time"</span>: datetime.<span class="f">now</span>().<span class="f">strftime</span>(<span class="s">"%H:%M:%S"</span>), <span class="s">"text"</span>: text})
+
+    <span class="k">def</span> <span class="f">update</span>(self, msg: <span class="t">dict</span>):
+        <span class="s">"""套用一筆資料。狀態剛變成警報回傳 "alarm"，收到測試訊息回傳 "test"，其他回傳 None。"""</span>
+        <span class="k">with</span> self.lock:
+            self.last_seen = time.<span class="f">monotonic</span>()
+            old_state = self.state
+            <span class="k">if</span> msg[<span class="s">"type"</span>] == <span class="s">"read"</span>:
+                self.dist = msg[<span class="s">"dist"</span>]
+                self.light = msg[<span class="s">"light"</span>]
+                self.threshold = msg[<span class="s">"threshold"</span>]
+                self.state = msg[<span class="s">"state"</span>]
+            <span class="k">elif</span> msg[<span class="s">"type"</span>] == <span class="s">"state"</span>:
+                self.state = msg[<span class="s">"state"</span>]
+            <span class="k">elif</span> msg[<span class="s">"type"</span>] == <span class="s">"detect"</span>:
+                <span class="k">if</span> msg[<span class="s">"what"</span>] == <span class="s">"DIST"</span>:
+                    self.<span class="f">_add_event</span>(<span class="s">"偵測到：距離變近"</span>)
+                <span class="k">else</span>:
+                    self.<span class="f">_add_event</span>(<span class="s">"偵測到：盒子被打開"</span>)
+            <span class="k">elif</span> msg[<span class="s">"type"</span>] == <span class="s">"test"</span>:
+                self.<span class="f">_add_event</span>(<span class="s">f"測試：{</span>TEST_WHAT_TEXT[msg['what']]<span class="s">}"</span>)
+                <span class="k">return</span> <span class="s">"test"</span>
+            <span class="k">elif</span> msg[<span class="s">"type"</span>] == <span class="s">"err"</span>:
+                self.<span class="f">_add_event</span>(<span class="s">f"Uno 回報錯誤：{</span>msg['text']<span class="s">}"</span>)
+            <span class="k">if</span> self.state != old_state:
+                self.<span class="f">_add_event</span>(<span class="s">f"狀態：{</span>STATE_TEXT.get(self.state, self.state)<span class="s">}"</span>)
+            <span class="k">if</span> self.state == <span class="s">"ALARM"</span> <span class="k">and</span> old_state != <span class="s">"ALARM"</span>:
+                <span class="k">return</span> <span class="s">"alarm"</span>
+            <span class="k">return</span> <span class="n">None</span>
+
+    <span class="k">def</span> <span class="f">snapshot</span>(self, notify: <span class="t">str</span> = <span class="s">""</span>) -&gt; <span class="t">dict</span>:
+        <span class="k">with</span> self.lock:
+            online = self.last_seen <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> time.<span class="f">monotonic</span>() - self.last_seen &lt; <span class="n">3</span>
+            <span class="k">return</span> {
+                <span class="s">"online"</span>: online,
+                <span class="s">"dist"</span>: self.dist,
+                <span class="s">"light"</span>: self.light,
+                <span class="s">"threshold"</span>: self.threshold,
+                <span class="s">"state"</span>: self.state,
+                <span class="s">"state_text"</span>: <span class="n">STATE_TEXT</span>.<span class="f">get</span>(self.state, <span class="s">"—"</span>),
+                <span class="s">"notify"</span>: notify,
+                <span class="s">"events"</span>: <span class="t">list</span>(self.events)[::-<span class="n">1</span>],  <span class="c"># 最新的排最前面</span>
+            }
+
+
+<span class="c"># ---------- 警報通知 ----------</span>
+
+<span class="k">class</span> <span class="t">Notifier</span>:
+    <span class="s">"""狀態變成警報、或收到測試訊息時，在背景執行緒寄 Gmail、發 Discord。"""</span>
+
+    <span class="k">def</span> <span class="f">__init__</span>(self, cfg: <span class="t">dict</span>, board: <span class="t">Board</span>):
+        self.cfg = cfg
+        self.board = board
+        self.cooldowns = {<span class="s">"alarm"</span>: cfg.<span class="f">get</span>(<span class="s">"cooldown_seconds"</span>, <span class="n">60</span>), <span class="s">"test"</span>: <span class="n">TEST_COOLDOWN</span>}
+        self.last_sent = {<span class="s">"alarm"</span>: <span class="n">None</span>, <span class="s">"test"</span>: <span class="n">None</span>}
+        self.use_gmail = send_gmail <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> <span class="k">not</span> <span class="f">missing_fields</span>(
+            cfg, [<span class="s">"gmail.sender"</span>, <span class="s">"gmail.app_password"</span>, <span class="s">"gmail.to"</span>])
+        self.use_discord = send_discord <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> <span class="k">not</span> <span class="f">missing_fields</span>(
+            cfg, [<span class="s">"discord.webhook_url"</span>])
+
+    <span class="k">def</span> <span class="f">describe</span>(self) -&gt; <span class="t">str</span>:
+        gmail = <span class="s">"開啟"</span> <span class="k">if</span> self.use_gmail <span class="k">else</span> <span class="s">"關閉"</span>
+        discord = <span class="s">"開啟"</span> <span class="k">if</span> self.use_discord <span class="k">else</span> <span class="s">"關閉"</span>
+        <span class="k">return</span> <span class="s">f"通知：Gmail {</span>gmail<span class="s">}、Discord {</span>discord<span class="s">}"</span>
+
+    <span class="k">def</span> <span class="f">trigger</span>(self, kind: <span class="t">str</span>, line: <span class="t">str</span>):
+        <span class="s">"""kind 是 "alarm" 或 "test"。回傳背景執行緒（沒有要通知就回傳 None）。"""</span>
+        <span class="k">if</span> <span class="k">not</span> (self.use_gmail <span class="k">or</span> self.use_discord):
+            <span class="k">if</span> kind == <span class="s">"test"</span>:
+                self.board.<span class="f">add_event</span>(<span class="s">"測試：沒有設定 Gmail 或 Discord，沒有送出通知"</span>)
+            <span class="k">return</span> <span class="n">None</span>
+        now = time.<span class="f">monotonic</span>()
+        last = self.last_sent[kind]
+        cooldown = self.cooldowns[kind]
+        <span class="k">if</span> last <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> now - last &lt; cooldown:
+            what = <span class="s">"通知"</span> <span class="k">if</span> kind == <span class="s">"alarm"</span> <span class="k">else</span> <span class="s">"測試通知"</span>
+            text = <span class="s">f"冷卻中，{</span>math.ceil(cooldown - (now - last))<span class="s">} 秒內不再{</span>what<span class="s">}"</span>
+            <span class="f">print</span>(text)
+            self.board.<span class="f">add_event</span>(text)
+            <span class="k">return</span> <span class="n">None</span>
+        self.last_sent[kind] = now
+        thread = threading.<span class="t">Thread</span>(target=self.send_all, args=(kind, line), daemon=<span class="n">True</span>)
+        thread.<span class="f">start</span>()
+        <span class="k">return</span> thread
+
+    <span class="k">def</span> <span class="f">send_all</span>(self, kind: <span class="t">str</span>, line: <span class="t">str</span>):
+        is_test = kind == <span class="s">"test"</span>
+        <span class="k">if</span> self.use_gmail:
+            subject, body = <span class="f">test_message</span>(line) <span class="k">if</span> is_test <span class="k">else</span> <span class="f">alarm_message</span>(line)
+            ok = <span class="f">send_gmail</span>(self.cfg, subject, body)
+            <span class="k">if</span> is_test:
+                self.board.<span class="f">add_event</span>(<span class="s">"已寄出測試信（Gmail）"</span> <span class="k">if</span> ok <span class="k">else</span> <span class="s">"測試失敗：Gmail"</span>)
+            <span class="k">else</span>:
+                self.board.<span class="f">add_event</span>(<span class="s">"已寄出 Gmail"</span> <span class="k">if</span> ok <span class="k">else</span> <span class="s">"通知失敗：Gmail"</span>)
+        <span class="k">if</span> self.use_discord:
+            ok = <span class="f">send_discord</span>(self.cfg, <span class="f">test_text</span>(line) <span class="k">if</span> is_test <span class="k">else</span> <span class="f">alarm_text</span>(line))
+            <span class="k">if</span> is_test:
+                self.board.<span class="f">add_event</span>(<span class="s">"已發出測試訊息（Discord）"</span> <span class="k">if</span> ok <span class="k">else</span> <span class="s">"測試失敗：Discord"</span>)
+            <span class="k">else</span>:
+                self.board.<span class="f">add_event</span>(<span class="s">"已發到 Discord"</span> <span class="k">if</span> ok <span class="k">else</span> <span class="s">"通知失敗：Discord"</span>)
+
+
+<span class="c"># ---------- 序列埠 ----------</span>
+
+board = <span class="t">Board</span>()
+notifier = <span class="n">None</span>  <span class="c"># main() 會建立</span>
+ser = <span class="n">None</span>  <span class="c"># main() 會開啟</span>
+write_lock = threading.<span class="t">Lock</span>()
+stopping = threading.<span class="t">Event</span>()  <span class="c"># main() 結束前設定</span>
+
+
+<span class="k">def</span> <span class="f">handle_line</span>(line: <span class="t">str</span>):
+    <span class="k">if</span> <span class="k">not</span> line.<span class="f">startswith</span>(<span class="s">"READ"</span>):  <span class="c"># READ 每 0.25 秒一行，印出來會洗版</span>
+        <span class="f">print</span>(<span class="s">f"{</span>datetime.now():%H:%M:%S<span class="s">} {</span>line<span class="s">}"</span>)
+    msg = <span class="f">parse_line</span>(line)
+    <span class="k">if</span> msg <span class="k">is</span> <span class="n">None</span>:
+        <span class="k">return</span>
+    kind = board.<span class="f">update</span>(msg)
+    <span class="k">if</span> kind <span class="k">and</span> notifier <span class="k">is</span> <span class="k">not</span> <span class="n">None</span>:
+        notifier.<span class="f">trigger</span>(kind, line)
+
+
+<span class="k">def</span> <span class="f">reader_loop</span>(port):
+    <span class="s">"""背景執行緒：一直讀序列埠，每一行交給 handle_line。"""</span>
+    <span class="k">while</span> <span class="n">True</span>:
+        <span class="k">try</span>:
+            raw = port.<span class="f">readline</span>()
+        <span class="k">except</span> <span class="t">Exception</span> <span class="k">as</span> error:
+            <span class="k">if</span> <span class="k">not</span> stopping.<span class="f">is_set</span>():  <span class="c"># 結束程式時序列埠已經關掉，不用印錯誤</span>
+                <span class="f">print</span>(error)
+            <span class="k">return</span>
+        line = raw.<span class="f">decode</span>(<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>).<span class="f">strip</span>()
+        <span class="k">if</span> line:
+            <span class="f">handle_line</span>(line)
+
+
+<span class="k">def</span> <span class="f">send_command</span>(cmd: <span class="t">str</span>):
+    <span class="k">with</span> write_lock:
+        ser.<span class="f">write</span>(<span class="s">f"{</span>cmd<span class="s">}\n"</span>.<span class="f">encode</span>())
+
+
+<span class="c"># ---------- 網頁 ----------</span>
+
+app = <span class="t">Flask</span>(__name__)
+<span class="c"># 網頁每 0.5 秒查詢一次，關掉 Flask 每個請求一行的紀錄</span>
+logging.<span class="f">getLogger</span>(<span class="s">"werkzeug"</span>).<span class="f">setLevel</span>(logging.<span class="n">ERROR</span>)
+
+<span class="n">PAGE</span> = <span class="s">"""</span>&lt;<span class="k">!doctype</span> <span class="a">html</span>&gt;
+&lt;<span class="k">html</span> <span class="a">lang</span>=<span class="s">"zh-Hant"</span>&gt;
+&lt;<span class="k">head</span>&gt;
+&lt;<span class="k">meta</span> <span class="a">charset</span>=<span class="s">"utf-8"</span>&gt;
+&lt;<span class="k">meta</span> <span class="a">name</span>=<span class="s">"viewport"</span> <span class="a">content</span>=<span class="s">"width=device-width, initial-scale=1"</span>&gt;
+&lt;<span class="k">title</span>&gt;防盜系統儀表板&lt;/<span class="k">title</span>&gt;
+&lt;<span class="k">style</span>&gt;
+  <span class="t">*</span> { <span class="a">box-sizing</span>: border-box; }
+  <span class="t">body</span> { <span class="a">margin</span>: <span class="n">0</span>; <span class="a">background</span>: <span class="n">#fbfaf8</span>; <span class="a">color</span>: <span class="n">#17181a</span>;
+         <span class="a">font-family</span>: system-ui, -apple-system, <span class="s">"Segoe UI"</span>, <span class="s">"Microsoft JhengHei"</span>,
+                      sans-serif; }
+  <span class="t">main</span> { <span class="a">max-width</span>: <span class="n">640px</span>; <span class="a">margin</span>: <span class="n">0</span> auto; <span class="a">padding</span>: <span class="n">24px</span> <span class="n">16px</span>; }
+  <span class="t">#badge</span> { <span class="a">padding</span>: <span class="n">24px</span>; <span class="a">border-radius</span>: <span class="n">4px</span>; <span class="a">text-align</span>: center; <span class="a">color</span>: <span class="n">#fff</span>;
+           <span class="a">font-size</span>: <span class="n">40px</span>; <span class="a">font-weight</span>: <span class="n">700</span>; <span class="a">background</span>: <span class="n">#8a8a85</span>; }
+  <span class="t">.DISARMED</span> { <span class="a">background</span>: <span class="n">#2e7d32</span> <span class="k">!important</span>; }
+  <span class="t">.EXIT, .ENTRY</span> { <span class="a">background</span>: <span class="n">#b26a00</span> <span class="k">!important</span>; }
+  <span class="t">.ARMED</span> { <span class="a">background</span>: <span class="n">#1f5fbf</span> <span class="k">!important</span>; }
+  <span class="t">.ALARM</span> { <span class="a">background</span>: <span class="n">#c62828</span> <span class="k">!important</span>; }
+  <span class="t">.TEST</span> { <span class="a">background</span>: <span class="n">#6a3fb5</span> <span class="k">!important</span>; }
+  <span class="t">#offline</span> { <span class="a">margin-top</span>: <span class="n">16px</span>; <span class="a">padding</span>: <span class="n">12px</span>; <span class="a">border</span>: <span class="n">1px</span> solid <span class="n">#e4572e</span>;
+             <span class="a">border-radius</span>: <span class="n">4px</span>; <span class="a">color</span>: <span class="n">#e4572e</span>; <span class="a">display</span>: none; }
+  <span class="t">.nums</span> { <span class="a">display</span>: grid; <span class="a">grid-template-columns</span>: <span class="f">repeat</span>(<span class="n">3</span>, <span class="n">1fr</span>); <span class="a">gap</span>: <span class="n">12px</span>;
+          <span class="a">margin</span>: <span class="n">16px</span> <span class="n">0</span>; }
+  <span class="t">.num</span> { <span class="a">padding</span>: <span class="n">16px</span> <span class="n">8px</span>; <span class="a">border</span>: <span class="n">1px</span> solid <span class="n">#e2e0db</span>; <span class="a">border-radius</span>: <span class="n">4px</span>;
+         <span class="a">text-align</span>: center; }
+  <span class="t">.num b</span> { <span class="a">display</span>: block; <span class="a">font-size</span>: <span class="n">40px</span>; <span class="a">font-variant-numeric</span>: tabular-nums; }
+  <span class="t">.num span</span> { <span class="a">font-size</span>: <span class="n">14px</span>; }
+  <span class="t">.btns</span> { <span class="a">display</span>: grid; <span class="a">grid-template-columns</span>: <span class="f">repeat</span>(<span class="n">3</span>, <span class="n">1fr</span>); <span class="a">gap</span>: <span class="n">12px</span>; }
+  <span class="t">button</span> { <span class="a">padding</span>: <span class="n">16px</span>; <span class="a">font-size</span>: <span class="n">18px</span>; <span class="a">border</span>: <span class="n">1px</span> solid <span class="n">#e2e0db</span>;
+           <span class="a">border-radius</span>: <span class="n">4px</span>; <span class="a">background</span>: <span class="n">#fff</span>; <span class="a">color</span>: <span class="n">#17181a</span>; <span class="a">cursor</span>: pointer; }
+  <span class="t">.btns button:first-child</span> { <span class="a">background</span>: <span class="n">#e4572e</span>; <span class="a">border-color</span>: <span class="n">#e4572e</span>; <span class="a">color</span>: <span class="n">#fff</span>; }
+  <span class="t">.modes</span> { <span class="a">display</span>: grid; <span class="a">grid-template-columns</span>: <span class="f">repeat</span>(<span class="n">2</span>, <span class="n">1fr</span>); <span class="a">gap</span>: <span class="n">12px</span>;
+           <span class="a">margin-bottom</span>: <span class="n">12px</span>; }
+  <span class="t">.modes button.on</span> { <span class="a">background</span>: <span class="n">#17181a</span>; <span class="a">border-color</span>: <span class="n">#17181a</span>; <span class="a">color</span>: <span class="n">#fff</span>; }
+  <span class="t">.btns.one</span> { <span class="a">grid-template-columns</span>: <span class="n">1fr</span>; }
+  <span class="t">#notify</span> { <span class="a">margin-top</span>: <span class="n">8px</span>; <span class="a">font-size</span>: <span class="n">14px</span>; <span class="a">color</span>: <span class="n">#6b6b66</span>; <span class="a">text-align</span>: center; }
+  <span class="t">button:disabled</span> { <span class="a">opacity</span>: <span class="n">.4</span>; <span class="a">cursor</span>: not-allowed; }
+  <span class="t">h2</span> { <span class="a">font-size</span>: <span class="n">16px</span>; <span class="a">margin</span>: <span class="n">24px</span> <span class="n">0</span> <span class="n">8px</span>; }
+  <span class="t">ul</span> { <span class="a">list-style</span>: none; <span class="a">margin</span>: <span class="n">0</span>; <span class="a">padding</span>: <span class="n">0</span>; <span class="a">border</span>: <span class="n">1px</span> solid <span class="n">#e2e0db</span>;
+       <span class="a">border-radius</span>: <span class="n">4px</span>; }
+  <span class="t">li</span> { <span class="a">padding</span>: <span class="n">8px</span> <span class="n">12px</span>; <span class="a">border-bottom</span>: <span class="n">1px</span> solid <span class="n">#e2e0db</span>; }
+  <span class="t">li:last-child</span> { <span class="a">border-bottom</span>: <span class="n">0</span>; }
+  <span class="t">li time</span> { <span class="a">margin-right</span>: <span class="n">12px</span>; <span class="a">color</span>: <span class="n">#6b6b66</span>; <span class="a">font-variant-numeric</span>: tabular-nums; }
+&lt;/<span class="k">style</span>&gt;
+&lt;/<span class="k">head</span>&gt;
+&lt;<span class="k">body</span>&gt;
+&lt;<span class="k">main</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">id</span>=<span class="s">"badge"</span>&gt;—&lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">id</span>=<span class="s">"notify"</span>&gt;&lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">id</span>=<span class="s">"offline"</span>&gt;板子離線：超過 3 秒沒有收到資料&lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">class</span>=<span class="s">"nums"</span>&gt;
+    &lt;<span class="k">div</span> <span class="a">class</span>=<span class="s">"num"</span>&gt;&lt;<span class="k">b</span> <span class="a">id</span>=<span class="s">"dist"</span>&gt;—&lt;/<span class="k">b</span>&gt;&lt;<span class="k">span</span>&gt;距離（cm）&lt;/<span class="k">span</span>&gt;&lt;/<span class="k">div</span>&gt;
+    &lt;<span class="k">div</span> <span class="a">class</span>=<span class="s">"num"</span>&gt;&lt;<span class="k">b</span> <span class="a">id</span>=<span class="s">"light"</span>&gt;—&lt;/<span class="k">b</span>&gt;&lt;<span class="k">span</span>&gt;亮度&lt;/<span class="k">span</span>&gt;&lt;/<span class="k">div</span>&gt;
+    &lt;<span class="k">div</span> <span class="a">class</span>=<span class="s">"num"</span>&gt;&lt;<span class="k">b</span> <span class="a">id</span>=<span class="s">"threshold"</span>&gt;—&lt;/<span class="k">b</span>&gt;&lt;<span class="k">span</span>&gt;觸發距離（cm）&lt;/<span class="k">span</span>&gt;&lt;/<span class="k">div</span>&gt;
+  &lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">class</span>=<span class="s">"modes"</span>&gt;
+    &lt;<span class="k">button</span> <span class="a">id</span>=<span class="s">"m-detect"</span> <span class="a">data-cmd</span>=<span class="s">"MODE,DETECT"</span>&gt;偵測模式&lt;/<span class="k">button</span>&gt;
+    &lt;<span class="k">button</span> <span class="a">id</span>=<span class="s">"m-test"</span> <span class="a">data-cmd</span>=<span class="s">"MODE,TEST"</span>&gt;測試模式&lt;/<span class="k">button</span>&gt;
+  &lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">class</span>=<span class="s">"btns"</span> <span class="a">id</span>=<span class="s">"detect"</span>&gt;
+    &lt;<span class="k">button</span> <span class="a">data-cmd</span>=<span class="s">"ARM"</span>&gt;布防&lt;/<span class="k">button</span>&gt;
+    &lt;<span class="k">button</span> <span class="a">data-cmd</span>=<span class="s">"DISARM"</span>&gt;撤防&lt;/<span class="k">button</span>&gt;
+    &lt;<span class="k">button</span> <span class="a">data-cmd</span>=<span class="s">"MUTE"</span>&gt;靜音&lt;/<span class="k">button</span>&gt;
+  &lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">div</span> <span class="a">class</span>=<span class="s">"btns one"</span> <span class="a">id</span>=<span class="s">"testbtns"</span> <span class="a">style</span>=<span class="s">"display: none"</span>&gt;
+    &lt;<span class="k">button</span> <span class="a">data-cmd</span>=<span class="s">"TEST"</span>&gt;送出測試通知&lt;/<span class="k">button</span>&gt;
+  &lt;/<span class="k">div</span>&gt;
+  &lt;<span class="k">h2</span>&gt;事件紀錄&lt;/<span class="k">h2</span>&gt;
+  &lt;<span class="k">ul</span> <span class="a">id</span>=<span class="s">"events"</span>&gt;&lt;/<span class="k">ul</span>&gt;
+&lt;/<span class="k">main</span>&gt;
+&lt;<span class="k">script</span>&gt;
+  <span class="k">const</span> $ = (id) =&gt; document.<span class="f">getElementById</span>(id);
+  <span class="k">const</span> num = (v, hideNegative) =&gt; (v === <span class="n">null</span> || (hideNegative &amp;&amp; v &lt; <span class="n">0</span>)) ? <span class="s">"—"</span> : v;
+
+  <span class="k">function</span> <span class="f">render</span>(s) {
+    <span class="f">$</span>(<span class="s">"badge"</span>).textContent = s.state_text;
+    <span class="f">$</span>(<span class="s">"badge"</span>).className = s.state || <span class="s">""</span>;
+    <span class="f">$</span>(<span class="s">"dist"</span>).textContent = <span class="f">num</span>(s.dist, <span class="n">true</span>);
+    <span class="f">$</span>(<span class="s">"light"</span>).textContent = <span class="f">num</span>(s.light, <span class="n">false</span>);
+    <span class="f">$</span>(<span class="s">"threshold"</span>).textContent = <span class="f">num</span>(s.threshold, <span class="n">false</span>);
+    <span class="f">$</span>(<span class="s">"notify"</span>).textContent = s.notify || <span class="s">""</span>;
+    <span class="k">const</span> test = s.state === <span class="s">"TEST"</span>;
+    <span class="f">$</span>(<span class="s">"m-detect"</span>).className = test ? <span class="s">""</span> : <span class="s">"on"</span>;
+    <span class="f">$</span>(<span class="s">"m-test"</span>).className = test ? <span class="s">"on"</span> : <span class="s">""</span>;
+    <span class="f">$</span>(<span class="s">"detect"</span>).style.display = test ? <span class="s">"none"</span> : <span class="s">"grid"</span>;
+    <span class="f">$</span>(<span class="s">"testbtns"</span>).style.display = test ? <span class="s">"grid"</span> : <span class="s">"none"</span>;
+    <span class="f">$</span>(<span class="s">"offline"</span>).style.display = s.online ? <span class="s">"none"</span> : <span class="s">"block"</span>;
+    document.<span class="f">querySelectorAll</span>(<span class="s">"button"</span>).<span class="f">forEach</span>((b) =&gt; (b.disabled = !s.online));
+    <span class="k">const</span> list = <span class="f">$</span>(<span class="s">"events"</span>);
+    list.innerHTML = <span class="s">""</span>;
+    <span class="k">for</span> (<span class="k">const</span> e <span class="k">of</span> s.events) {
+      <span class="k">const</span> li = document.<span class="f">createElement</span>(<span class="s">"li"</span>);
+      <span class="k">const</span> t = document.<span class="f">createElement</span>(<span class="s">"time"</span>);
+      t.textContent = e.time;
+      li.<span class="f">append</span>(t, e.text);
+      list.<span class="f">append</span>(li);
+    }
+  }
+
+  <span class="k">async</span> <span class="k">function</span> <span class="f">refresh</span>() {
+    <span class="k">try</span> {
+      <span class="f">render</span>(<span class="k">await</span> (<span class="k">await</span> <span class="f">fetch</span>(<span class="s">"/api/state"</span>)).<span class="f">json</span>());
+    } <span class="k">catch</span> (error) {
+      <span class="f">$</span>(<span class="s">"offline"</span>).style.display = <span class="s">"block"</span>;
+      document.<span class="f">querySelectorAll</span>(<span class="s">"button"</span>).<span class="f">forEach</span>((b) =&gt; (b.disabled = <span class="n">true</span>));
+    }
+  }
+
+  document.<span class="f">querySelectorAll</span>(<span class="s">"button"</span>).<span class="f">forEach</span>((b) =&gt; {
+    b.onclick = () =&gt; <span class="f">fetch</span>(<span class="s">"/api/cmd"</span>, {
+      method: <span class="s">"POST"</span>,
+      headers: { <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span> },
+      body: <span class="n">JSON</span>.<span class="f">stringify</span>({ cmd: b.dataset.cmd }),
+    });
+  });
+
+  <span class="f">refresh</span>();
+  <span class="f">setInterval</span>(refresh, <span class="n">500</span>);
+&lt;/<span class="k">script</span>&gt;
+&lt;/<span class="k">body</span>&gt;
+&lt;/<span class="k">html</span>&gt;
+<span class="s">"""</span>
+
+
+<span class="k">@app.get</span>(<span class="s">"/"</span>)
+<span class="k">def</span> <span class="f">index</span>():
+    <span class="k">return</span> <span class="n">PAGE</span>
+
+
+<span class="k">@app.get</span>(<span class="s">"/api/state"</span>)
+<span class="k">def</span> <span class="f">api_state</span>():
+    <span class="k">return</span> <span class="f">jsonify</span>(board.<span class="f">snapshot</span>(notifier.<span class="f">describe</span>() <span class="k">if</span> notifier <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">else</span> <span class="s">""</span>))
+
+
+<span class="k">@app.post</span>(<span class="s">"/api/cmd"</span>)
+<span class="k">def</span> <span class="f">api_cmd</span>():
+    data = request.<span class="f">get_json</span>(silent=<span class="n">True</span>) <span class="k">or</span> {}
+    cmd = data.<span class="f">get</span>(<span class="s">"cmd"</span>)
+    <span class="k">if</span> cmd <span class="k">not</span> <span class="k">in</span> <span class="n">COMMANDS</span>:
+        <span class="k">return</span> <span class="f">jsonify</span>({<span class="s">"error"</span>: <span class="s">"不支援的指令"</span>}), <span class="n">400</span>
+    <span class="k">try</span>:
+        <span class="f">send_command</span>(cmd)
+    <span class="k">except</span> <span class="t">Exception</span> <span class="k">as</span> error:
+        <span class="k">return</span> <span class="f">jsonify</span>({<span class="s">"error"</span>: <span class="t">str</span>(error)}), <span class="n">500</span>
+    <span class="k">return</span> <span class="f">jsonify</span>({<span class="s">"ok"</span>: <span class="n">True</span>})
+
+
+<span class="c"># ---------- 主程式 ----------</span>
+
+<span class="k">def</span> <span class="f">main</span>():
+    <span class="k">global</span> ser, notifier
+    parser = argparse.<span class="t">ArgumentParser</span>()
+    parser.<span class="f">add_argument</span>(<span class="s">"--port"</span>, help=<span class="s">"序列埠，會蓋過 config.json 的 serial_port"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--host"</span>, default=<span class="s">"127.0.0.1"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--web-port"</span>, type=<span class="t">int</span>, default=<span class="n">8000</span>)
+    args = parser.<span class="f">parse_args</span>()
+
+    cfg = <span class="f">load_config</span>([] <span class="k">if</span> args.port <span class="k">else</span> [<span class="s">"serial_port"</span>])
+    ser = <span class="f">open_serial</span>(args.port <span class="k">or</span> cfg[<span class="s">"serial_port"</span>])
+    notifier = <span class="t">Notifier</span>(cfg, board)
+    <span class="f">print</span>(notifier.<span class="f">describe</span>())
+    threading.<span class="t">Thread</span>(target=reader_loop, args=(ser,), daemon=<span class="n">True</span>).<span class="f">start</span>()
+
+    <span class="f">print</span>(<span class="s">f"儀表板：http://{</span>args.host<span class="s">}:{</span>args.web_port<span class="s">}"</span>)
+    <span class="k">try</span>:
+        <span class="c"># debug 模式的 reloader 會把程式啟動兩次，序列埠就會被開兩次，所以要關掉</span>
+        app.<span class="f">run</span>(host=args.host, port=args.web_port, debug=<span class="n">False</span>, use_reloader=<span class="n">False</span>)
+    <span class="k">except</span> <span class="t">KeyboardInterrupt</span>:
+        <span class="k">pass</span>
+    <span class="f">print</span>(<span class="s">"已結束。"</span>)
+    <span class="k">if</span> board.state == <span class="s">"TEST"</span>:  <span class="c"># 不要讓板子一直停在安靜的測試模式</span>
+        <span class="k">try</span>:
+            <span class="f">send_command</span>(<span class="s">"MODE,DETECT"</span>)
+        <span class="k">except</span> <span class="t">Exception</span>:
+            <span class="k">pass</span>
+    stopping.<span class="t">set</span>()
+    ser.<span class="f">close</span>()
+
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    <span class="f">main</span>()
+</code></pre>
+</div>
+<!-- /code -->
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 步驟 8 執行指令">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run dashboard.py</code></pre>
+</div>
+        <p class="note">執行後用瀏覽器打開 http://127.0.0.1:8000 。</p>
+        <details class="fold ai">
+          <summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+          <div class="fold-body">
+            <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 8 提示詞">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">我有一支 Arduino 程式，會從序列埠（鮑率 9600）每 0.25 秒送出一行 READ,距離,亮度,觸發距離,狀態，也會接收 ARM、DISARM、MUTE 指令。格式如下：（貼上事件格式表）
+請用 Python 和 Flask 寫一個網頁儀表板：即時顯示距離、亮度、觸發距離和狀態，有布防、撤防、靜音三個按鈕；超過 3 秒沒收到資料就顯示「板子離線」。
+讀序列埠放在另一個執行緒，網頁用 8000 埠，關掉 Flask 的 debug 自動重新載入。我用 uv 管理套件。</code></pre>
+</div>
+            <h4>要一起給 AI 的資料</h4>
+            <p>事件格式表、要顯示哪些數值、要哪些按鈕。</p>
+            <h4>拿到程式後先檢查</h4>
+            <ul class="prose">
+              <li>Flask 沒有開 debug。開了會讓程式啟動兩次、開兩次序列埠。</li>
+              <li>網頁的埠不是 5000。macOS 的 AirPlay 接收器佔用 5000 埠。</li>
+              <li>多個執行緒同時寫序列埠時有加鎖。</li>
+            </ul>
+          </div>
+        </details>
+        <p class="ex-h">完成標準</p>
+        <p>網頁上的距離跟著手移動。先按「測試模式」，Uno 亮紫燈；按「送出測試通知」，事件紀錄出現「已寄出測試信（Gmail）」或「已發出測試訊息（Discord）」。再按「偵測模式」回到撤防，按「布防」後 Uno 每秒嗶一聲、亮黃燈，10 秒後變藍燈；手靠近後進入倒數，再過 10 秒進入警報，紅燈、蜂鳴器響，事件紀錄也會出現。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>網頁顯示「板子離線」</b>：超過 3 秒沒有收到 Uno 的資料，檢查 USB 線和序列埠名稱。</li>
+              <li><b>儀表板開著時，序列埠監控視窗打不開</b>：同一個序列埠一次只能給一個程式用。</li>
+              <li><b>把 Flask 的 debug 打開後出錯</b>：自動重新載入會讓程式啟動兩次、開兩次序列埠。範例已經關掉這個功能。</li>
+              <li><b>關掉儀表板後收不到通知</b>：Uno 還會繼續偵測和警報，只是沒有程式送出通知。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>Flask</dt><dd>Python 的網頁框架，幾行程式就能開一個網頁伺服器。</dd>
+          <dt>127.0.0.1、埠</dt><dd>127.0.0.1 指這台電腦自己；8000 是網頁伺服器用的埠號，同一台電腦上的不同服務用不同的埠。</dd>
+          </dl>
+        </div>
+      </article>
+    </section>
+    <section class="sec" id="s4" aria-labelledby="s4-h">
+      <p class="sec-no">04</p>
+      <h2 id="s4-h">整合驗收</h2>
+      <p>步驟 1 到 6 都完成後，把系統裝在要保護的地方，照這張表測一輪，把數字記下來。</p>
+<div class="table-wrap"><table class="tbl stack">
+        <thead><tr><th scope="col">項目</th><th scope="col">怎麼做</th><th scope="col">記錄什麼</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">漏報</th><td data-label="怎麼做">用平常的速度走過門口 10 次</td><td data-label="記錄什麼">觸發幾次</td></tr>
+          <tr><th scope="row">漏報</th><td data-label="怎麼做">側身快速通過、穿厚外套通過，各 5 次</td><td data-label="記錄什麼">觸發幾次</td></tr>
+          <tr><th scope="row">誤報</th><td data-label="怎麼做">布防後讓空房間放 1 小時</td><td data-label="記錄什麼">誤觸發幾次</td></tr>
+          <tr><th scope="row">誤報</th><td data-label="怎麼做">開關房間的燈、拉窗簾</td><td data-label="記錄什麼">光敏電阻模組有沒有誤觸發</td></tr>
+          <tr><th scope="row">撤防</th><td data-label="怎麼做">觸發後 10 秒內在儀表板按撤防</td><td data-label="記錄什麼">有沒有響、有沒有寄信</td></tr>
+          <tr><th scope="row">測試通知</th><td data-label="怎麼做">測試模式下輸入 TEST、手靠近超音波、遮住或照亮光敏電阻模組</td><td data-label="記錄什麼">每一種各收到幾封測試信</td></tr>
+          <tr><th scope="row">通知</th><td data-label="怎麼做">偵測模式下觸發一次完整警報</td><td data-label="記錄什麼">幾秒後收到信、收到幾封</td></tr>
+          <tr><th scope="row">斷網</th><td data-label="怎麼做">拔掉電腦的網路後觸發</td><td data-label="記錄什麼">蜂鳴器有沒有響、有沒有發現通知失敗</td></tr>
+          <tr><th scope="row">斷電</th><td data-label="怎麼做">布防中拔電再插回</td><td data-label="記錄什麼">回到什麼狀態</td></tr>
+          <tr><th scope="row">長時間</th><td data-label="怎麼做">連續運作 8 小時</td><td data-label="記錄什麼">有沒有當機、心跳有沒有中斷</td></tr>
+        </tbody>
+      </table></div>
+      <p>誤報太多，使用的人會把系統關掉；漏報太多，系統就沒有用。調門檻時兩個數字要一起看。</p>
+      <p class="note">長時間測試前，把電腦的自動睡眠關掉；電腦一睡著，通知就中斷。</p>
+    </section>
+    <section class="sec" id="s5" aria-labelledby="s5-h">
+      <p class="sec-no">05</p>
+      <h2 id="s5-h">什麼情況下會失效</h2>
+      <p class="lead-q">「我做的東西在什麼狀況下會翻車？」</p>
+      <p>每一步的常見問題發生在製作時；這一節是系統裝好以後，在真實情況下會失效的地方。</p>
+      <p class="fails-h">裝置：感測</p>
+<ul class="fails lead-in">
+        <li><div><b>有人從 HC-SR04 照不到的角度進來</b>：不會觸發。</div></li>
+        <li><div><b>穿厚外套或抱著棉被經過</b>：聲波被吸收，量不到。</div></li>
+        <li><div><b>房間全暗時打開盒子</b>：亮度沒有變化，光敏電阻模組不會觸發。</div></li>
+        <li><div><b>陽光照進來，或有人開燈</b>：光敏電阻模組誤觸發。</div></li>
+      </ul>
+      <p class="fails-h">裝置：判斷與電源</p>
+<ul class="fails">
+        <li><div><b>闖入的人把旋鈕轉到最近</b>：觸發距離變成 5 cm，等於關掉偵測。</div></li>
+        <li><div><b>拔掉電源</b>：整個系統停止；重新通電後回到撤防。</div></li>
+        <li><div><b>程式卡住</b>：蜂鳴器不響，也不會通知。</div></li>
+      </ul>
+      <p class="fails-h">閘道、網路與通知</p>
+<ul class="fails">
+        <li><div><b>電腦休眠、關機，或 USB 線鬆脫</b>：Python 收不到事件，不會送出通知。</div></li>
+        <li><div><b>網路斷了</b>：通知送不出去。「沒收到通知」不代表「沒有人闖入」，要靠心跳訊號發現系統離線。</div></li>
+        <li><div><b>Gmail 信件延遲，或被歸到垃圾郵件</b>：主人沒有即時看到通知。</div></li>
+        <li><div><b>誤報太多</b>：寄出大量信件，收信的人開始忽略通知。</div></li>
+        <li><div><b>應用程式密碼外洩</b>：別人可以用這個帳號寄信。</div></li>
+      </ul>
+    </section>
+    <section class="sec" id="s6" aria-labelledby="s6-h">
+      <p class="sec-no">06</p>
+      <h2 id="s6-h">延伸挑戰</h2>
+      <ul class="prose">
+        <li><b>斷電後回到原本的狀態</b>：把目前的狀態存進 EEPROM，重新通電時讀回來。現在的程式一律從撤防開始。</li>
+        <li><b>不接電腦也能布防</b>：加一個按鈕或密碼鍵盤，用按鈕布防、輸入密碼撤防。</li>
+        <li><b>警報響一段時間自動停止</b>：例如響 3 分鐘後停止，回到布防。現在會一直響到撤防或靜音。</li>
+        <li><b>改用其他通知服務</b>：LINE、Telegram 的做法見附錄的通知服務比較。</li>
+        <li><b>保護整個房間</b>：加人體紅外線感測器（PIR），偵測範圍比 HC-SR04 大很多。</li>
+        <li><b>板子自己上網</b>：改用 ESP32，不需要電腦當閘道，見 <a href="alarm-esp32.html">ESP32 版</a>。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s7" aria-labelledby="s7-h">
+      <p class="sec-no">07</p>
+      <h2 id="s7-h">附錄</h2>
+      <h3 id="parts">零件規格與限制</h3>
+<ul class="parts">
+        <li class="part"><img class="part-pic" src="../assets/handout/img/hc-sr04.webp" alt="" width="120" height="120" loading="lazy"><div><h3>HC-SR04 超音波測距</h3><p class="spec">量測範圍約 2 cm – 4 m・感測角度約 15°・兩次量測至少間隔 60 ms</p><dl class="kv"><dt>用途</dt><dd>量到前方物體的距離。</dd><dt>接法</dt><dd>5V 供電，Echo 腳可以直接接 Uno。</dd><dt class="is-trap">限制</dt><dd>衣服、窗簾這類軟的材質會吸收聲波；斜面會把聲波彈開，量不到或讀值亂跳；偶爾會讀到 0 或最大值，要連續量幾次取中間值。兩個 HC-SR04 放太近會互相干擾。</dd></dl></div></li>
+        <li class="part"><img class="part-pic" src="../assets/handout/img/ldr-module.webp" alt="" width="120" height="120" loading="lazy"><div><h3>光敏電阻模組</h3><p class="spec">四支腳：VCC、GND、DO、AO・板上有比較器和調整門檻的小旋鈕</p><dl class="kv"><dt>用途</dt><dd>量亮度。</dd><dt>接法</dt><dd>VCC 接 5V，GND 接 GND，AO 接 A0。DO 不用接。</dd><dt class="is-trap">限制</dt><dd>讀值跟著環境光變化，白天、晚上、開燈都不同，門檻要在現場校正。房間全暗時打開盒子，亮度沒有變化，偵測不到。常見的模組越亮讀值越小，有些模組相反；主程式只看和基準值差多少，兩種都能用。</dd><dt>DO 腳</dt><dd>只有亮、暗兩種輸出，門檻用模組上的小旋鈕調。本專案只用 AO。</dd></dl></div></li>
+        <li class="part"><img class="part-pic" src="../assets/handout/img/potentiometer.webp" alt="" width="120" height="120" loading="lazy"><div><h3>旋鈕（可變電阻）</h3><p class="spec">讀值 0–1023</p><dl class="kv"><dt>用途</dt><dd>讀旋鈕轉到哪裡，換算成觸發距離 5–100 cm。</dd><dt>接法</dt><dd>兩側的腳分別接 5V 和 GND，中間腳接 A1。轉的方向和讀值相反時，把兩側的腳對調。</dd><dt class="is-trap">限制</dt><dd>讀值會小幅跳動，觸發距離跟著跳 1、2 cm。任何人都能轉。</dd></dl></div></li>
+        <li class="part"><img class="part-pic" src="../assets/handout/img/buzzer.webp" alt="" width="120" height="120" loading="lazy"><div><h3>有源蜂鳴器</h3><p class="spec">通電就響・只有一個音高</p><dl class="kv"><dt>用途</dt><dd>警報聲。</dd><dt>分辨</dt><dd>有源蜂鳴器通常比較高，底部用黑膠封住；長腳是正極。買的時候看清楚品名是「有源」。</dd><dt>接法</dt><dd>正極接 D12，負極接 GND。</dd><dt class="is-trap">限制</dt><dd>不能改音調，用 tone() 只會發出破音。如果買到的是三腳蜂鳴器模組，有些是「低電位觸發」：腳位輸出 LOW 才會響，程式要反過來寫。</dd></dl></div></li>
+        <li class="part"><img class="part-pic" src="../assets/handout/img/rgb-led.webp" alt="" width="120" height="120" loading="lazy"><div><h3>全彩 LED</h3><p class="spec">一顆裡有紅、綠、藍三色・分共陰極和共陽極</p><dl class="kv"><dt>用途</dt><dd>用顏色顯示狀態。</dd><dt>接法</dt><dd>四支腳裡最長的是共用腳：共陰極接 GND，共陽極接 5V。紅、綠、藍三腳各經 220 Ω 電阻接 D11、D10、D9。</dd><dt class="is-trap">限制</dt><dd>共陰極和共陽極的程式相反，買到另一種時顏色全部不對，要改程式開頭的 COMMON_ANODE。模組版通常已經內建電阻，可以直接接。</dd></dl></div></li>
+      </ul>
+      <h3 id="wiring">接線總表</h3>
+      <p>Uno 的 5V 和 GND 接到麵包板上方的電源排，零件再從電源排取電。</p>
+      <div class="table-wrap"><table class="tbl stack">
+        <thead><tr><th scope="col">零件</th><th scope="col">零件的腳</th><th scope="col">接到</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Uno</th><td data-label="零件的腳">5V</td><td data-label="接到">麵包板 + 排</td></tr>
+          <tr><th scope="row">Uno</th><td data-label="零件的腳">GND（電源排針）</td><td data-label="接到">麵包板 − 排</td></tr>
+          <tr><th scope="row">光敏電阻模組</th><td data-label="零件的腳">VCC／GND</td><td data-label="接到">+ 排／− 排</td></tr>
+          <tr><th scope="row">光敏電阻模組</th><td data-label="零件的腳">AO</td><td data-label="接到"><span class="pin hl">A0</span></td></tr>
+          <tr><th scope="row">HC-SR04</th><td data-label="零件的腳">VCC／GND</td><td data-label="接到">+ 排／− 排</td></tr>
+          <tr><th scope="row">HC-SR04</th><td data-label="零件的腳">Trig</td><td data-label="接到"><span class="pin hl">D4</span></td></tr>
+          <tr><th scope="row">HC-SR04</th><td data-label="零件的腳">Echo</td><td data-label="接到"><span class="pin hl">D3</span></td></tr>
+          <tr><th scope="row">全彩 LED</th><td data-label="零件的腳">共用腳（最長）</td><td data-label="接到">− 排（共陰極）或 + 排（共陽極）</td></tr>
+          <tr><th scope="row">全彩 LED</th><td data-label="零件的腳">R（紅）</td><td data-label="接到"><span class="pin hl">D11</span>，經 220 Ω</td></tr>
+          <tr><th scope="row">全彩 LED</th><td data-label="零件的腳">G（綠）</td><td data-label="接到"><span class="pin hl">D10</span>，經 220 Ω</td></tr>
+          <tr><th scope="row">全彩 LED</th><td data-label="零件的腳">B（藍）</td><td data-label="接到"><span class="pin hl">D9</span>，經 220 Ω</td></tr>
+          <tr><th scope="row">有源蜂鳴器</th><td data-label="零件的腳">正極（長腳）</td><td data-label="接到"><span class="pin hl">D12</span></td></tr>
+          <tr><th scope="row">有源蜂鳴器</th><td data-label="零件的腳">負極</td><td data-label="接到">Uno 排針上 13 旁邊的 GND</td></tr>
+          <tr><th scope="row">旋鈕</th><td data-label="零件的腳">兩側</td><td data-label="接到">+ 排、− 排</td></tr>
+          <tr><th scope="row">旋鈕</th><td data-label="零件的腳">中間（SIG）</td><td data-label="接到"><span class="pin hl">A1</span></td></tr>
+        </tbody>
+      </table></div>
+      <h3>這組零件做不到的</h3>
+
+      <ul class="prose">
+        <li>只看得到 HC-SR04 正前方大約 15 度的範圍，從旁邊繞過就偵測不到。</li>
+        <li>沒有門窗開關和人體紅外線感測器，窗戶和其他房間都沒有保護。</li>
+        <li>旋鈕誰都能轉，轉到最近就等於關掉偵測。真正的系統用密碼鍵盤、感應卡或手機操作。</li>
+        <li>斷電整個系統就停止。</li>
+      </ul>
+      <h3 id="services">通知服務比較</h3>
+      <p>本頁做了 Gmail（步驟 6）、Discord（步驟 7）和網頁儀表板（步驟 8），其他服務也可以接。</p>
+<div class="table-wrap svc"><table class="tbl stack">
+        <thead><tr><th scope="col">服務</th><th scope="col">要準備</th><th scope="col">限制</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Gmail</th><td data-label="要準備">應用程式密碼</td><td data-label="限制">信件可能延遲或被歸到垃圾郵件；每天有寄信上限</td></tr>
+          <tr><th scope="row">LINE Messaging API</th><td data-label="要準備">LINE 官方帳號、Channel access token、自己的 User ID</td><td data-label="限制">免費方案每月 200 則；要讓板子接收 LINE 指令，需要一個公開的 HTTPS 網址。LINE Notify 已在 2025 年 3 月 31 日停止服務，網路上用它的舊教學都不能用</td></tr>
+          <tr><th scope="row">Telegram Bot</th><td data-label="要準備">用 BotFather 建立機器人，取得 token 和 chat ID</td><td data-label="限制">免費；可以傳照片，也可以接收指令</td></tr>
+          <tr><th scope="row">Discord Webhook</th><td data-label="要準備">在頻道設定裡建立 Webhook 網址</td><td data-label="限制">設定最簡單；網址外流的話，任何人都能用它發訊息</td></tr>
+          <tr><th scope="row">Google 試算表</th><td data-label="要準備">用 Apps Script 部署成網頁應用程式</td><td data-label="限制">適合存紀錄，不適合即時通知</td></tr>
+          <tr><th scope="row">網頁儀表板</th><td data-label="要準備">Python 的 Flask</td><td data-label="限制">只有同一個網路裡的裝置看得到</td></tr>
+        </tbody>
+      </table></div>
+      <p class="note">學校或公司的 Google 帳號，管理員可能關閉了應用程式密碼，請改用個人帳號。</p>
+    </section>
+    <nav class="doc-end" aria-label="下一步"><a class="back" href="../handout.html">← 講義選單</a><a href="alarm-esp32.html">ESP32 版 →</a></nav>
+    <footer class="credits">
+      <h2>圖片來源</h2>
+      <ol>
+      <li>HC-SR04：<a href="https://commons.wikimedia.org/wiki/File:HC_SR04_Ultrasonic_Module.jpg">HC SR04 Ultrasonic Module.jpg</a>，Suyash Dwivedi，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      <li>光敏電阻模組、各步驟的接線圖：用 <a href="https://wokwi.com/">Wokwi</a> 模擬器繪製</li>
+      <li>旋鈕：<a href="https://commons.wikimedia.org/wiki/File:Rotary_Potentiometer.jpg">Rotary Potentiometer.jpg</a>，User:Zephyris，<a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a></li>
+      <li>有源蜂鳴器：<a href="https://commons.wikimedia.org/wiki/File:Electromagnetic_buzzer_01.jpg">Electromagnetic buzzer 01.jpg</a>，jdx，<a href="https://creativecommons.org/licenses/by-sa/3.0">CC BY-SA 3.0</a>，經裁切</li>
+      <li>全彩 LED：<a href="https://commons.wikimedia.org/wiki/File:LED_RGB_5mm.jpg">LED RGB 5mm.jpg</a>，Mister rf，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      </ol>
+    </footer>
+  </main>
+</div>
+<script src="../assets/handout.js"></script>
+</body>
+</html>

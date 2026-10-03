@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "author": "SkillLab",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-breadboard-half",
+      "id": "bb1",
+      "top": 150,
+      "left": 69.6,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "left": 0,
+      "top": 420,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr",
+      "left": -130,
+      "top": 20,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "sonar",
+      "left": 136.2,
+      "top": 20,
+      "attrs": {}
+    }
+  ],
+  "connections": [
+    [
+      "uno:5V",
+      "bb1:tp.1",
+      "red",
+      [
+        "v43.5",
+        "h-215",
+        "v-491.81",
+        "*"
+      ]
+    ],
+    [
+      "uno:GND.2",
+      "bb1:tn.1",
+      "black",
+      [
+        "v33.5",
+        "h-214.5",
+        "v-472.21",
+        "*"
+      ]
+    ],
+    [
+      "ldr:VCC",
+      "bb1:tp.3",
+      "red",
+      [
+        "h82.19",
+        "*"
+      ]
+    ],
+    [
+      "ldr:GND",
+      "bb1:tn.2",
+      "black",
+      [
+        "h72.59",
+        "*"
+      ]
+    ],
+    [
+      "ldr:AO",
+      "uno:A0",
+      "orange",
+      [
+        "h10",
+        "v34.5",
+        "h-117",
+        "v570",
+        "h273.5",
+        "*"
+      ]
+    ],
+    [
+      "sonar:VCC",
+      "bb1:tp.10",
+      "red",
+      [
+        "v33.5",
+        "h-6.51",
+        "*"
+      ]
+    ],
+    [
+      "sonar:GND",
+      "bb1:tn.14",
+      "black",
+      [
+        "v35.5",
+        "h11.49",
+        "*"
+      ]
+    ],
+    [
+      "sonar:TRIG",
+      "uno:4",
+      "yellow",
+      []
+    ],
+    [
+      "sonar:ECHO",
+      "uno:3",
+      "cyan",
+      []
+    ]
+  ],
+  "dependencies": {}
+}

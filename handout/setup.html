@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>環境安裝｜SkillLab</title>
+<script>(function(){var o;try{o=localStorage.getItem('skilllab-os')}catch(e){}if(!/^(win|mac|linux)$/.test(o||'')){var u=navigator.userAgent;o=/Windows/.test(u)?'win':/Macintosh/.test(u)&&navigator.maxTouchPoints<2?'mac':/Linux|X11/.test(u)&&!/Android/.test(u)?'linux':'win'}document.documentElement.setAttribute('data-os',o)})()</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/handout.css">
+<link rel="stylesheet" href="../assets/setup.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
+  <a href="../handout.html">講義</a><span class="sep">/</span>
+  <span class="here">環境安裝</span>
+</div></header>
+
+<div class="page has-toc">
+  <header class="doc-head">
+    <p class="kicker">基礎講義</p>
+    <h1>環境安裝</h1>
+    <p class="lead">在電腦上裝好 Arduino、ESP32 加 Python 要用的環境。之後每個專題都用這一套。</p>
+    <div class="os-pick" role="group" aria-label="作業系統"><button type="button" data-os="win" aria-pressed="false">Windows</button><button type="button" data-os="mac" aria-pressed="false">macOS</button><button type="button" data-os="linux" aria-pressed="false">Linux</button></div>
+    <p class="note">選好的系統會套用到本頁所有步驟和指令。</p>
+  </header>
+  <nav class="toc" aria-label="目錄">
+    <p class="toc-h">目錄</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span>開始前</a></li>
+      <li><a href="#s2"><span class="n">02</span>Arduino IDE 與驅動程式</a></li>
+      <li><a href="#s3"><span class="n">03</span>Python 與 uv</a></li>
+      <li><a href="#s4"><span class="n">04</span>VS Code</a></li>
+      <li><a href="#s5"><span class="n">05</span>Git</a></li>
+      <li><a href="#s6"><span class="n">06</span>AI 工具與資安</a></li>
+      <li><a href="#s7"><span class="n">07</span>環境驗收</a></li>
+      <li><a href="#s8"><span class="n">08</span>常見問題</a></li>
+    </ol>
+  </nav>
+  <main class="doc">
+    <section class="sec" id="s1" aria-labelledby="s1-h">
+      <p class="sec-no">01</p>
+      <h2 id="s1-h">開始前</h2>
+<ul class="prose">
+<li><b>電腦</b>：Windows 10、11（64 位元）、macOS 12 以上，或 Linux（本講義以 Ubuntu、Debian 為例）。本講義只寫這三種電腦的做法。</li>
+<li><b>硬碟空間</b>：至少留 10 GB。Arduino IDE 和 VS Code 加起來約 2 GB；ESP32 的開發板套件裝好約 5 GB，只用 Uno 可以不裝。</li>
+<li><b>網路</b>：全部下載加起來好幾 GB，請用穩定、不限流量的網路。</li>
+<li><b>用自己的電腦</b>：學校電腦可能沒有安裝軟體的權限，或裝了還原卡，重新開機後裝好的東西全部消失。</li>
+<li><b>USB 傳輸線</b>：有些 USB 線只能充電，不能傳資料。用這種線，板子的燈會亮，電腦卻找不到板子。買線時看清楚品名寫「傳輸」；手邊的線不確定時，換一條試。Mac 只有 USB-C 孔時，用 USB-C 轉接頭，或直接買 USB-C 接頭的線。</li>
+</ul>
+      <h3>課程資料夾</h3>
+      <p>下載 <a href="skilllab.zip" download>skilllab.zip</a>，解壓縮後放到下面的位置。之後所有的 Python 程式、Arduino 程式都放在這個資料夾裡。</p>
+<div class="os-panel" data-os="win">
+<h4 class="os-name">Windows</h4>
+<p>對 skilllab.zip 按右鍵 →「解壓縮全部」，目的地改成 <code>C:\</code>，就會得到 <code>C:\skilllab</code>。</p>
+</div>
+<div class="os-panel" data-os="mac">
+<h4 class="os-name">macOS</h4>
+<p>雙擊 skilllab.zip，下載資料夾裡會出現 skilllab 資料夾。把它拖到個人專屬資料夾（Finder 按 Command＋Shift＋H 打開），位置是 <code>~/skilllab</code>。</p>
+</div>
+<div class="os-panel" data-os="linux">
+<h4 class="os-name">Linux</h4>
+<p>在檔案管理員對 skilllab.zip 按右鍵 →「解壓縮到此處」，再把 skilllab 資料夾移到家目錄，位置是 <code>~/skilllab</code>。</p>
+</div>
+      <p class="note">路徑不要有中文、空格，也不要放在 OneDrive 會同步的資料夾（Windows 的「文件」「桌面」常常是）。</p>
+<div class="table-wrap"><table class="tbl"><thead><tr><th scope="col">檔案</th><th scope="col">用途</th></tr></thead><tbody>
+<tr><th scope="row"><code>pyproject.toml</code></th><td>這個資料夾要用的 Python 版本和套件</td></tr>
+<tr><th scope="row"><code>uv.lock</code></th><td>每個套件的確切版本，全班裝到的都一樣</td></tr>
+<tr><th scope="row"><code>.python-version</code></th><td>Python 版本：3.13</td></tr>
+<tr><th scope="row"><code>.gitignore</code></th><td>不放進 Git 的檔案：帳號密碼、虛擬環境</td></tr>
+<tr><th scope="row"><code>check_env.py</code></th><td>環境驗收程式（第 07 節）</td></tr>
+<tr><th scope="row"><code>hello/hello.ino</code></th><td>環境驗收用的 Arduino 範例</td></tr>
+</tbody></table></div>
+      <p class="note">檔名開頭是「.」的檔案，macOS 和 Linux 預設會隱藏。Finder 按 Command＋Shift＋. 顯示；Linux 的檔案管理員按 Ctrl＋H。</p>
+    </section>
+    <section class="sec" id="s2" aria-labelledby="s2-h">
+      <p class="sec-no">02</p>
+      <h2 id="s2-h">Arduino IDE 與驅動程式</h2>
+      <div class="os-pick" role="group" aria-label="作業系統"><button type="button" data-os="win" aria-pressed="false">Windows</button><button type="button" data-os="mac" aria-pressed="false">macOS</button><button type="button" data-os="linux" aria-pressed="false">Linux</button></div>
+      <p>Arduino 程式用 Arduino IDE 寫和上傳；電腦要有 USB 驅動程式，才認得板子。</p>
+<div class="os-panel" data-os="win">
+<h4 class="os-name">Windows 10、11</h4>
+<ol class="prose setup">
+<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software">arduino.cc/en/software</a> 下載 Windows 版，執行安裝檔。安裝中問要不要安裝裝置軟體（USB 驅動程式）時，按「安裝」。</li>
+<li><b>中文介面</b>：介面是英文時，File → Preferences，Language 選中文（台灣），按 OK 後重新開啟。</li>
+<li><b>USB 驅動程式</b>：插上板子，打開「裝置管理員」的「連接埠 (COM 和 LPT)」。看得到板子和 COM 編號（例如 COM3）就不用裝。沒有出現，或「其他裝置」裡有黃色驚嘆號的裝置，照下面的表找板子上的晶片，裝對應的驅動程式，再重新插一次 USB 線。</li>
+</ol>
+</div>
+<div class="os-panel" data-os="mac">
+<h4 class="os-name">macOS</h4>
+<ol class="prose setup">
+<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software">arduino.cc/en/software</a> 下載 macOS 版。Apple 晶片和 Intel 晶片各有一個版本，在「蘋果選單 → 關於這台 Mac」可以看到晶片。打開 .dmg，把 Arduino IDE 拖進「應用程式」資料夾。</li>
+<li><b>中文介面</b>：介面是英文時，Arduino IDE → Settings，Language 選中文（台灣），按 OK 後重新開啟。</li>
+<li><b>USB 驅動程式</b>：macOS 內建 CH340、CH9102、CP2102 的驅動程式，插上就能用。到 Arduino IDE 的「工具 → 連接埠」找 /dev/cu. 開頭的名稱。找不到時，才裝下面表格裡的 macOS 驅動程式，裝完到「系統設定 → 隱私權與安全性」按「允許」，再重新開機。</li>
+</ol>
+</div>
+<div class="os-panel" data-os="linux">
+<h4 class="os-name">Linux（以 Ubuntu、Debian 為例）</h4>
+<ol class="prose setup">
+<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software">arduino.cc/en/software</a> 下載 Linux AppImage（64 位元）。AppImage 需要 FUSE：Ubuntu 24.04、Debian 13 以後安裝 libfuse2t64，更早的版本安裝 libfuse2。接著在下載資料夾打開終端機，讓檔案可以執行並開啟：
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 安裝並開啟 Arduino IDE">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="k">sudo</span> <span class="f">apt</span> install libfuse2t64
+<span class="f">chmod</span> +x arduino-ide_*_Linux_64bit.AppImage
+<span class="f">./arduino-ide_*_Linux_64bit.AppImage</span></code></pre>
+</div>
+<p class="note">出現 sandbox 相關的錯誤、開不起來時，在最後一行後面加上 --no-sandbox。</p></li>
+<li><b>中文介面</b>：介面是英文時，File → Preferences，Language 選中文（台灣），按 OK 後重新開啟。</li>
+<li><b>USB 驅動程式</b>：原廠 Uno、CH340、CH9102、CP2102 都不用安裝，Linux 核心已經內建。</li>
+<li><b>序列埠權限</b>：把自己的帳號加入 dialout 群組，登出再登入後才會生效：
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 加入 dialout 群組">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="k">sudo</span> <span class="f">usermod</span> <span class="n">-a</span> <span class="n">-G</span> dialout <span class="t">$USER</span></code></pre>
+</div></li>
+</ol>
+</div>
+      <h3>板子上的 USB 晶片</h3>
+      <p>晶片在 USB 孔旁邊，字很小，用手機拍照放大就看得清楚。</p>
+<div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">晶片</th><th scope="col">常見在</th><th scope="col">Windows</th><th scope="col">macOS</th><th scope="col">Linux</th></tr></thead><tbody>
+<tr><th scope="row">ATmega16U2</th><td data-label="常見在">原廠 Uno</td><td data-label="Windows">不用裝</td><td data-label="macOS">不用裝</td><td data-label="Linux">不用裝</td></tr>
+<tr><th scope="row">CH340</th><td data-label="常見在">相容板 Uno、部分 ESP32</td><td data-label="Windows"><a href="https://www.wch-ic.com/downloads/CH341SER_EXE.html">CH341SER</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html">CH34xSER_MAC</a></td><td data-label="Linux">內建</td></tr>
+<tr><th scope="row">CH9102</th><td data-label="常見在">新版 ESP32 DevKit</td><td data-label="Windows"><a href="https://www.wch-ic.com/downloads/CH343SER_ZIP.html">CH343SER</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html">CH34xSER_MAC</a></td><td data-label="Linux">內建</td></tr>
+<tr><th scope="row">CP2102</th><td data-label="常見在">ESP32 DevKit</td><td data-label="Windows"><a href="https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers">CP210x VCP</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers">CP210x VCP</a></td><td data-label="Linux">內建</td></tr>
+</tbody></table></div>
+      <p class="note">Windows 看不出是哪個晶片時，在裝置管理員對那個裝置按右鍵 → 內容 → 詳細資料，選「硬體識別碼」：VID_1A86 是 WCH（PID_7523 是 CH340，PID_55D4 是 CH9102），VID_10C4 是 CP210x，VID_2341 是 Arduino 原廠。</p>
+      <h3>連接埠名稱</h3>
+<ul class="prose">
+<li><b>Windows</b>：COM 加一個數字，例如 COM3。</li>
+<li><b>macOS</b>：/dev/cu. 開頭，後面依晶片不同是 usbmodem 或 usbserial。</li>
+<li><b>Linux</b>：原廠 Uno 和 CH9102 是 /dev/ttyACM0，CH340 和 CP2102 是 /dev/ttyUSB0；接第二塊板子時，最後的數字變成 1。</li>
+</ul>
+      <h3>ESP32 開發板套件</h3>
+      <p>只用 Uno 可以跳過。在 Arduino IDE 左邊的「開發板管理員」搜尋 esp32，安裝「esp32 by Espressif Systems」3.3 開頭的最新版。裝好約 5 GB，下載要一段時間。</p>
+      <p class="note">AI 寫的 ESP32 程式常用 2.x 版的寫法（例如 ledcSetup），在 3.x 版會編譯失敗。問 AI 時說清楚：我用的是 ESP32 Arduino 3.x 版。</p>
+      <h3>確認</h3>
+<ol class="prose">
+<li>用 Arduino IDE 打開課程資料夾裡的 hello/hello.ino。</li>
+<li>「工具 → 開發板」選你的板子：Uno 選 Arduino Uno；ESP32 DevKit 選 ESP32 Dev Module。</li>
+<li>「工具 → 連接埠」選板子的連接埠，按上傳（向右的箭頭）。</li>
+<li>上傳完成後打開「序列埠監控視窗」，速率是 9600，每秒出現一行 hello 和數字就成功。</li>
+</ol>
+      <p class="note">ESP32 上傳時一直停在 Connecting…：按住板子上的 BOOT 鍵，看到開始寫入的百分比後再放開。</p>
+    </section>
+    <section class="sec" id="s3" aria-labelledby="s3-h">
+      <p class="sec-no">03</p>
+      <h2 id="s3-h">Python 與 uv</h2>
+      <div class="os-pick" role="group" aria-label="作業系統"><button type="button" data-os="win" aria-pressed="false">Windows</button><button type="button" data-os="mac" aria-pressed="false">macOS</button><button type="button" data-os="linux" aria-pressed="false">Linux</button></div>
+      <p>uv 一個工具管三件事：Python 本身的版本、每個資料夾自己的虛擬環境、套件和套件的版本。三個系統的指令都一樣。</p>
+      <p>版本不同，同一支程式的結果可能不同。例如 Python 3.15 版（2026 年 10 月發布）改了讀寫檔案的預設編碼，同一支程式在中文 Windows 上，換個版本結果就可能不同。課程固定用 Python 3.13，每個套件的版本記在 uv.lock，全班裝到的都一樣。</p>
+      <h3>安裝 uv</h3>
+<div class="os-panel" data-os="win">
+<h4 class="os-name">Windows</h4>
+<p>從開始選單打開「PowerShell」，貼上這一行執行：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">PowerShell</span><button class="copy" type="button" aria-label="複製 Windows 安裝 uv">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">powershell</span> <span class="n">-ExecutionPolicy</span> ByPass <span class="n">-c</span> <span class="s">"irm https://astral.sh/uv/install.ps1 | iex"</span></code></pre>
+</div>
+<p>裝完把 PowerShell 關掉，再開一個新的。</p>
+</div>
+<div class="os-panel" data-os="mac">
+<h4 class="os-name">macOS</h4>
+<p>打開「終端機」App，貼上這一行執行：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 macOS 安裝 uv">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">curl</span> <span class="n">-LsSf</span> https://astral.sh/uv/install.sh | <span class="f">sh</span></code></pre>
+</div>
+<p>裝完把終端機視窗關掉，再開一個新的。</p>
+</div>
+<div class="os-panel" data-os="linux">
+<h4 class="os-name">Linux</h4>
+<p>打開終端機，先裝 curl，再裝 uv：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 安裝 uv">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="k">sudo</span> <span class="f">apt</span> install curl
+<span class="f">curl</span> <span class="n">-LsSf</span> https://astral.sh/uv/install.sh | <span class="f">sh</span></code></pre>
+</div>
+<p>裝完把終端機視窗關掉，再開一個新的。</p>
+</div>
+      <p>確認裝好了：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 確認 uv 版本">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> <span class="n">--version</span></code></pre>
+</div>
+      <p class="note">這種指令會從網路下載程式並執行。只貼官方網站給的指令（uv 的官方網站是 <a href="https://docs.astral.sh/uv/">docs.astral.sh/uv</a>），來路不明的不要貼。</p>
+      <h3>在課程資料夾打開終端機</h3>
+<div class="os-panel" data-os="win">
+<h4 class="os-name">Windows</h4>
+<p>用檔案總管打開 C:\skilllab，在網址列輸入 powershell 後按 Enter。</p>
+</div>
+<div class="os-panel" data-os="mac">
+<h4 class="os-name">macOS</h4>
+<p>打開終端機，輸入：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 macOS 進入課程資料夾">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">cd</span> ~/skilllab</code></pre>
+</div>
+</div>
+<div class="os-panel" data-os="linux">
+<h4 class="os-name">Linux</h4>
+<p>打開終端機，輸入：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 進入課程資料夾">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">cd</span> ~/skilllab</code></pre>
+</div>
+</div>
+      <p class="note">第 04 節裝好 VS Code 之後，用 VS Code 裡的終端機更方便，它會直接開在課程資料夾。</p>
+      <h3>裝好 Python 和套件</h3>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 uv sync">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> sync</code></pre>
+</div>
+      <p>第一次會下載 Python 3.13，以及 pyserial、requests、flask，裝進資料夾裡的 .venv。電腦原本有的 Python（包括 Anaconda）不會被改到。</p>
+      <h3>執行 Python 程式</h3>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 執行環境驗收">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run check_env.py</code></pre>
+</div>
+      <p>每個專題的 Python 程式都放在課程資料夾，用 uv run 執行。三個系統都一樣，不用先啟用虛擬環境。這時板子還沒接也沒關係，序列埠和板子兩項到第 07 節再處理。</p>
+      <h3>加套件</h3>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 加套件">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> add 套件名稱</code></pre>
+</div>
+      <p>專題需要新套件時用 uv add，它會同時改 pyproject.toml 和 uv.lock。AI 叫你 pip install 時，也改用 uv add。uv 建的 .venv 裡沒有 pip，打 pip install 會裝到電腦裡別的 Python。</p>
+    </section>
+    <section class="sec" id="s4" aria-labelledby="s4-h">
+      <p class="sec-no">04</p>
+      <h2 id="s4-h">VS Code</h2>
+      <div class="os-pick" role="group" aria-label="作業系統"><button type="button" data-os="win" aria-pressed="false">Windows</button><button type="button" data-os="mac" aria-pressed="false">macOS</button><button type="button" data-os="linux" aria-pressed="false">Linux</button></div>
+      <p>VS Code 是寫 Python 的地方。Arduino 程式還是用 Arduino IDE 寫和上傳。</p>
+      <h3>安裝</h3>
+<div class="os-panel" data-os="win">
+<h4 class="os-name">Windows</h4>
+<p>到 <a href="https://code.visualstudio.com/">code.visualstudio.com</a> 下載 Windows 版，執行安裝檔。「選擇其他工作」那一頁，「加入 PATH」保持勾選，兩個「Open with Code」（以 Code 開啟）也打勾。</p>
+</div>
+<div class="os-panel" data-os="mac">
+<h4 class="os-name">macOS</h4>
+<p>到 <a href="https://code.visualstudio.com/">code.visualstudio.com</a> 下載 macOS 版，打開 .zip，把 Visual Studio Code 拖進「應用程式」資料夾。</p>
+</div>
+<div class="os-panel" data-os="linux">
+<h4 class="os-name">Linux</h4>
+<p>到 <a href="https://code.visualstudio.com/">code.visualstudio.com</a> 下載 .deb，在下載資料夾打開終端機安裝：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 安裝 VS Code">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="k">sudo</span> <span class="f">apt</span> install ./code_*.deb</code></pre>
+</div>
+</div>
+      <h3>中文介面</h3>
+      <p>左邊的 Extensions（四個方塊的圖示）搜尋 Chinese (Traditional)，安裝「Chinese (Traditional) Language Pack for Visual Studio Code」，按右下角的 Change Language and Restart。以下用中文介面的名稱。</p>
+      <h3>延伸模組</h3>
+<div class="table-wrap"><table class="tbl"><thead><tr><th scope="col">延伸模組</th><th scope="col">用途</th></tr></thead><tbody>
+<tr class="grp"><th colspan="2" scope="colgroup">必裝</th></tr>
+<tr><th scope="row">Python（Microsoft）</th><td>寫、執行、除錯 Python。會一起裝好 Pylance 和 Python Debugger。</td></tr>
+<tr class="grp"><th colspan="2" scope="colgroup">選裝</th></tr>
+<tr><th scope="row">Ruff（Astral）</th><td>檢查程式碼、自動排好格式。</td></tr>
+<tr><th scope="row">Jupyter（Microsoft）</th><td>用 .ipynb 筆記本寫 Python。</td></tr>
+<tr><th scope="row">Error Lens</th><td>把錯誤訊息直接顯示在出錯的那一行旁邊。</td></tr>
+<tr><th scope="row">Serial Monitor（Microsoft）</th><td>在 VS Code 裡看序列埠。和 Python 程式不能同時打開同一個序列埠。</td></tr>
+<tr class="grp"><th colspan="2" scope="colgroup">不要裝</th></tr>
+<tr><th scope="row">Code Runner</th><td>執行時用的 Python 不一定是課程資料夾的 .venv，會出現「明明裝了套件卻說找不到」。</td></tr>
+</tbody></table></div>
+      <p class="note">認明發行者（括號裡的名字）。名字很像、發行者不同的延伸模組不要裝。</p>
+      <h3>打開課程資料夾</h3>
+<ol class="prose">
+<li>「檔案 → 開啟資料夾」，選 skilllab。要開資料夾，不是只開一個檔案：只開檔案時，VS Code 不會用資料夾裡的 .venv。</li>
+<li>問「您是否信任此資料夾中檔案的作者?」時，課程資料夾按「是，我信任作者」。來路不明的資料夾不要按信任。</li>
+<li>打開 check_env.py，右下角的 Python 版本旁邊要看到 .venv。不是的話，按 Ctrl＋Shift＋P（macOS 是 Command＋Shift＋P）打開命令選擇區，輸入 Python: Select Interpreter，選有 .venv 的那一個。</li>
+<li>「終端機 → 新增終端」會在下方開一個終端機，位置就在課程資料夾，uv 指令直接在這裡打。Windows 開的是 PowerShell。</li>
+</ol>
+      <h3>確認</h3>
+      <p>打開 check_env.py，按右上角的 ▶（執行 Python 檔案），下方終端機出現環境驗收的結果。</p>
+    </section>
+    <section class="sec" id="s5" aria-labelledby="s5-h">
+      <p class="sec-no">05</p>
+      <h2 id="s5-h">Git</h2>
+      <div class="os-pick" role="group" aria-label="作業系統"><button type="button" data-os="win" aria-pressed="false">Windows</button><button type="button" data-os="mac" aria-pressed="false">macOS</button><button type="button" data-os="linux" aria-pressed="false">Linux</button></div>
+      <p>Git 記錄資料夾裡檔案的變化：每一次「提交」都是一個存檔點。可以看兩個存檔點之間改了什麼，也可以退回去。</p>
+      <h3>安裝</h3>
+<div class="os-panel" data-os="win">
+<h4 class="os-name">Windows</h4>
+<p>到 <a href="https://git-scm.com/downloads">git-scm.com/downloads</a> 下載 Git for Windows，安裝畫面大多照預設按 Next。選預設編輯器那一頁，改成「Use Visual Studio Code as Git's default editor」。裝完重新開啟 VS Code。</p>
+</div>
+<div class="os-panel" data-os="mac">
+<h4 class="os-name">macOS</h4>
+<p>在終端機輸入下面這行。還沒裝 Git 時，會跳出視窗問要不要安裝命令列開發者工具，按「安裝」。</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 macOS 確認 Git">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">git</span> <span class="n">--version</span></code></pre>
+</div>
+</div>
+<div class="os-panel" data-os="linux">
+<h4 class="os-name">Linux</h4>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 安裝 Git">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="k">sudo</span> <span class="f">apt</span> install git</code></pre>
+</div>
+</div>
+      <h3>設定名字和信箱</h3>
+      <p>每台電腦設定一次。存檔點會記下是誰提交的；以後要上傳 GitHub，信箱用 GitHub 帳號的信箱。</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 設定 Git 名字和信箱">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">git</span> config <span class="n">--global</span> user.name <span class="s">"你的名字"</span>
+<span class="f">git</span> config <span class="n">--global</span> user.email <span class="s">"你的信箱"</span></code></pre>
+</div>
+      <h3>在 VS Code 用 Git</h3>
+<ol class="prose">
+<li><b>建立存放庫</b>：左邊的「原始檔控制」→「初始化存放庫」。.gitignore 已經排除 .venv 和 config.json，它們不會出現在變更清單裡。</li>
+<li><b>提交</b>：在訊息欄寫這次做了什麼，按「提交」。問「要暫存所有變更並直接提交嗎?」時按「是」。</li>
+<li><b>看改了什麼</b>：改過的檔案會出現在「原始檔控制」的變更清單，點一下會並排顯示改之前和改之後。</li>
+<li><b>退回</b>：對檔案按右鍵 →「捨棄變更」，檔案回到上一個存檔點的樣子。</li>
+</ol>
+      <p class="note">上傳 GitHub（「發布分支」）之前確認兩件事：存放庫選私人；變更清單裡沒有 config.json。公開存放庫裡的密碼，很快就會被自動掃描的程式找到並拿去用。</p>
+      <h3>確認</h3>
+      <p>「原始檔控制」裡有第一個提交，訊息寫「課程資料夾」。</p>
+    </section>
+    <section class="sec" id="s6" aria-labelledby="s6-h">
+      <p class="sec-no">06</p>
+      <h2 id="s6-h">AI 工具與資安</h2>
+      <p>AI 有兩種用法，差別在它碰得到你電腦裡的多少東西。</p>
+      <ul class="prose">
+        <li><b>對話</b>：只看得到你貼上去的內容。</li>
+        <li><b>代理</b>：看得到整個資料夾裡的檔案，會改檔案，也會要求執行指令。</li>
+      </ul>
+<div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col"></th><th scope="col">對話</th><th scope="col">代理</th><th scope="col">費用</th></tr></thead><tbody>
+<tr><th scope="row">Codex（OpenAI）</th><td data-label="對話">ChatGPT 網頁、App</td><td data-label="代理">VS Code 延伸模組「Codex」（發行者 OpenAI）、Codex App</td><td data-label="費用">用 ChatGPT 帳號登入；免費方案有用量限制</td></tr>
+<tr><th scope="row">Claude（Anthropic）</th><td data-label="對話">claude.ai 網頁、App</td><td data-label="代理">VS Code 延伸模組「Claude Code」（發行者 Anthropic）、終端機</td><td data-label="費用">對話有免費方案；Claude Code 要 Pro 以上的付費方案</td></tr>
+</tbody></table></div>
+      <p class="note">方案和用量限制常常改變，以官方網站為準。</p>
+      <p>代理裝在 VS Code：「延伸模組」搜尋 Codex 或 Claude Code，認明發行者後安裝，照畫面登入帳號。</p>
+      <h3>資安</h3>
+<ol class="prose">
+<li><b>密碼、金鑰不貼給 AI</b>：Gmail 應用程式密碼、Discord Webhook 網址、Wi-Fi 密碼、API 金鑰都放在 config.json；給 AI 看的是 config.example.json。</li>
+<li><b>代理看得到 config.json</b>：代理讀得到整個課程資料夾，所以 config.json 只放可以撤銷的東西。Gmail 用應用程式密碼，不用帳號本身的密碼；專題通知另外開一個 Gmail 帳號；課程結束就撤銷應用程式密碼、刪掉 Webhook。</li>
+<li><b>權限不要全開</b>：Codex 不要選完整存取（Full access），Claude Code 不要開略過權限（bypass permissions）。代理要執行指令時，看懂再按允許；sudo、刪除檔案、curl … | sh、安裝套件這幾種要特別看。</li>
+<li><b>AI 建議的套件先查</b>：到 <a href="https://pypi.org/">pypi.org</a> 確認套件真的存在、名字沒有拼錯。有人專門註冊和熱門套件名字很像的假套件。Arduino 程式庫從 Arduino IDE 的「程式庫管理員」安裝。</li>
+<li><b>只從官方網站下載</b>：軟體和驅動程式用本講義各步驟裡的連結；搜尋結果裡的驅動程式下載站，可能夾帶其他程式。</li>
+<li><b>先看差異再保留</b>：代理改完程式，到「原始檔控制」看改了哪些地方；看不懂或改壞了就「捨棄變更」。</li>
+<li><b>不貼個資</b>：自己和別人的姓名、電話、照片、學號都不要貼給 AI。</li>
+<li><b>共用電腦用完要登出</b>：在學校電腦登入 AI 帳號，離開前登出。</li>
+</ol>
+      <h3>確認</h3>
+<ol class="prose">
+<li>請 AI 把 hello/hello.ino 改成每 2 秒印一次。</li>
+<li>在「原始檔控制」看它改了哪幾行。</li>
+<li>對 hello.ino 按「捨棄變更」，回到原本的樣子。</li>
+</ol>
+    </section>
+    <section class="sec" id="s7" aria-labelledby="s7-h">
+      <p class="sec-no">07</p>
+      <h2 id="s7-h">環境驗收</h2>
+<ol class="prose">
+<li>板子燒好 hello 範例（第 02 節），USB 線接著。</li>
+<li>關掉 Arduino IDE 的序列埠監控視窗，序列埠同一時間只能給一個程式用。</li>
+<li>在 VS Code 的終端機執行：
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 執行環境驗收">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run check_env.py</code></pre>
+</div></li>
+<li>最後一行是「全部通過。」就完成了。</li>
+</ol>
+<div class="code" data-lang="plain">
+<div class="code-bar"><span class="code-name">輸出範例</span></div>
+<pre tabindex="0"><code>SkillLab 環境驗收
+系統：Windows-11-10.0.26100-SP0（AMD64）
+預設文字編碼：cp950（讀寫檔案時要寫 encoding="utf-8"，含中文的檔案才不會出錯）
+[通過] Python：3.13.16（.venv）
+[通過] 套件：pyserial 3.5、requests 2.34.2、flask 3.1.3
+[通過] Gmail 連線：smtp.gmail.com:465，憑證正常
+       COM3　USB-SERIAL CH340 (COM3)（CH340，1A86:7523）
+[通過] 序列埠：COM3
+[通過] 板子：收到「hello 3」
+
+全部通過。</code></pre>
+</div>
+      <p>有 [失敗] 或 [注意] 時，照 → 後面的說明做。要求救時，把整段輸出貼給老師或 AI，裡面沒有帳號密碼。</p>
+      <p>全部通過後，在「原始檔控制」提交一次，訊息寫「環境驗收通過」。</p>
+      <h3>check_env.py</h3>
+      <p>環境驗收程式的內容，在課程資料夾裡已經有了。</p>
+<details class="fold">
+<summary><span><span class="tag">程式碼</span>check_env.py</span></summary>
+<div class="fold-body">
+<!-- code:starter/check_env.py -->
+<div class="code" data-lang="py">
+<div class="code-bar"><span><span class="code-name">check_env.py</span><span class="code-lines">180 行</span></span><button class="copy" type="button" aria-label="複製 check_env.py">複製</button></div>
+<pre tabindex="0"><code data-lang="py"><span class="s">"""
+環境驗收：檢查 Python、套件、Gmail 連線、序列埠和板子，並顯示預設文字編碼
+執行：uv run check_env.py [--port 序列埠]
+板子要先燒好 hello 範例。輸出裡沒有帳號密碼，可以整段貼給老師或 AI。
+"""</span>
+
+<span class="k">import</span> argparse
+<span class="k">import</span> importlib.metadata
+<span class="k">import</span> locale
+<span class="k">import</span> platform
+<span class="k">import</span> smtplib
+<span class="k">import</span> socket
+<span class="k">import</span> ssl
+<span class="k">import</span> sys
+<span class="k">import</span> time
+<span class="k">from</span> pathlib <span class="k">import</span> <span class="t">Path</span>
+
+<span class="n">PYTHON_VERSION</span> = (<span class="n">3</span>, <span class="n">13</span>)
+<span class="n">PACKAGES</span> = [<span class="s">"pyserial"</span>, <span class="s">"requests"</span>, <span class="s">"flask"</span>]
+<span class="n">BAUD</span> = <span class="n">9600</span>
+<span class="n">WAIT_SECONDS</span> = <span class="n">6</span>
+
+<span class="c"># USB 晶片的廠商代碼（VID）和產品代碼（PID）</span>
+<span class="n">CHIPS</span> = {
+    (<span class="n">0x1A86</span>, <span class="n">0x7523</span>): <span class="s">"CH340"</span>,
+    (<span class="n">0x1A86</span>, <span class="n">0x55D4</span>): <span class="s">"CH9102"</span>,
+    (<span class="n">0x10C4</span>, <span class="n">0xEA60</span>): <span class="s">"CP2102"</span>,
+}
+<span class="n">VENDORS</span> = {
+    <span class="n">0x2341</span>: <span class="s">"Arduino 原廠"</span>,
+    <span class="n">0x2A03</span>: <span class="s">"Arduino 原廠"</span>,
+    <span class="n">0x1A86</span>: <span class="s">"WCH（CH34x 系列）"</span>,
+    <span class="n">0x10C4</span>: <span class="s">"Silicon Labs（CP210x 系列）"</span>,
+    <span class="n">0x0403</span>: <span class="s">"FTDI"</span>,
+    <span class="n">0x303A</span>: <span class="s">"ESP32 內建 USB"</span>,
+}
+
+problems = <span class="n">0</span>
+
+
+<span class="k">def</span> <span class="f">report</span>(ok, item, detail, fix=<span class="n">None</span>):
+    <span class="s">"""ok：True 通過、None 注意、False 失敗"""</span>
+    <span class="k">global</span> problems
+    mark = {<span class="n">True</span>: <span class="s">"[通過]"</span>, <span class="n">None</span>: <span class="s">"[注意]"</span>, <span class="n">False</span>: <span class="s">"[失敗]"</span>}[ok]
+    <span class="k">if</span> ok <span class="k">is</span> <span class="k">not</span> <span class="n">True</span>:
+        problems += <span class="n">1</span>
+    <span class="f">print</span>(<span class="s">f"{</span>mark<span class="s">} {</span>item<span class="s">}：{</span>detail<span class="s">}"</span>)
+    <span class="k">if</span> fix:
+        <span class="f">print</span>(<span class="s">f"       → {</span>fix<span class="s">}"</span>)
+
+
+<span class="k">def</span> <span class="f">check_python</span>():
+    v = sys.version_info
+    in_venv = sys.prefix != sys.base_prefix
+    where = <span class="t">Path</span>(sys.prefix).name <span class="k">if</span> in_venv <span class="k">else</span> <span class="s">"不在虛擬環境"</span>
+    detail = <span class="s">f"{</span>v.major<span class="s">}.{</span>v.minor<span class="s">}.{</span>v.micro<span class="s">}（{</span>where<span class="s">}）"</span>
+    <span class="k">if</span> (v.major, v.minor) != <span class="n">PYTHON_VERSION</span>:
+        <span class="f">report</span>(<span class="n">False</span>, <span class="s">"Python"</span>, detail, <span class="s">"在課程資料夾執行 uv sync，再用 uv run 執行這個檔案"</span>)
+    <span class="k">elif</span> <span class="k">not</span> in_venv:
+        <span class="f">report</span>(<span class="n">None</span>, <span class="s">"Python"</span>, detail, <span class="s">"用 uv run check_env.py 執行，才會用到課程資料夾的 .venv"</span>)
+    <span class="k">else</span>:
+        <span class="f">report</span>(<span class="n">True</span>, <span class="s">"Python"</span>, detail)
+
+
+<span class="k">def</span> <span class="f">check_packages</span>():
+    found, missing = [], []
+    <span class="k">for</span> name <span class="k">in</span> <span class="n">PACKAGES</span>:
+        <span class="k">try</span>:
+            found.<span class="f">append</span>(<span class="s">f"{</span>name<span class="s">} {</span>importlib.metadata.version(name)<span class="s">}"</span>)
+        <span class="k">except</span> importlib.metadata.<span class="t">PackageNotFoundError</span>:
+            missing.<span class="f">append</span>(name)
+    <span class="k">if</span> missing:
+        <span class="f">report</span>(<span class="n">False</span>, <span class="s">"套件"</span>, <span class="s">"缺少 "</span> + <span class="s">"、"</span>.<span class="f">join</span>(missing), <span class="s">"在課程資料夾執行 uv sync"</span>)
+    <span class="k">else</span>:
+        <span class="f">report</span>(<span class="n">True</span>, <span class="s">"套件"</span>, <span class="s">"、"</span>.<span class="f">join</span>(found))
+
+
+<span class="k">def</span> <span class="f">show_encoding</span>():
+    <span class="c"># 中文 Windows 是 cp950，不算錯，但讀寫檔案要自己寫 encoding="utf-8"</span>
+    enc = locale.<span class="f">getpreferredencoding</span>(<span class="n">False</span>)
+    <span class="k">if</span> enc.<span class="f">lower</span>().<span class="f">replace</span>(<span class="s">"-"</span>, <span class="s">""</span>) == <span class="s">"utf8"</span>:
+        <span class="f">print</span>(<span class="s">f"預設文字編碼：{</span>enc<span class="s">}"</span>)
+    <span class="k">else</span>:
+        <span class="f">print</span>(<span class="s">f'預設文字編碼：{</span>enc<span class="s">}（讀寫檔案時要寫 encoding="utf-8"，含中文的檔案才不會出錯）'</span>)
+
+
+<span class="k">def</span> <span class="f">check_gmail</span>():
+    <span class="k">try</span>:
+        <span class="k">with</span> smtplib.<span class="f">SMTP_SSL</span>(<span class="s">"smtp.gmail.com"</span>, <span class="n">465</span>,
+                              context=ssl.<span class="f">create_default_context</span>(), timeout=<span class="n">10</span>) <span class="k">as</span> server:
+            server.<span class="f">noop</span>()
+        <span class="f">report</span>(<span class="n">True</span>, <span class="s">"Gmail 連線"</span>, <span class="s">"smtp.gmail.com:465，憑證正常"</span>)
+    <span class="k">except</span> ssl.<span class="t">SSLCertVerificationError</span>:
+        <span class="f">report</span>(<span class="n">False</span>, <span class="s">"Gmail 連線"</span>, <span class="s">"憑證驗證失敗"</span>, <span class="s">"把這段輸出貼給老師"</span>)
+    <span class="k">except</span> (socket.gaierror, <span class="t">TimeoutError</span>, <span class="t">OSError</span>) <span class="k">as</span> e:
+        <span class="f">report</span>(<span class="n">False</span>, <span class="s">"Gmail 連線"</span>, <span class="s">f"連不上（{</span>e.__class__.__name__<span class="s">}）"</span>,
+               <span class="s">"確認網路；學校、公司的網路可能擋了 465 埠，換手機熱點再試一次"</span>)
+
+
+<span class="k">def</span> <span class="f">chip_name</span>(p):
+    <span class="k">if</span> p.vid <span class="k">is</span> <span class="n">None</span>:
+        <span class="k">return</span> <span class="s">""</span>
+    name = <span class="n">CHIPS</span>.<span class="f">get</span>((p.vid, p.pid)) <span class="k">or</span> <span class="n">VENDORS</span>.<span class="f">get</span>(p.vid, <span class="s">""</span>)
+    <span class="k">return</span> <span class="s">f"{</span>name<span class="s">}，{</span>p.vid:04X<span class="s">}:{</span>p.pid:04X<span class="s">}"</span> <span class="k">if</span> name <span class="k">else</span> <span class="s">f"{</span>p.vid:04X<span class="s">}:{</span>p.pid:04X<span class="s">}"</span>
+
+
+<span class="k">def</span> <span class="f">check_board</span>(port_arg):
+    <span class="k">try</span>:
+        <span class="k">import</span> serial
+        <span class="k">import</span> serial.tools.list_ports
+    <span class="k">except</span> <span class="t">ImportError</span>:
+        <span class="f">report</span>(<span class="n">False</span>, <span class="s">"序列埠"</span>, <span class="s">"沒有 pyserial，無法檢查"</span>, <span class="s">"在課程資料夾執行 uv sync"</span>)
+        <span class="k">return</span>
+
+    <span class="c"># 只看 USB 裝置；macOS 的藍牙、除錯埠沒有 VID，會被排除</span>
+    ports = [p <span class="k">for</span> p <span class="k">in</span> serial.tools.list_ports.<span class="f">comports</span>() <span class="k">if</span> p.vid <span class="k">is</span> <span class="k">not</span> <span class="n">None</span>]
+    <span class="k">for</span> p <span class="k">in</span> ports:
+        <span class="f">print</span>(<span class="s">f"       {</span>p.device<span class="s">}　{</span>p.description<span class="s">}（{</span>chip_name(p)<span class="s">}）"</span>)
+
+    <span class="k">if</span> port_arg:
+        port = port_arg
+    <span class="k">elif</span> <span class="k">not</span> ports:
+        <span class="f">report</span>(<span class="n">False</span>, <span class="s">"序列埠"</span>, <span class="s">"沒有找到 USB 序列埠"</span>,
+               <span class="s">"換一條確定能傳資料的 USB 線；再確認 USB 驅動程式有裝好"</span>)
+        <span class="k">return</span>
+    <span class="k">elif</span> <span class="f">len</span>(ports) &gt; <span class="n">1</span>:
+        <span class="f">report</span>(<span class="n">None</span>, <span class="s">"序列埠"</span>, <span class="s">f"找到 {</span>len(ports)<span class="s">} 個，不知道要用哪一個"</span>,
+               <span class="s">"拔掉其他板子，或加上 --port 指定，例如 uv run check_env.py --port COM3"</span>)
+        <span class="k">return</span>
+    <span class="k">else</span>:
+        port = ports[<span class="n">0</span>].device
+    <span class="f">report</span>(<span class="n">True</span>, <span class="s">"序列埠"</span>, port)
+
+    <span class="k">try</span>:
+        <span class="k">with</span> serial.<span class="t">Serial</span>(port, <span class="n">BAUD</span>, timeout=<span class="n">1</span>) <span class="k">as</span> ser:
+            <span class="c"># 打開序列埠時 Uno 會重新開機，等它送出 hello</span>
+            deadline = time.<span class="f">time</span>() + <span class="n">WAIT_SECONDS</span>
+            other = <span class="s">""</span>
+            <span class="k">while</span> time.<span class="f">time</span>() &lt; deadline:
+                line = ser.<span class="f">readline</span>().<span class="f">decode</span>(<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>).<span class="f">strip</span>()
+                <span class="k">if</span> line.<span class="f">startswith</span>(<span class="s">"hello"</span>):
+                    <span class="f">report</span>(<span class="n">True</span>, <span class="s">"板子"</span>, <span class="s">f"收到「{</span>line<span class="s">}」"</span>)
+                    <span class="k">return</span>
+                <span class="k">if</span> line <span class="k">and</span> <span class="k">not</span> other:
+                    other = line
+        <span class="k">if</span> other:
+            <span class="f">report</span>(<span class="n">None</span>, <span class="s">"板子"</span>, <span class="s">f"有收到資料，但不是 hello：「{</span>other[:40]<span class="s">}」"</span>,
+                   <span class="s">"板子燒的不是 hello 範例，或範例的速率不是 9600"</span>)
+        <span class="k">else</span>:
+            <span class="f">report</span>(<span class="n">False</span>, <span class="s">"板子"</span>, <span class="s">f"{</span>WAIT_SECONDS<span class="s">} 秒內沒有收到資料"</span>,
+                   <span class="s">"先在 Arduino IDE 把 hello 範例上傳到板子"</span>)
+    <span class="k">except</span> serial.<span class="t">SerialException</span> <span class="k">as</span> e:
+        text = <span class="t">str</span>(e)
+        <span class="k">if</span> <span class="f">any</span>(s <span class="k">in</span> text <span class="k">for</span> s <span class="k">in</span> (<span class="s">"denied"</span>, <span class="s">"Permission"</span>, <span class="s">"存取被拒"</span>, <span class="s">"Errno 13"</span>, <span class="s">"busy"</span>)):
+            <span class="f">report</span>(<span class="n">False</span>, <span class="s">"板子"</span>, <span class="s">"序列埠打不開（被拒絕）"</span>,
+                   <span class="s">"關掉 Arduino IDE 的序列埠監控視窗；Linux 要加入 dialout 群組後重新登入"</span>)
+        <span class="k">else</span>:
+            <span class="f">report</span>(<span class="n">False</span>, <span class="s">"板子"</span>, <span class="s">f"序列埠打不開：{</span>text<span class="s">}"</span>, <span class="s">"重新插拔 USB 線，再執行一次"</span>)
+
+
+<span class="k">def</span> <span class="f">main</span>():
+    <span class="k">if</span> <span class="f">hasattr</span>(sys.stdout, <span class="s">"reconfigure"</span>):
+        sys.stdout.<span class="f">reconfigure</span>(encoding=<span class="s">"utf-8"</span>, errors=<span class="s">"replace"</span>)
+    parser = argparse.<span class="t">ArgumentParser</span>(description=<span class="s">"SkillLab 環境驗收"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--port"</span>, help=<span class="s">"序列埠名稱，例如 COM3、/dev/ttyUSB0"</span>)
+    args = parser.<span class="f">parse_args</span>()
+
+    <span class="f">print</span>(<span class="s">"SkillLab 環境驗收"</span>)
+    <span class="f">print</span>(<span class="s">f"系統：{</span>platform.platform()<span class="s">}（{</span>platform.machine()<span class="s">}）"</span>)
+    <span class="f">show_encoding</span>()
+    <span class="f">check_python</span>()
+    <span class="f">check_packages</span>()
+    <span class="f">check_gmail</span>()
+    <span class="f">check_board</span>(args.port)
+    <span class="f">print</span>()
+    <span class="f">print</span>(<span class="s">"全部通過。"</span> <span class="k">if</span> problems == <span class="n">0</span> <span class="k">else</span> <span class="s">f"有 {</span>problems<span class="s">} 項要處理，照 → 後面的說明做。"</span>)
+
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    <span class="f">main</span>()
+</code></pre>
+</div>
+<!-- /code -->
+</div>
+</details>
+<details class="fold">
+<summary><span><span class="tag">程式碼</span>hello.ino</span></summary>
+<div class="fold-body">
+<!-- code:starter/hello/hello.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">hello.ino</span><span class="code-lines">15 行</span></span><button class="copy" type="button" aria-label="複製 hello.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 環境驗收：每秒送出一行 hello 和次數</span>
+<span class="c">// Uno、ESP32 都能用；序列埠監控視窗的速率選 9600（預設值）</span>
+
+<span class="t">unsigned</span> <span class="t">long</span> count = <span class="n">0</span>;
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">9600</span>);
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">"hello "</span>);
+  <span class="t">Serial</span>.<span class="f">println</span>(count);
+  count++;
+  <span class="f">delay</span>(<span class="n">1000</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+</div>
+</details>
+    </section>
+    <section class="sec" id="s8" aria-labelledby="s8-h">
+      <p class="sec-no">08</p>
+      <h2 id="s8-h">常見問題</h2>
+      <p>每一條先寫看到什麼，再寫原因和處理方法。</p>
+<details class="fold">
+<summary><span>全部的系統</span></summary>
+<div class="fold-body">
+<ul class="prose">
+<li><b>板子的燈會亮，電腦卻找不到板子</b>：用到只能充電的 USB 線。換一條傳輸線。</li>
+<li><b>ESP32 上傳停在 Connecting…，最後出現 Failed to connect to ESP32</b>：板子沒有進入燒錄模式。看到 Connecting… 時按住 BOOT 鍵，開始寫入後再放開。</li>
+<li><b>No module named 'serial'（或其他套件名稱）</b>：沒有用 uv run 執行，或課程資料夾還沒執行 uv sync。在課程資料夾執行 uv sync，再用 uv run 執行。</li>
+<li><b>pip install 了，還是說找不到套件</b>：pip 把套件裝到電腦裡別的 Python。改用 uv add 套件名稱。</li>
+<li><b>'ledcSetup' was not declared in this scope</b>：AI 寫的是 ESP32 2.x 版的寫法。告訴 AI「我用的是 ESP32 Arduino 3.x 版」，請它改寫。</li>
+<li><b>序列埠監控視窗出現亂碼</b>：視窗的速率和程式裡 Serial.begin 的數字不一樣。hello 範例用 9600。</li>
+<li><b>[失敗] Gmail 連線：連不上</b>：網路不通，或學校、公司的網路擋了 465 埠。換手機熱點再試一次。</li>
+</ul>
+</div>
+</details>
+<details class="fold" data-os-fold="win">
+<summary><span>Windows</span></summary>
+<div class="fold-body">
+<ul class="prose">
+<li><b>輸入 uv 出現「無法辨識 'uv' 詞彙」</b>：裝完 uv 還沒重開 PowerShell 或 VS Code。全部關掉再打開。</li>
+<li><b>VS Code 的終端機出現「因為這個系統上已停用指令碼執行」</b>：VS Code 想自動啟用虛擬環境，被 PowerShell 的安全設定擋下。不影響 uv run，可以不理它。</li>
+<li><b>裝置管理員出現有黃色驚嘆號的「USB2.0-Serial」</b>：CH340 的驅動程式還沒裝。照第 02 節的表安裝。</li>
+<li><b>打不開序列埠，訊息有「存取被拒」</b>：序列埠監控視窗或另一個程式正在用這個序列埠。關掉它再試。</li>
+<li><b>Windows on ARM 筆電（Snapdragon）找不到 CH340 的板子</b>：舊版 CH340 驅動程式不支援 ARM。到 WCH 官網下載 3.9 以上的版本。</li>
+<li><b>讀檔出現 UnicodeDecodeError: 'cp950' codec</b>：open() 沒有寫 encoding="utf-8"。加上 encoding="utf-8"。</li>
+</ul>
+</div>
+</details>
+<details class="fold" data-os-fold="mac">
+<summary><span>macOS</span></summary>
+<div class="fold-body">
+<ul class="prose">
+<li><b>輸入 uv 出現 command not found</b>：裝完 uv 還沒開新的終端機視窗。關掉再開一個。</li>
+<li><b>連接埠清單裡只有 /dev/cu.Bluetooth-Incoming-Port</b>：電腦沒有認到板子。換一條傳輸線；USB-C 轉接頭或集線器也換一個試。</li>
+<li><b>出現 CERTIFICATE_VERIFY_FAILED</b>：用的不是 uv 裝的 Python。在課程資料夾用 uv run 執行。</li>
+<li><b>用 localhost:5000 打開網頁看到 403</b>：macOS 的 AirPlay 接收器佔用 5000 埠。網頁程式改用 8000 埠。</li>
+</ul>
+</div>
+</details>
+<details class="fold" data-os-fold="linux">
+<summary><span>Linux</span></summary>
+<div class="fold-body">
+<ul class="prose">
+<li><b>燒錄或打開序列埠出現 Permission denied</b>：還沒加入 dialout 群組，或加入後還沒登出再登入。</li>
+<li><b>CH340 的 /dev/ttyUSB0 出現一下又消失</b>：brltty（點字顯示器程式）把裝置搶走了。沒有用點字顯示器的話，執行 sudo apt remove brltty。</li>
+<li><b>Arduino IDE 的 AppImage 打不開</b>：缺少 FUSE，或 sandbox 的限制。照第 02 節安裝 libfuse2t64，或在指令後面加上 --no-sandbox。</li>
+<li><b>輸入 uv 出現 command not found</b>：裝完 uv 還沒開新的終端機視窗。關掉再開一個。</li>
+</ul>
+</div>
+</details>
+    </section>
+    <nav class="doc-end" aria-label="下一步"><a class="back" href="../handout.html">← 講義選單</a></nav>
+  </main>
+</div>
+<script src="../assets/handout.js"></script>
+</body>
+</html>

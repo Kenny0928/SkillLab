@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>講義｜SkillLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+<link rel="stylesheet" href="assets/handout.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="index.html">SkillLab</a><span class="sep">/</span>
+  <span class="here">講義</span>
+</div></header>
+
+<main class="menu">
+  <h1>講義</h1>
+
+  <section class="grp" aria-labelledby="g1">
+    <p class="grp-lab" id="g1">基礎講義</p>
+    <div class="cards">
+      <a class="card wide" href="handout/setup.html">
+        <div class="card-body">
+          <h2>環境安裝</h2>
+          <p>Arduino IDE・驅動程式・Python（uv）・VS Code・Git・AI 工具與資安</p>
+          <span class="go">開始閱讀 →</span>
+        </div>
+      </a>
+      <a class="card wide" href="handout/controller.html">
+        <div class="card-pic">
+          <img src="assets/handout/img/uno-r3.webp" alt="" width="400" height="300">
+          <img src="assets/handout/img/esp32-30pin.webp" alt="" width="400" height="300">
+          <img src="assets/handout/img/pico.webp" alt="" width="400" height="300">
+        </div>
+        <div class="card-body">
+          <h2>選擇控制器</h2>
+          <p>規格怎麼看・市面上的熱門控制器・什麼任務用什麼板子</p>
+          <span class="go">開始閱讀 →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section class="grp" aria-labelledby="g2">
+    <p class="grp-lab" id="g2">微專案 01</p>
+    <h2 class="grp-title">防盜系統</h2>
+    <p class="grp-sub">零件：HC-SR04 超音波・光敏電阻模組・旋鈕・有源蜂鳴器・全彩 LED</p>
+    <div class="cards">
+      <a class="card" href="handout/alarm-uno.html">
+        <div class="card-pic"><img src="assets/handout/img/uno-r3.webp" alt="" width="400" height="300" loading="lazy"></div>
+        <div class="card-body">
+          <h2>Arduino Uno 版</h2>
+          <p>Uno 負責偵測與警報，USB 接電腦，由 Python 寄 Gmail。</p>
+          <span class="go">開始閱讀 →</span>
+        </div>
+      </a>
+      <a class="card" href="handout/alarm-esp32.html">
+        <div class="card-pic"><img src="assets/handout/img/esp32-30pin.webp" alt="" width="400" height="300" loading="lazy"></div>
+        <div class="card-body">
+          <h2>ESP32 版</h2>
+          <p>ESP32 可以自己用 Wi-Fi 寄 Gmail，也可以像 Uno 一樣接電腦由 Python 寄。</p>
+          <span class="go">開始閱讀 →</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <footer class="credits">
+    <h2>圖片來源</h2>
+    <ol>
+      <li>Arduino Uno R3：<a href="https://commons.wikimedia.org/wiki/File:Arduino_uno_r3.jpg">Arduino uno r3.jpg</a>，MakeMagazinDE，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      <li>ESP32 DevKit 30 腳板：<a href="https://commons.wikimedia.org/wiki/File:ESP32.jpg">ESP32.jpg</a>，Edwiyanto，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>，經裁切</li>
+      <li>Raspberry Pi Pico：<a href="https://commons.wikimedia.org/wiki/File:Raspberry_PI_Pico_2_02.jpg">Raspberry PI Pico 2 02.jpg</a>，Suyash Dwivedi，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>，經裁切</li>
+    </ol>
+  </footer>
+</main>
+</body>
+</html>

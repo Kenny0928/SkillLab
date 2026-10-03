@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>選擇控制器｜SkillLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/handout.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
+  <a href="../handout.html">講義</a><span class="sep">/</span>
+  <span class="here">選擇控制器</span>
+</div></header>
+
+<div class="page has-toc">
+  <header class="doc-head">
+    <p class="kicker">基礎講義</p>
+    <h1>選擇控制器</h1>
+    <p class="lead">看懂規格表、認識市面上的熱門控制器，再依任務挑一塊板子。</p>
+  </header>
+  <nav class="toc" aria-label="目錄">
+    <p class="toc-h">目錄</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span>控制器在系統裡做什麼</a></li>
+      <li><a href="#s2"><span class="n">02</span>先分清楚三組名詞</a></li>
+      <li><a href="#s3"><span class="n">03</span>規格要看什麼</a></li>
+      <li><a href="#s4"><span class="n">04</span>市面上的熱門控制器</a></li>
+      <li><a href="#s5"><span class="n">05</span>什麼任務用什麼板子</a></li>
+      <li><a href="#s6"><span class="n">06</span>選錯會怎樣</a></li>
+      <li><a href="#s7"><span class="n">07</span>請 AI 幫你選</a></li>
+    </ol>
+  </nav>
+  <main class="doc">
+    <section class="sec" id="s1" aria-labelledby="s1-h">
+      <p class="sec-no">01</p>
+      <h2 id="s1-h">控制器在系統裡做什麼</h2>
+      <figure class="figure panel lead-in">
+<svg class="glyph-big" viewBox="0 0 240 170" role="img" aria-label="感測、判斷、執行、紀錄、傳送五個部分的關係圖，判斷位於中心" xmlns="http://www.w3.org/2000/svg">
+<g class="g-e on"><line x1="63.2" y1="53.3" x2="100.7" y2="26.0"/><polygon points="100.7,26.0 97.4,31.6 94.3,27.4"/></g>
+<g class="g-e on"><line x1="139.3" y1="26.0" x2="176.8" y2="53.3"/><polygon points="176.8,53.3 170.4,51.9 173.5,47.6"/></g>
+<g class="g-e"><line x1="176.1" y1="67.3" x2="63.9" y2="67.3"/><polygon points="63.9,67.3 69.9,64.7 69.9,69.9"/></g>
+<g class="g-e on"><line x1="162.5" y1="142.7" x2="124.5" y2="26.0"/><polygon points="124.5,26.0 128.9,30.9 123.9,32.5"/></g>
+<g class="g-e"><line x1="63.2" y1="81.3" x2="147.8" y2="142.7"/><polygon points="147.8,142.7 141.4,141.3 144.4,137.1"/></g>
+<g class="g-e on"><line x1="77.5" y1="142.7" x2="115.5" y2="26.0"/><polygon points="115.5,26.0 116.1,32.5 111.1,30.9"/><polygon points="77.5,142.7 76.9,136.2 81.9,137.8"/></g>
+<text x="43.9" y="67.3" text-anchor="middle" dominant-baseline="central">感測</text>
+<text class="on" x="120.0" y="12.0" text-anchor="middle" dominant-baseline="central">判斷</text>
+<text x="196.1" y="67.3" text-anchor="middle" dominant-baseline="central">執行</text>
+<text x="167.0" y="156.7" text-anchor="middle" dominant-baseline="central">紀錄</text>
+<text x="73.0" y="156.7" text-anchor="middle" dominant-baseline="central">傳送</text>
+</svg>
+        <figcaption>首頁用來拆解系統的五個部分。控制器負責中間的「判斷」。</figcaption>
+      </figure>
+      <p>控制器讀進感測器的訊號，依照程式決定要不要讓蜂鳴器、馬達、燈這些元件動作。</p>
+      <p>有些控制器還能「紀錄」（存進記憶體或記憶卡）和「傳送」（透過 Wi-Fi、藍牙或 USB 把資料送出去）。需不需要這兩件事，是挑板子時最先要問的。</p>
+    </section>
+    <section class="sec" id="s2" aria-labelledby="s2-h">
+      <p class="sec-no">02</p>
+      <h2 id="s2-h">先分清楚三組名詞</h2>
+      <h3>微控制器和單板電腦</h3>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th></th><th scope="col">微控制器（MCU）</th><th scope="col">單板電腦（SBC）</th></tr></thead><tbody><tr><th scope="row">例子</th><td data-label="微控制器（MCU）">Arduino Uno、ESP32、Raspberry Pi Pico</td><td data-label="單板電腦（SBC）">Raspberry Pi 5</td></tr>
+<tr><th scope="row">執行什麼</th><td data-label="微控制器（MCU）">一個你燒錄進去的程式</td><td data-label="單板電腦（SBC）">Linux 作業系統，上面可以同時跑很多程式</td></tr>
+<tr><th scope="row">開機</th><td data-label="微控制器（MCU）">通電後大約一秒內就開始執行</td><td data-label="單板電腦（SBC）">要等作業系統開機，約數十秒</td></tr>
+<tr><th scope="row">斷電</th><td data-label="微控制器（MCU）">直接拔電沒關係</td><td data-label="單板電腦（SBC）">要先關機，否則記憶卡可能損壞</td></tr>
+<tr><th scope="row">耗電</th><td data-label="微控制器（MCU）">低，可以用電池</td><td data-label="單板電腦（SBC）">高，需要穩定的電源供應器</td></tr>
+<tr><th scope="row">擅長</th><td data-label="微控制器（MCU）">即時讀感測器、控制腳位</td><td data-label="單板電腦（SBC）">影像處理、跑 Python、架網站、跑 AI 模型</td></tr>
+</tbody></table></div>
+      <p class="note">Arduino UNO Q 把兩者放在同一塊板子上：一顆跑 Linux 的處理器，加上一顆微控制器。</p>
+
+      <h3>晶片、模組、開發板</h3>
+      <div class="trio">
+        <figure><div class="ph"><img src="../assets/handout/img/esp32-chip.webp" alt="ESP32 晶片" width="400" height="300" loading="lazy"></div><figcaption><p class="t">晶片</p><p class="s">ESP32</p></figcaption></figure>
+        <figure><div class="ph"><img src="../assets/handout/img/esp32-wroom.webp" alt="ESP32-WROOM-32 模組" width="400" height="300" loading="lazy"></div><figcaption><p class="t">模組</p><p class="s">ESP32-WROOM-32</p></figcaption></figure>
+        <figure><div class="ph"><img src="../assets/handout/img/esp32-30pin.webp" alt="ESP32 開發板" width="400" height="300" loading="lazy"></div><figcaption><p class="t">開發板</p><p class="s">ESP32 DevKit</p></figcaption></figure>
+      </div>
+      <ul class="prose">
+        <li><b>晶片</b>：真正負責運算的那顆 IC。</li>
+        <li><b>模組</b>：晶片加上快閃記憶體、天線和金屬遮罩，已經通過無線認證，焊到電路板上就能用。</li>
+        <li><b>開發板</b>：模組再加上 USB 接口、穩壓器、按鈕和排針，接上電腦就能燒錄程式。初學者要買的是開發板。</li>
+        <li>Arduino Uno 也一樣：晶片是 ATmega328P，開發板是 Arduino Uno。</li>
+      </ul>
+      <p class="note">網路上寫「ESP32」，可能指晶片、模組或開發板，下單前看清楚品名和照片。</p>
+
+      <h3>原廠板和相容板</h3>
+      <ul class="prose">
+        <li><b>原廠板</b>：Arduino 公司生產。Uno R3 原廠板的 USB 晶片是 ATmega16U2。</li>
+        <li><b>相容板</b>：其他廠商依照公開的電路設計生產，價格便宜很多。USB 晶片常換成 CH340，有些電腦要另外安裝驅動程式。</li>
+        <li>兩種板子的程式寫法相同。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s3" aria-labelledby="s3-h">
+      <p class="sec-no">03</p>
+      <h2 id="s3-h">規格要看什麼</h2>
+      <p>拿本課會用到的兩塊板子來對照：</p>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">規格</th><th scope="col">Arduino Uno R3</th><th scope="col">ESP32 DevKit（經典款）</th><th scope="col">什麼時候要在乎</th></tr></thead><tbody><tr><th scope="row">工作電壓</th><td data-label="Arduino Uno R3">5V</td><td data-label="ESP32 DevKit（經典款）">3.3V</td><td data-label="什麼時候要在乎">接感測器模組時。輸出 5V 訊號的模組不能直接接 3.3V 的板子。</td></tr>
+<tr><th scope="row">處理器</th><td data-label="Arduino Uno R3">8 位元，16 MHz</td><td data-label="ESP32 DevKit（經典款）">32 位元雙核心，最高 240 MHz</td><td data-label="什麼時候要在乎">要加密連線（HTTPS）、處理聲音或影像時。</td></tr>
+<tr><th scope="row">程式空間（Flash）</th><td data-label="Arduino Uno R3">32 KB</td><td data-label="ESP32 DevKit（經典款）">通常 4 MB</td><td data-label="什麼時候要在乎">程式要用到網路、網頁、大型函式庫時。</td></tr>
+<tr><th scope="row">執行記憶體（SRAM）</th><td data-label="Arduino Uno R3">2 KB</td><td data-label="ESP32 DevKit（經典款）">520 KB</td><td data-label="什麼時候要在乎">要處理很多文字、網頁或大量資料時。</td></tr>
+<tr><th scope="row">數位腳位</th><td data-label="Arduino Uno R3">14 支，其中 6 支可輸出 PWM</td><td data-label="ESP32 DevKit（經典款）">約 25 支；GPIO 34、35、36、39 只能輸入</td><td data-label="什麼時候要在乎">要接很多元件時。</td></tr>
+<tr><th scope="row">類比輸入</th><td data-label="Arduino Uno R3">6 支，10 位元（0–1023）</td><td data-label="ESP32 DevKit（經典款）">最多 18 支，12 位元（0–4095）；開 Wi-Fi 時只能用 GPIO 32–36、39</td><td data-label="什麼時候要在乎">讀旋鈕、光敏電阻這類連續變化的訊號時。</td></tr>
+<tr><th scope="row">無線</th><td data-label="Arduino Uno R3">無</td><td data-label="ESP32 DevKit（經典款）">Wi-Fi 2.4 GHz、藍牙</td><td data-label="什麼時候要在乎">不接電腦也要自己上網時。</td></tr>
+<tr><th scope="row">USB 晶片</th><td data-label="Arduino Uno R3">原廠板 ATmega16U2，相容板常用 CH340</td><td data-label="ESP32 DevKit（經典款）">依板子而定，常見 CP2102、CH340</td><td data-label="什麼時候要在乎">電腦找不到板子時，先查這顆晶片的驅動程式。</td></tr>
+</tbody></table></div>
+
+      <h3>表格外還要看的</h3>
+      <ul class="prose">
+        <li><b>耗電與睡眠</b>：ESP32 深度睡眠約 10 µA，這是晶片本身的數字。開發板上的 USB 晶片、穩壓器和電源燈會一直耗電，整塊板子常常是好幾 mA。要用電池時，看的是整塊板子的實測值。</li>
+        <li><b>開發環境</b>：Arduino IDE（C++）可以寫 Uno 和 ESP32；ESP32、Raspberry Pi Pico 也能用 MicroPython；micro:bit 可以用積木（MakeCode）。</li>
+        <li><b>資料多寡</b>：範例、函式庫和討論越多的板子，越容易查到答案，AI 也比較熟。新出或冷門的板子，AI 比較容易寫錯腳位，或用到不存在的函式。</li>
+        <li><b>尺寸與接腳</b>：ESP32 開發板比較寬，插上一般麵包板後，兩側只剩很少的孔可以接線。</li>
+      </ul>
+    </section>
+    <section class="sec" id="s4" aria-labelledby="s4-h">
+      <p class="sec-no">04</p>
+      <h2 id="s4-h">市面上的熱門控制器</h2>
+      <div class="table-wrap lead-in"><table class="tbl stack boards"><thead><tr><th scope="col">板子</th><th scope="col">核心</th><th scope="col">電壓</th><th scope="col">無線</th><th scope="col">擅長</th><th scope="col">價位</th></tr></thead><tbody>
+<tr class="grp"><th colspan="6" scope="colgroup">入門教學</th></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/uno-r3.webp" alt="" width="88" height="66" loading="lazy">Arduino Uno R3</th><td data-label="核心">ATmega328P，8 位元 16 MHz</td><td data-label="電壓">5V</td><td data-label="無線">無</td><td data-label="擅長">範例最多，5V 模組直接接</td><td class="price" data-label="價位">$–$$</td></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/uno-r4.webp" alt="" width="88" height="66" loading="lazy">Arduino Uno R4<span class="sub">Minima／WiFi</span></th><td data-label="核心">Renesas RA4M1，32 位元 48 MHz</td><td data-label="電壓">5V</td><td data-label="無線">WiFi 版內建 ESP32-S3，負責 Wi-Fi 與藍牙</td><td data-label="擅長">和 Uno R3 同尺寸、同腳位，速度和記憶體更大；WiFi 版有 12×8 LED 點陣</td><td class="price" data-label="價位">$$</td></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/microbit-v2.webp" alt="" width="88" height="66" loading="lazy">BBC micro:bit V2</th><td data-label="核心">nRF52833，32 位元 64 MHz</td><td data-label="電壓">3.3V</td><td data-label="無線">藍牙</td><td data-label="擅長">板上就有 LED 點陣、按鈕、加速度計、麥克風和喇叭，可以用積木寫程式</td><td class="price" data-label="價位">$$</td></tr>
+<tr class="grp"><th colspan="6" scope="colgroup">Wi-Fi 與物聯網</th></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/esp32-30pin.webp" alt="" width="88" height="66" loading="lazy">ESP32 DevKit<span class="sub">經典款</span></th><td data-label="核心">ESP32，雙核心 240 MHz</td><td data-label="電壓">3.3V</td><td data-label="無線">Wi-Fi 2.4 GHz、藍牙</td><td data-label="擅長">便宜、資料多，自己上網發通知最常用</td><td class="price" data-label="價位">$</td></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/esp32-s3.webp" alt="" width="88" height="66" loading="lazy">ESP32-S3 開發板</th><td data-label="核心">ESP32-S3，雙核心 240 MHz，有 AI 運算加速指令</td><td data-label="電壓">3.3V</td><td data-label="無線">Wi-Fi 2.4 GHz、藍牙</td><td data-label="擅長">內建 USB、可接相機、可跑小型 AI 模型</td><td class="price" data-label="價位">$–$$</td></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/esp32-c3-c6.webp" alt="" width="88" height="66" loading="lazy">ESP32-C3／C5／C6 開發板</th><td data-label="核心">RISC-V，160–240 MHz</td><td data-label="電壓">3.3V</td><td data-label="無線">Wi-Fi、藍牙；C5、C6 是 Wi-Fi 6，另支援 Thread／Zigbee；C5 支援 5 GHz</td><td data-label="擅長">小、便宜、省電；C6 可接 Matter 智慧家庭</td><td class="price" data-label="價位">$</td></tr>
+<tr><th scope="row">Seeed Studio XIAO ESP32<span class="sub">C3／S3／C6</span></th><td data-label="核心">依型號</td><td data-label="電壓">3.3V</td><td data-label="無線">依晶片</td><td data-label="擅長">拇指大小，適合穿戴和小型裝置</td><td class="price" data-label="價位">$</td></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/pico.webp" alt="" width="88" height="66" loading="lazy">Raspberry Pi Pico 2<span class="sub">Pico 2／Pico 2 W</span></th><td data-label="核心">RP2350，雙核心 150 MHz</td><td data-label="電壓">3.3V</td><td data-label="無線">Pico 2 W：Wi-Fi 2.4 GHz、藍牙</td><td data-label="擅長">便宜，MicroPython 資料多</td><td class="price" data-label="價位">$</td></tr>
+<tr class="grp"><th colspan="6" scope="colgroup">相機與影像辨識</th></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/esp32-cam.webp" alt="" width="88" height="66" loading="lazy">ESP32-CAM</th><td data-label="核心">ESP32 加上 OV2640 相機與記憶卡槽</td><td data-label="電壓">3.3V，由 5V 供電</td><td data-label="無線">Wi-Fi 2.4 GHz、藍牙</td><td data-label="擅長">最便宜的拍照、串流方案；板上沒有 USB，要另外接燒錄板</td><td class="price" data-label="價位">$</td></tr>
+<tr><th scope="row">XIAO ESP32-S3 Sense</th><td data-label="核心">ESP32-S3 加上相機和麥克風</td><td data-label="電壓">3.3V</td><td data-label="無線">Wi-Fi 2.4 GHz、藍牙</td><td data-label="擅長">小型影像與聲音辨識</td><td class="price" data-label="價位">$$</td></tr>
+<tr><th scope="row">Realtek AMB82-mini</th><td data-label="核心">RTL8735B，500 MHz，影像辨識加速 0.4 TOPS</td><td data-label="電壓">3.3V</td><td data-label="無線">Wi-Fi 2.4／5 GHz、藍牙</td><td data-label="擅長">板上就能跑物件偵測，用 Arduino IDE 寫程式</td><td class="price" data-label="價位">$$</td></tr>
+<tr class="grp"><th colspan="6" scope="colgroup">Linux 單板電腦與混合型</th></tr>
+<tr><th scope="row"><img class="thumb" src="../assets/handout/img/rpi5.webp" alt="" width="88" height="66" loading="lazy">Raspberry Pi 5</th><td data-label="核心">四核心 2.4 GHz，記憶體 1–16 GB</td><td data-label="電壓">3.3V</td><td data-label="無線">Wi-Fi 2.4／5 GHz、藍牙</td><td data-label="擅長">跑 Python、資料庫、網站和 AI 模型，可接螢幕和相機</td><td class="price" data-label="價位">$$$</td></tr>
+<tr><th scope="row">Arduino UNO Q</th><td data-label="核心">Qualcomm QRB2210（跑 Linux）加上 STM32U585 微控制器</td><td data-label="電壓">3.3V</td><td data-label="無線">Wi-Fi 2.4／5 GHz、藍牙</td><td data-label="擅長">Linux 和即時控制在同一塊板子上</td><td class="price" data-label="價位">$$$</td></tr>
+</tbody></table></div>
+      <p class="note">價位：$ 約 300 元以下・$$ 約 300–1,000 元・$$$ 約 1,000 元以上。2026 年的大約區間，依通路和原廠或相容板而不同。</p>
+      <p class="note">電壓指腳位的訊號電壓。</p>
+    </section>
+    <section class="sec" id="s5" aria-labelledby="s5-h">
+      <p class="sec-no">05</p>
+      <h2 id="s5-h">什麼任務用什麼板子</h2>
+      <p>從第一題往下問，第一個回答「是」的就是答案：</p>
+      <ol class="flow lead-in">
+        <li><p class="q">要跑 Linux、Python 程式、資料庫或大型 AI 模型嗎？</p><p class="a"><span class="yes">是 →</span><b>單板電腦：Raspberry Pi 5、Arduino UNO Q</b></p></li>
+        <li><p class="q">要拍照或做影像辨識嗎？</p><p class="a"><span class="yes">是 →</span><b>ESP32-CAM、XIAO ESP32-S3 Sense、AMB82-mini</b></p></li>
+        <li><p class="q">不接電腦也要自己上網嗎？例如發通知、上傳資料、用手機遙控。</p><p class="a"><span class="yes">是 →</span><b>ESP32 系列、Pico 2 W、Uno R4 WiFi</b></p><p class="a">現場只有 5 GHz 的 Wi-Fi：選 ESP32-C5 或其他支援雙頻的板子。</p><p class="a">要接 Matter／Thread 智慧家庭：選 ESP32-C6。</p></li>
+        <li><p class="q">要靠電池撐好幾個月嗎？</p><p class="a"><span class="yes">是 →</span><b>有深度睡眠、板上沒有多餘耗電元件的小板，例如 XIAO ESP32-C3／C6</b></p></li>
+        <li class="last"><p class="q">以上都不需要，只讀感測器、控制燈和蜂鳴器</p><p class="a"><b>Arduino Uno R3／R4：5V 模組直接接，範例最多</b></p></li>
+      </ol>
+
+      <h3>常見任務</h3>
+      <div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">任務</th><th scope="col">建議</th><th scope="col">原因</th></tr></thead><tbody><tr><th scope="row">防盜系統（本課微專案）</th><td data-label="建議">Uno R3 或 ESP32</td><td data-label="原因">兩種都做得到，差在由誰負責上網</td></tr>
+<tr><th scope="row">教室溫濕度紀錄，上傳到雲端</th><td data-label="建議">ESP32</td><td data-label="原因">自己上網，不用一直開著電腦</td></tr>
+<tr><th scope="row">相撲機器人、自走車</th><td data-label="建議">Uno 或 ESP32</td><td data-label="原因">讀感測器、控制馬達；要用手機遙控就選 ESP32</td></tr>
+<tr><th scope="row">門口拍照，辨識有沒有人</th><td data-label="建議">AMB82-mini、XIAO ESP32-S3 Sense</td><td data-label="原因">板子上就能跑物件偵測</td></tr>
+<tr><th scope="row">戶外用電池供電的感測站</th><td data-label="建議">ESP32-C3／C6 小板</td><td data-label="原因">深度睡眠省電</td></tr>
+<tr><th scope="row">國小學生入門</th><td data-label="建議">micro:bit V2</td><td data-label="原因">板上有按鈕、LED 和感測器，可以用積木寫程式</td></tr>
+<tr><th scope="row">用攝影機加 AI 模型做複雜辨識</th><td data-label="建議">Raspberry Pi 5</td><td data-label="原因">記憶體和運算能力足夠</td></tr>
+</tbody></table></div>
+    </section>
+    <section class="sec" id="s6" aria-labelledby="s6-h">
+      <p class="sec-no">06</p>
+      <h2 id="s6-h">選錯會怎樣</h2>
+      <ul class="fails lead-in">
+        <li><div><b>5V 模組的輸出直接接到 3.3V 板子</b>：腳位可能燒壞。例如 HC-SR04 的 Echo 腳輸出 5V，接 ESP32 前要先用電阻分壓。</div></li>
+        <li><div><b>經典 ESP32 只支援 2.4 GHz</b>：家裡或學校只開 5 GHz 時，板子找不到網路。</div></li>
+        <li><div><b>學校 Wi-Fi 要網頁登入或帳號密碼（企業版 WPA2）</b>：ESP32 很難連上，備案是手機熱點。</div></li>
+        <li><div><b>Uno 的 2 KB 記憶體用完</b>：程式不會報錯，而是跑一跑就重新開機，或印出亂碼。</div></li>
+        <li><div><b>腳位用錯</b>：ESP32 的 GPIO 34–39 只能輸入；GPIO 0、2、12、15 接錯會開不了機或無法燒錄。</div></li>
+        <li><div><b>只看晶片的睡眠電流</b>：開發板實際耗電可能是晶片規格的好幾百倍，電池幾天就沒電。</div></li>
+        <li><div><b>USB 線只能充電、不能傳資料</b>：電腦完全找不到板子。</div></li>
+        <li><div><b>相容板沒裝 USB 驅動程式</b>：連接埠清單裡看不到板子。Windows、macOS、Linux 的處理方式見<a href="setup.html#s2">環境安裝</a>講義。</div></li>
+        <li><div><b>冷門或剛上市的板子</b>：AI 給的腳位和函式庫可能是錯的，要對照官方文件。</div></li>
+      </ul>
+    </section>
+    <section class="sec" id="s7" aria-labelledby="s7-h">
+      <p class="sec-no">07</p>
+      <h2 id="s7-h">請 AI 幫你選</h2>
+      <dl class="qa lead-in">
+        <dt>你要準備</dt><dd>寫下任務需求：要感測什麼、要控制什麼、要不要自己上網、用什麼供電、預算多少、手上已經有哪些零件、會用哪種程式語言。</dd>
+        <dt>AI 能幫你</dt><dd>依需求比較幾塊板子的規格、列出每塊板子的風險、畫出接線表、估算耗電。</dd>
+        <dt>怎麼查證</dt><dd>規格以官方規格表和腳位圖為準；接線時看手上那塊板子上印的字；先燒最簡單的程式（例如讓 LED 閃爍），確認板子能燒錄。</dd>
+        <dt class="is-trap">常見陷阱</dt><dd>AI 推薦已經停產的板子或不能用的服務。例如台灣的 2G 網路在 2017 年就關閉了，SIM800L 這類 2G 簡訊模組在台灣不能用。</dd>
+      </dl>
+    </section>
+    <nav class="doc-end" aria-label="下一步"><a class="back" href="../handout.html">← 講義選單</a><a href="alarm-uno.html">微專案 01：防盜系統 →</a></nav>
+    <footer class="credits">
+      <h2>圖片來源</h2>
+      <ol>
+      <li>ESP32 晶片：<a href="https://commons.wikimedia.org/wiki/File:ESP32_on_Lolin32_Lite_clone_board.jpg">ESP32 on Lolin32 Lite clone board.jpg</a>，Ubahnverleih，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a>，經裁切</li>
+      <li>ESP32-WROOM-32 模組：<a href="https://commons.wikimedia.org/wiki/File:ESP32_Espressif_ESP-WROOM-32_Shielded.jpg">ESP32 Espressif ESP-WROOM-32 Shielded.jpg</a>，Ubahnverleih，<a href="http://creativecommons.org/publicdomain/zero/1.0/deed.en">CC0</a></li>
+      <li>ESP32 開發板：<a href="https://commons.wikimedia.org/wiki/File:ESP32.jpg">ESP32.jpg</a>，Edwiyanto，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>，經裁切</li>
+      <li>Arduino Uno R3：<a href="https://commons.wikimedia.org/wiki/File:Arduino_uno_r3.jpg">Arduino uno r3.jpg</a>，MakeMagazinDE，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      <li>Arduino Uno R4：<a href="https://commons.wikimedia.org/wiki/File:Arduino_UNO_R4_WiFi.jpg">Arduino UNO R4 WiFi.jpg</a>，Lomrjyo，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      <li>BBC micro:bit V2：<a href="https://commons.wikimedia.org/wiki/File:BBC_micro_bit_v2.jpg">BBC micro bit v2.jpg</a>，SimonWaldherr，<a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a></li>
+      <li>ESP32-S3 開發板：<a href="https://commons.wikimedia.org/wiki/File:ESP32-S3_on_paper.jpg">ESP32-S3 on paper.jpg</a>，VectorVoyager，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      <li>ESP32-C3／C5／C6 開發板：<a href="https://commons.wikimedia.org/wiki/File:ESP32-C3_RISC-V_NodeMCU_board.jpg">ESP32-C3 RISC-V NodeMCU board.jpg</a>，Popolon，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      <li>Raspberry Pi Pico 2：<a href="https://commons.wikimedia.org/wiki/File:Raspberry_PI_Pico_2_02.jpg">Raspberry PI Pico 2 02.jpg</a>，Suyash Dwivedi，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>，經裁切</li>
+      <li>ESP32-CAM：<a href="https://commons.wikimedia.org/wiki/File:ESP32-CAM.jpg">ESP32-CAM.jpg</a>，Nowforever，<a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a></li>
+      <li>Raspberry Pi 5：<a href="https://commons.wikimedia.org/wiki/File:Raspberry_Pi_5.jpg">Raspberry Pi 5.jpg</a>，SimonWaldherr，<a href="https://creativecommons.org/licenses/by/4.0">CC BY 4.0</a></li>
+      </ol>
+    </footer>
+  </main>
+</div>
+<script src="../assets/handout.js"></script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+{
+  "version": 1,
+  "author": "SkillLab",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-breadboard-half",
+      "id": "bb1",
+      "top": 150,
+      "left": 69.6,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-arduino-uno",
+      "id": "uno",
+      "left": 0,
+      "top": 420,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr",
+      "left": -130,
+      "top": 20,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-hc-sr04",
+      "id": "sonar",
+      "left": 136.2,
+      "top": 20,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-rgb-led",
+      "id": "rgb",
+      "left": 135.49,
+      "top": 185.59,
+      "attrs": {
+        "common": "cathode"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "left": 114.44,
+      "top": 263.09,
+      "rotate": 90,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "left": 133.64,
+      "top": 263.09,
+      "rotate": 90,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r3",
+      "left": 143.24,
+      "top": 263.09,
+      "rotate": 90,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-buzzer",
+      "id": "bz",
+      "left": -20,
+      "top": 210,
+      "attrs": {
+        "volume": "0.1"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "uno:5V",
+      "bb1:tp.1",
+      "red",
+      [
+        "v43.5",
+        "h-215",
+        "v-491.81",
+        "*"
+      ]
+    ],
+    [
+      "uno:GND.2",
+      "bb1:tn.1",
+      "black",
+      [
+        "v33.5",
+        "h-214.5",
+        "v-472.21",
+        "*"
+      ]
+    ],
+    [
+      "ldr:VCC",
+      "bb1:tp.3",
+      "red",
+      [
+        "h82.19",
+        "*"
+      ]
+    ],
+    [
+      "ldr:GND",
+      "bb1:tn.2",
+      "black",
+      [
+        "h72.59",
+        "*"
+      ]
+    ],
+    [
+      "ldr:AO",
+      "uno:A0",
+      "orange",
+      [
+        "h10",
+        "v34.5",
+        "h-117",
+        "v570",
+        "h273.5",
+        "*"
+      ]
+    ],
+    [
+      "sonar:VCC",
+      "bb1:tp.10",
+      "red",
+      [
+        "v33.5",
+        "h-6.51",
+        "*"
+      ]
+    ],
+    [
+      "sonar:GND",
+      "bb1:tn.14",
+      "black",
+      [
+        "v35.5",
+        "h11.49",
+        "*"
+      ]
+    ],
+    [
+      "sonar:TRIG",
+      "uno:4",
+      "yellow",
+      []
+    ],
+    [
+      "sonar:ECHO",
+      "uno:3",
+      "cyan",
+      []
+    ],
+    [
+      "rgb:R",
+      "bb1:6t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "rgb:COM",
+      "bb1:7t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "rgb:G",
+      "bb1:8t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "rgb:B",
+      "bb1:9t.d",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "bb1:7t.a",
+      "bb1:tn.6",
+      "black",
+      [
+        "v-12.79",
+        "h9",
+        "*"
+      ]
+    ],
+    [
+      "r1:1",
+      "bb1:6t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "r1:2",
+      "bb1:6b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "r2:1",
+      "bb1:8t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "r2:2",
+      "bb1:8b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "r3:1",
+      "bb1:9t.e",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "r3:2",
+      "bb1:9b.i",
+      "",
+      [
+        "$bb"
+      ]
+    ],
+    [
+      "bb1:6b.j",
+      "uno:11",
+      "red",
+      [
+        "v72.81",
+        "h0.51",
+        "*"
+      ]
+    ],
+    [
+      "bb1:8b.j",
+      "uno:10",
+      "green",
+      [
+        "v80.81",
+        "h-9.19",
+        "*"
+      ]
+    ],
+    [
+      "bb1:9b.j",
+      "uno:9",
+      "blue",
+      [
+        "v88.81",
+        "h-9.29",
+        "*"
+      ]
+    ],
+    [
+      "bz:2",
+      "uno:12",
+      "magenta",
+      [
+        "v111",
+        "h118",
+        "*"
+      ]
+    ],
+    [
+      "bz:1",
+      "uno:GND.1",
+      "black",
+      [
+        "v121",
+        "h109",
+        "*"
+      ]
+    ]
+  ],
+  "dependencies": {}
+}

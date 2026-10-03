@@ -1,0 +1,8 @@
+.os-panel { margin-top: 18px; }
+.os-panel > :first-child:not(.os-name) { margin-top: 0; }
+.table-wrap { overflow-x: auto; }
+.sec > .os-pick { margin-bottom: 20px; }
+.doc-head .os-pick { margin-top: 20px; }
+.doc-head .os-pick + .note { margin-top: 10px; }
+.sec > h2 + .os-pick { margin-top: 16px; }
+.os-panel + p, .os-panel + .note { margin-top: 16px; }

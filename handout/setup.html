@@ -84,7 +84,7 @@
 <div class="os-panel" data-os="win">
 <h4 class="os-name">Windows 10、11</h4>
 <ol class="prose setup">
-<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software">arduino.cc/en/software</a> 下載 Windows 版，執行安裝檔。安裝中問要不要安裝裝置軟體（USB 驅動程式）時，按「安裝」。</li>
+<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a> 下載 Windows 版，執行安裝檔。安裝中問要不要安裝裝置軟體（USB 驅動程式）時，按「安裝」。</li>
 <li><b>中文介面</b>：介面是英文時，File → Preferences，Language 選中文（台灣），按 OK 後重新開啟。</li>
 <li><b>USB 驅動程式</b>：插上板子，打開「裝置管理員」的「連接埠 (COM 和 LPT)」。看得到板子和 COM 編號（例如 COM3）就不用裝。沒有出現，或「其他裝置」裡有黃色驚嘆號的裝置，照下面的表找板子上的晶片，裝對應的驅動程式，再重新插一次 USB 線。</li>
 </ol>
@@ -92,7 +92,7 @@
 <div class="os-panel" data-os="mac">
 <h4 class="os-name">macOS</h4>
 <ol class="prose setup">
-<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software">arduino.cc/en/software</a> 下載 macOS 版。Apple 晶片和 Intel 晶片各有一個版本，在「蘋果選單 → 關於這台 Mac」可以看到晶片。打開 .dmg，把 Arduino IDE 拖進「應用程式」資料夾。</li>
+<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a> 下載 macOS 版。Apple 晶片和 Intel 晶片各有一個版本，在「蘋果選單 → 關於這台 Mac」可以看到晶片。打開 .dmg，把 Arduino IDE 拖進「應用程式」資料夾。</li>
 <li><b>中文介面</b>：介面是英文時，Arduino IDE → Settings，Language 選中文（台灣），按 OK 後重新開啟。</li>
 <li><b>USB 驅動程式</b>：macOS 內建 CH340、CH9102、CP2102 的驅動程式，插上就能用。到 Arduino IDE 的「工具 → 連接埠」找 /dev/cu. 開頭的名稱。找不到時，才裝下面表格裡的 macOS 驅動程式，裝完到「系統設定 → 隱私權與安全性」按「允許」，再重新開機。</li>
 </ol>
@@ -100,7 +100,7 @@
 <div class="os-panel" data-os="linux">
 <h4 class="os-name">Linux（以 Ubuntu、Debian 為例）</h4>
 <ol class="prose setup">
-<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software">arduino.cc/en/software</a> 下載 Linux AppImage（64 位元）。AppImage 需要 FUSE：Ubuntu 24.04、Debian 13 以後安裝 libfuse2t64，更早的版本安裝 libfuse2。接著在下載資料夾打開終端機，讓檔案可以執行並開啟：
+<li><b>Arduino IDE</b>：到 <a href="https://www.arduino.cc/en/software" target="_blank" rel="noopener">arduino.cc/en/software</a> 下載 Linux AppImage（64 位元）。AppImage 需要 FUSE：Ubuntu 24.04、Debian 13 以後安裝 libfuse2t64，更早的版本安裝 libfuse2。接著在下載資料夾打開終端機，讓檔案可以執行並開啟：
 <div class="code" data-lang="sh">
 <div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 安裝並開啟 Arduino IDE">複製</button></div>
 <pre tabindex="0"><code data-lang="sh"><span class="k">sudo</span> <span class="f">apt</span> install libfuse2t64
@@ -121,9 +121,9 @@
       <p>晶片在 USB 孔旁邊，字很小，用手機拍照放大就看得清楚。</p>
 <div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">晶片</th><th scope="col">常見在</th><th scope="col">Windows</th><th scope="col">macOS</th><th scope="col">Linux</th></tr></thead><tbody>
 <tr><th scope="row">ATmega16U2</th><td data-label="常見在">原廠 Uno</td><td data-label="Windows">不用裝</td><td data-label="macOS">不用裝</td><td data-label="Linux">不用裝</td></tr>
-<tr><th scope="row">CH340</th><td data-label="常見在">相容板 Uno、部分 ESP32</td><td data-label="Windows"><a href="https://www.wch-ic.com/downloads/CH341SER_EXE.html">CH341SER</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html">CH34xSER_MAC</a></td><td data-label="Linux">內建</td></tr>
-<tr><th scope="row">CH9102</th><td data-label="常見在">新版 ESP32 DevKit</td><td data-label="Windows"><a href="https://www.wch-ic.com/downloads/CH343SER_ZIP.html">CH343SER</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html">CH34xSER_MAC</a></td><td data-label="Linux">內建</td></tr>
-<tr><th scope="row">CP2102</th><td data-label="常見在">ESP32 DevKit</td><td data-label="Windows"><a href="https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers">CP210x VCP</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers">CP210x VCP</a></td><td data-label="Linux">內建</td></tr>
+<tr><th scope="row">CH340</th><td data-label="常見在">相容板 Uno、部分 ESP32</td><td data-label="Windows"><a href="https://www.wch-ic.com/downloads/CH341SER_EXE.html" target="_blank" rel="noopener">CH341SER</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html" target="_blank" rel="noopener">CH34xSER_MAC</a></td><td data-label="Linux">內建</td></tr>
+<tr><th scope="row">CH9102</th><td data-label="常見在">新版 ESP32 DevKit</td><td data-label="Windows"><a href="https://www.wch-ic.com/downloads/CH343SER_ZIP.html" target="_blank" rel="noopener">CH343SER</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.wch-ic.com/downloads/CH34XSER_MAC_ZIP.html" target="_blank" rel="noopener">CH34xSER_MAC</a></td><td data-label="Linux">內建</td></tr>
+<tr><th scope="row">CP2102</th><td data-label="常見在">ESP32 DevKit</td><td data-label="Windows"><a href="https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers" target="_blank" rel="noopener">CP210x VCP</a></td><td data-label="macOS">內建；找不到板子時裝 <a href="https://www.silabs.com/developer-tools/usb-to-uart-bridge-vcp-drivers" target="_blank" rel="noopener">CP210x VCP</a></td><td data-label="Linux">內建</td></tr>
 </tbody></table></div>
       <p class="note">Windows 看不出是哪個晶片時，在裝置管理員對那個裝置按右鍵 → 內容 → 詳細資料，選「硬體識別碼」：VID_1A86 是 WCH（PID_7523 是 CH340，PID_55D4 是 CH9102），VID_10C4 是 CP210x，VID_2341 是 Arduino 原廠。</p>
       <h3>連接埠名稱</h3>
@@ -184,7 +184,7 @@
 <div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 確認 uv 版本">複製</button></div>
 <pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> <span class="n">--version</span></code></pre>
 </div>
-      <p class="note">這種指令會從網路下載程式並執行。只貼官方網站給的指令（uv 的官方網站是 <a href="https://docs.astral.sh/uv/">docs.astral.sh/uv</a>），來路不明的不要貼。</p>
+      <p class="note">這種指令會從網路下載程式並執行。只貼官方網站給的指令（uv 的官方網站是 <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">docs.astral.sh/uv</a>），來路不明的不要貼。</p>
       <h3>在課程資料夾打開終端機</h3>
 <div class="os-panel" data-os="win">
 <h4 class="os-name">Windows</h4>
@@ -234,15 +234,15 @@
       <h3>安裝</h3>
 <div class="os-panel" data-os="win">
 <h4 class="os-name">Windows</h4>
-<p>到 <a href="https://code.visualstudio.com/">code.visualstudio.com</a> 下載 Windows 版，執行安裝檔。「選擇其他工作」那一頁，「加入 PATH」保持勾選，兩個「Open with Code」（以 Code 開啟）也打勾。</p>
+<p>到 <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">code.visualstudio.com</a> 下載 Windows 版，執行安裝檔。「選擇其他工作」那一頁，「加入 PATH」保持勾選，兩個「Open with Code」（以 Code 開啟）也打勾。</p>
 </div>
 <div class="os-panel" data-os="mac">
 <h4 class="os-name">macOS</h4>
-<p>到 <a href="https://code.visualstudio.com/">code.visualstudio.com</a> 下載 macOS 版，打開 .zip，把 Visual Studio Code 拖進「應用程式」資料夾。</p>
+<p>到 <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">code.visualstudio.com</a> 下載 macOS 版，打開 .zip，把 Visual Studio Code 拖進「應用程式」資料夾。</p>
 </div>
 <div class="os-panel" data-os="linux">
 <h4 class="os-name">Linux</h4>
-<p>到 <a href="https://code.visualstudio.com/">code.visualstudio.com</a> 下載 .deb，在下載資料夾打開終端機安裝：</p>
+<p>到 <a href="https://code.visualstudio.com/" target="_blank" rel="noopener">code.visualstudio.com</a> 下載 .deb，在下載資料夾打開終端機安裝：</p>
 <div class="code" data-lang="sh">
 <div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 Linux 安裝 VS Code">複製</button></div>
 <pre tabindex="0"><code data-lang="sh"><span class="k">sudo</span> <span class="f">apt</span> install ./code_*.deb</code></pre>
@@ -281,7 +281,7 @@
       <h3>安裝</h3>
 <div class="os-panel" data-os="win">
 <h4 class="os-name">Windows</h4>
-<p>到 <a href="https://git-scm.com/downloads">git-scm.com/downloads</a> 下載 Git for Windows，安裝畫面大多照預設按 Next。選預設編輯器那一頁，改成「Use Visual Studio Code as Git's default editor」。裝完重新開啟 VS Code。</p>
+<p>到 <a href="https://git-scm.com/downloads" target="_blank" rel="noopener">git-scm.com/downloads</a> 下載 Git for Windows，安裝畫面大多照預設按 Next。選預設編輯器那一頁，改成「Use Visual Studio Code as Git's default editor」。裝完重新開啟 VS Code。</p>
 </div>
 <div class="os-panel" data-os="mac">
 <h4 class="os-name">macOS</h4>
@@ -335,7 +335,7 @@
 <li><b>密碼、金鑰不貼給 AI</b>：Gmail 應用程式密碼、Discord Webhook 網址、Wi-Fi 密碼、API 金鑰都放在 config.json；給 AI 看的是 config.example.json。</li>
 <li><b>代理看得到 config.json</b>：代理讀得到整個課程資料夾，所以 config.json 只放可以撤銷的東西。Gmail 用應用程式密碼，不用帳號本身的密碼；專題通知另外開一個 Gmail 帳號；課程結束就撤銷應用程式密碼、刪掉 Webhook。</li>
 <li><b>權限不要全開</b>：Codex 不要選完整存取（Full access），Claude Code 不要開略過權限（bypass permissions）。代理要執行指令時，看懂再按允許；sudo、刪除檔案、curl … | sh、安裝套件這幾種要特別看。</li>
-<li><b>AI 建議的套件先查</b>：到 <a href="https://pypi.org/">pypi.org</a> 確認套件真的存在、名字沒有拼錯。有人專門註冊和熱門套件名字很像的假套件。Arduino 程式庫從 Arduino IDE 的「程式庫管理員」安裝。</li>
+<li><b>AI 建議的套件先查</b>：到 <a href="https://pypi.org/" target="_blank" rel="noopener">pypi.org</a> 確認套件真的存在、名字沒有拼錯。有人專門註冊和熱門套件名字很像的假套件。Arduino 程式庫從 Arduino IDE 的「程式庫管理員」安裝。</li>
 <li><b>只從官方網站下載</b>：軟體和驅動程式用本講義各步驟裡的連結；搜尋結果裡的驅動程式下載站，可能夾帶其他程式。</li>
 <li><b>先看差異再保留</b>：代理改完程式，到「原始檔控制」看改了哪些地方；看不懂或改壞了就「捨棄變更」。</li>
 <li><b>不貼個資</b>：自己和別人的姓名、電話、照片、學號都不要貼給 AI。</li>

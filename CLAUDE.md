@@ -1,0 +1,38 @@
+# SkillLab
+
+純靜態網站，GitHub Pages 從 `main` 根目錄發布。`index.html` 的 `build:*` 區段由 `node tools/build.mjs` 產生，不要手改。
+
+## 檢查排版
+
+改了 HTML／CSS 就用 `check-layout` skill 截圖確認（1440／900／390）。不要另寫截圖工具。
+
+## 視覺風格
+
+- 顏色只用 `assets/style.css` 的 token：底色 `--paper`，卡片 `--face`，文字 `--ink`／`--ink-2`，線 `--rule`，強調色 `--accent`（圖形）／`--accent-text`（小字）。`--ink-3` 對比不足，只能當裝飾。唯一另外的顏色是講義類型色。
+- 字型：Inter + Noto Sans TC；編號、程式碼、規格用 `--mono`。字重只用 400／500／600。
+- 平面風格：1px `--rule` 邊框，圓角 4px（程式碼區塊 6px）。不用陰影、漸層，選單卡片不放照片。
+- 版寬：內文欄 760px，頁面最寬 1120px，左右留白 24px（寬度 < 400px 時 16px）。斷點 600／760／1100。
+- 文字對比至少 4.5:1；可點區域高度至少 40px；手機不能出現水平捲動；產品名稱用 `&nbsp;` 連起來（`VS&nbsp;Code`）。
+- 內文連結不加 class，會自動變成橘色底線並加上 ↗／↓。導覽和卡片連結一定要加 class。
+
+## 講義分類
+
+| `data-type` | 標籤 | 內容 | |
+|---|---|---|---|
+| `tool` | 工具 | 軟體環境、開發工具 | |
+| `hardware` | 硬體 | 控制器、感測器、模組 | |
+| `concept` | 觀念 | 電路、訊號、序列埠等原理 | 預留 |
+| `project` | 微專題 NN | 小型專題，編號兩位數 | |
+| `advanced` | 進階專題 | 大型專題 | 預留 |
+| `resource` | 學習資源 | 外部資源整理 | 預留 |
+
+- 不用「基礎」：內容會隨時間改變，新舊交給「更新於」表達。寫「微專題」，不寫「微專案」。
+- 新類型先問使用者。顏色加在 `handout.css` 的 course types：`--t` 對白底至少 3:1，`--t-ink` 對 `--t-bg` 至少 4.5:1。
+
+## 講義選單與內頁
+
+- `handout.html`：單一網格，依閱讀順序排列，不分區塊。新卡片照現有卡片的結構複製。
+- 一個專題一張卡，各版本放在 `card-vers`，`card-link` 指向完成度最高的版本。未完成的版本加 `<span class="st">撰寫中</span>`，等內頁的 `badge` 拿掉時一起拿掉。
+- 「更新於 YYYY-MM」是手寫的，講義內容有實質更新時要同步改。
+- 內頁 kicker 格式為 `<p class="kicker" data-type="project"><span class="type-tag">微專題 01</span>Arduino Uno 版</p>`，類型和文字要跟卡片一致。
+- 新增講義：建立頁面 → 在選單加卡片 → 更新其他頁的 `doc-end` 和「製作中」說明。

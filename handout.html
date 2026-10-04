@@ -19,63 +19,32 @@
 <main class="menu">
   <h1>講義</h1>
 
-  <section class="grp" aria-labelledby="g1">
-    <p class="grp-lab" id="g1">基礎講義</p>
-    <div class="cards">
-      <a class="card wide" href="handout/setup.html">
-        <div class="card-body">
-          <h2>環境安裝</h2>
-          <p>Arduino IDE・驅動程式・Python（uv）・VS Code・Git・AI 工具與資安</p>
-          <span class="go">開始閱讀 →</span>
-        </div>
-      </a>
-      <a class="card wide" href="handout/controller.html">
-        <div class="card-pic">
-          <img src="assets/handout/img/uno-r3.webp" alt="" width="400" height="300">
-          <img src="assets/handout/img/esp32-30pin.webp" alt="" width="400" height="300">
-          <img src="assets/handout/img/pico.webp" alt="" width="400" height="300">
-        </div>
-        <div class="card-body">
-          <h2>選擇控制器</h2>
-          <p>規格怎麼看・市面上的熱門控制器・什麼任務用什麼板子</p>
-          <span class="go">開始閱讀 →</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <section class="grp" aria-labelledby="g2">
-    <p class="grp-lab" id="g2">微專案 01</p>
-    <h2 class="grp-title">防盜系統</h2>
-    <p class="grp-sub">零件：HC-SR04 超音波・光敏電阻模組・旋鈕・有源蜂鳴器・全彩 LED</p>
-    <div class="cards">
-      <a class="card" href="handout/alarm-uno.html">
-        <div class="card-pic"><img src="assets/handout/img/uno-r3.webp" alt="" width="400" height="300" loading="lazy"></div>
-        <div class="card-body">
-          <h2>Arduino Uno 版</h2>
-          <p>Uno 負責偵測與警報，USB 接電腦，由 Python 寄 Gmail。</p>
-          <span class="go">開始閱讀 →</span>
-        </div>
-      </a>
-      <a class="card" href="handout/alarm-esp32.html">
-        <div class="card-pic"><img src="assets/handout/img/esp32-30pin.webp" alt="" width="400" height="300" loading="lazy"></div>
-        <div class="card-body">
-          <h2>ESP32 版</h2>
-          <p>ESP32 可以自己用 Wi-Fi 寄 Gmail，也可以像 Uno 一樣接電腦由 Python 寄。</p>
-          <span class="go">開始閱讀 →</span>
-        </div>
-      </a>
-    </div>
-  </section>
-
-  <footer class="credits">
-    <h2>圖片來源</h2>
-    <ol>
-      <li>Arduino Uno R3：<a href="https://commons.wikimedia.org/wiki/File:Arduino_uno_r3.jpg" target="_blank" rel="noopener">Arduino uno r3.jpg</a>，MakeMagazinDE，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a></li>
-      <li>ESP32 DevKit 30 腳板：<a href="https://commons.wikimedia.org/wiki/File:ESP32.jpg" target="_blank" rel="noopener">ESP32.jpg</a>，Edwiyanto，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>，經裁切</li>
-      <li>Raspberry Pi Pico：<a href="https://commons.wikimedia.org/wiki/File:Raspberry_PI_Pico_2_02.jpg" target="_blank" rel="noopener">Raspberry PI Pico 2 02.jpg</a>，Suyash Dwivedi，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC BY-SA 4.0</a>，經裁切</li>
-    </ol>
-  </footer>
+  <!-- One card per handout, in reading order. data-type picks the colour (see handout.css):
+       tool 工具・hardware 硬體・concept 觀念・project 微專題・advanced 進階專題・resource 學習資源 -->
+  <ul class="cards">
+    <li class="card" data-type="tool">
+      <p class="type-tag">工具</p>
+      <h2><a class="card-link" href="handout/setup.html">環境安裝</a></h2>
+      <p class="card-desc">Arduino&nbsp;IDE・驅動程式・Python（uv）・VS&nbsp;Code・Git・AI 工具與資安</p>
+      <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+    </li>
+    <li class="card" data-type="hardware">
+      <p class="type-tag">硬體</p>
+      <h2><a class="card-link" href="handout/controller.html">選擇控制器</a></h2>
+      <p class="card-desc">規格怎麼看・市面上的熱門控制器・什麼任務用什麼板子</p>
+      <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+    </li>
+    <li class="card" data-type="project">
+      <p class="type-tag">微專題 01</p>
+      <h2><a class="card-link" href="handout/alarm-uno.html">防盜系統</a></h2>
+      <p class="card-desc">有人經過門口或盒子被打開就響警報，手機收到 Gmail 通知。</p>
+      <ul class="card-vers" aria-label="版本">
+        <li><a class="ver" href="handout/alarm-uno.html">Arduino Uno 版</a></li>
+        <li><a class="ver" href="handout/alarm-esp32.html">ESP32 版<span class="st">撰寫中</span></a></li>
+      </ul>
+      <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+    </li>
+  </ul>
 </main>
 </body>
 </html>

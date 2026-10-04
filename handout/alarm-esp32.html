@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>防盜系統 ESP32 版｜SkillLab</title>
+<title>簡易防盜系統 ESP32 版｜SkillLab</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
@@ -14,14 +14,15 @@
 <header class="topbar"><div class="topbar-in">
   <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
   <a href="../handout.html">講義</a><span class="sep">/</span>
-  <span class="here">防盜系統・ESP32 版</span>
+  <span class="here">簡易防盜系統・ESP32 版</span>
 </div></header>
 
 <div class="page has-toc">
   <header class="doc-head">
     <p class="kicker" data-type="project"><span class="type-tag">微專題 01</span>ESP32 版</p>
-    <h1>防盜系統<span class="badge">框架稿・範例程式碼待補</span></h1>
+    <h1>簡易防盜系統<span class="badge">框架稿・範例程式碼待補</span></h1>
     <p class="lead">ESP32 負責偵測與警報，可以自己用 Wi-Fi 寄 Gmail，也可以像 Uno 一樣接電腦，由 Python 寄。</p>
+    <p class="scope"><b>學習用的雛形</b>　用入門零件練習把感測、判斷、警報和通知串成一個系統。它有很多擋不住的情況（見第 09 節），不能拿來保護真正的財物或人身安全。</p>
     <p class="meta"><span><b>適用</b>　ESP32 DevKit 經典款（30 腳、38 腳）</span><span><b>零件</b>　HC-SR04・光敏電阻・旋鈕・有源蜂鳴器</span></p>
     <a class="switch" href="alarm-uno.html">改看 Uno 版 →</a>
   </header>
@@ -29,7 +30,7 @@
     <p class="toc-h">目錄</p>
     <ol>
       <li><a href="#s1"><span class="n">01</span>系統長什麼樣</a></li>
-      <li><a href="#s2"><span class="n">02</span>這四個零件能防什麼</a></li>
+      <li><a href="#s2"><span class="n">02</span>這四個零件做什麼</a></li>
       <li><a href="#s3"><span class="n">03</span>零件與限制</a></li>
       <li><a href="#s4"><span class="n">04</span>接線</a></li>
       <li><a href="#s5"><span class="n">05</span>系統怎麼判斷</a></li>
@@ -72,7 +73,7 @@
     </section>
     <section class="sec" id="s2" aria-labelledby="s2-h">
       <p class="sec-no">02</p>
-      <h2 id="s2-h">這四個零件能防什麼</h2>
+      <h2 id="s2-h">這四個零件做什麼</h2>
 <div class="scenes lead-in">
 <figure class="scene">
 <svg class="dg" viewBox="0 0 480 300" role="img" aria-label="門口俯視圖：HC-SR04 裝在門框一側，有人經過時量到的距離比基準距離短" xmlns="http://www.w3.org/2000/svg">
@@ -468,6 +469,7 @@
 <li><div><b>誤報太多</b>：寄出大量信件，收信的人開始忽略通知。</div></li>
 <li><div><b>應用程式密碼外洩</b>：別人可以用這個帳號寄信。</div></li>
 </ul>
+<p>真正的保全系統會用多種感測器、備用電源、防拆設計和監控中心補上這些漏洞。這個專題的目的，是讓你親手做出系統，再親手找出它的漏洞。</p>
     </section>
     <section class="sec" id="s10" aria-labelledby="s10-h">
       <p class="sec-no">10</p>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>防盜系統 Arduino Uno 版｜SkillLab</title>
+<title>簡易防盜系統 Arduino Uno 版｜SkillLab</title>
 <script>(function(){var o;try{o=localStorage.getItem('skilllab-os')}catch(e){}if(!/^(win|mac|linux)$/.test(o||'')){var u=navigator.userAgent;o=/Windows/.test(u)?'win':/Macintosh/.test(u)&&navigator.maxTouchPoints<2?'mac':/Linux|X11/.test(u)&&!/Android/.test(u)?'linux':'win'}document.documentElement.setAttribute('data-os',o)})()</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,14 +15,15 @@
 <header class="topbar"><div class="topbar-in">
   <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
   <a href="../handout.html">講義</a><span class="sep">/</span>
-  <span class="here">防盜系統・Uno 版</span>
+  <span class="here">簡易防盜系統・Uno 版</span>
 </div></header>
 
 <div class="page has-toc">
   <header class="doc-head">
     <p class="kicker" data-type="project"><span class="type-tag">微專題 01</span>Arduino Uno 版</p>
-    <h1>防盜系統</h1>
+    <h1>簡易防盜系統</h1>
     <p class="lead">Uno 負責偵測與警報，USB 接電腦，由 Python 寄 Gmail 通知。</p>
+    <p class="scope"><b>學習用的雛形</b>　用入門零件練習把感測、判斷、警報和通知串成一個系統。它有很多擋不住的情況（見第 05 節），不能拿來保護真正的財物或人身安全。</p>
     <p class="meta"><span><b>適用</b>　Arduino Uno R3 與更早的 Uno、相容板</span><span><b>零件</b>　HC-SR04・光敏電阻模組・旋鈕・有源蜂鳴器・全彩 LED</span></p>
     <a class="switch" href="alarm-esp32.html">改看 ESP32 版 →</a>
   </header>
@@ -1030,7 +1031,7 @@
             <p>把下面的提示詞貼給 AI。括號裡的內容換成你自己的。</p>
 <div class="code prompt" data-lang="plain">
 <div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 步驟 5 提示詞">複製</button></div>
-<pre tabindex="0"><code data-lang="plain">我在做 Arduino Uno 防盜系統，接線如下：（貼上附錄的接線表）
+<pre tabindex="0"><code data-lang="plain">我在做一個學習用的 Arduino Uno 簡易防盜系統，接線如下：（貼上附錄的接線表）
 請依照這個狀態圖寫主程式：撤防 →（收到 ARM）→ 離開倒數 10 秒 → 布防 →（距離比觸發距離近，或亮度和基準值差太多）→ 進入倒數 10 秒 → 警報。任何時候收到 DISARM 回到撤防；警報時收到 MUTE 讓蜂鳴器停止。
 每個狀態的燈號和聲音：（貼上狀態圖的燈號和聲音）
 序列埠的指令和回報照這個格式，鮑率 9600：（貼上事件格式表）
@@ -2398,7 +2399,7 @@ logging.<span class="f">getLogger</span>(<span class="s">"werkzeug"</span>).<spa
     <section class="sec" id="s4" aria-labelledby="s4-h">
       <p class="sec-no">04</p>
       <h2 id="s4-h">整合驗收</h2>
-      <p>步驟 1 到 6 都完成後，把系統裝在要保護的地方，照這張表測一輪，把數字記下來。</p>
+      <p>步驟 1 到 6 都完成後，把系統架在練習情境裡（例如教室門口、一個有蓋的盒子），照這張表測一輪，把數字記下來。</p>
 <div class="table-wrap"><table class="tbl stack">
         <thead><tr><th scope="col">項目</th><th scope="col">怎麼做</th><th scope="col">記錄什麼</th></tr></thead>
         <tbody>
@@ -2443,6 +2444,7 @@ logging.<span class="f">getLogger</span>(<span class="s">"werkzeug"</span>).<spa
         <li><div><b>誤報太多</b>：寄出大量信件，收信的人開始忽略通知。</div></li>
         <li><div><b>應用程式密碼外洩</b>：別人可以用這個帳號寄信。</div></li>
       </ul>
+      <p>真正的保全系統會用多種感測器、備用電源、防拆設計和監控中心補上這些漏洞。這個專題的目的，是讓你親手做出系統，再親手找出它的漏洞。</p>
     </section>
     <section class="sec" id="s6" aria-labelledby="s6-h">
       <p class="sec-no">06</p>
@@ -2452,7 +2454,7 @@ logging.<span class="f">getLogger</span>(<span class="s">"werkzeug"</span>).<spa
         <li><b>不接電腦也能布防</b>：加一個按鈕或密碼鍵盤，用按鈕布防、輸入密碼撤防。</li>
         <li><b>警報響一段時間自動停止</b>：例如響 3 分鐘後停止，回到布防。現在會一直響到撤防或靜音。</li>
         <li><b>改用其他通知服務</b>：LINE、Telegram 的做法見附錄的通知服務比較。</li>
-        <li><b>保護整個房間</b>：加人體紅外線感測器（PIR），偵測範圍比 HC-SR04 大很多。</li>
+        <li><b>偵測整個房間</b>：加人體紅外線感測器（PIR），偵測範圍比 HC-SR04 大很多。</li>
         <li><b>板子自己上網</b>：改用 ESP32，不需要電腦當閘道，見 <a href="alarm-esp32.html">ESP32 版</a>。</li>
       </ul>
     </section>

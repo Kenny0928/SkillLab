@@ -1,0 +1,854 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESP32-CAM｜SkillLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/handout.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
+  <a href="../handout.html">講義</a><span class="sep">/</span>
+  <span class="here"><span class="nw">ESP32-CAM</span></span>
+</div></header>
+
+<div class="page has-toc">
+  <header class="doc-head">
+    <p class="kicker" data-type="hardware"><span class="type-tag">硬體</span></p>
+    <h1><span class="nw">ESP32-CAM</span></h1>
+    <p class="lead">最便宜的相機板。認識板子和燒錄底板，知道它適合用在哪裡，再用範例程式試拍照、串流和畫面變化偵測。</p>
+    <p class="meta"><span><b>適用</b>　AI&nbsp;Thinker&nbsp;<span class="nw">ESP32-CAM</span>＋<span class="nw">ESP32-CAM-MB</span> 燒錄底板</span><span><b>開發板套件</b>　esp32 3.3 版</span></p>
+  </header>
+  <nav class="toc" aria-label="目錄">
+    <p class="toc-h">目錄</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span>板子上有什麼</a></li>
+      <li><a href="#s2"><span class="n">02</span>規格要看什麼</a></li>
+      <li><a href="#s3"><span class="n">03</span>燒錄與第一次執行</a></li>
+      <li><a href="#s4"><span class="n">04</span>腳位</a></li>
+      <li><a href="#s5"><span class="n">05</span>適合用在哪裡</a></li>
+      <li><a href="#s6"><span class="n">06</span>範例程式</a></li>
+      <li><a href="#s7"><span class="n">07</span>常見狀況</a></li>
+      <li><a href="#s8"><span class="n">08</span>請 AI 幫你寫</a></li>
+    </ol>
+  </nav>
+  <main class="doc">
+    <section class="sec" id="s1" aria-labelledby="s1-h">
+      <p class="sec-no">01</p>
+      <h2 id="s1-h">板子上有什麼</h2>
+      <div class="board lead-in">
+        <figure class="board-pic"><img src="../assets/handout/img/esp32-cam.webp" alt="ESP32-CAM 正面：中間是相機和記憶卡槽，左右兩排排針，右下角是閃光燈" width="1280" height="1680" loading="lazy"><figcaption><span class="nw">ESP32-CAM</span> 正面</figcaption></figure>
+        <div>
+          <h3>正面</h3>
+          <ul class="prose">
+            <li><b>相機</b>：OV2640，用排線接在板子的插座上。</li>
+            <li><b>記憶卡槽</b>：在相機下面，放 microSD 卡。</li>
+            <li><b>閃光燈</b>：右下角的白色大 LED，接 GPIO 4，很亮。</li>
+            <li><b>排針</b>：左右各 8 支，腳位名稱印在旁邊。</li>
+          </ul>
+          <h3>背面</h3>
+          <ul class="prose">
+            <li><b><span class="nw">ESP32-S</span> 模組</b>：金屬殼裡是經典款 ESP32 晶片。</li>
+            <li><b>PSRAM</b>：4&nbsp;MB 的額外記憶體，存照片用。</li>
+            <li><b>紅色小 LED</b>：接 GPIO 33，程式輸出 LOW 才會亮。</li>
+            <li><b>RST 鍵</b>：重新開機。</li>
+            <li><b>天線</b>：板上有印刷天線，另有外接天線的小插座。</li>
+          </ul>
+        </div>
+      </div>
+      <h3>燒錄底板 <span class="nw">ESP32-CAM-MB</span></h3>
+      <p><span class="nw">ESP32-CAM</span> 板上沒有 USB 接口，要插在燒錄底板上才能接電腦。底板負責三件事：</p>
+      <ul class="prose">
+        <li><b>USB 轉序列</b>：板上的 USB 晶片多半是 CH340，電腦找不到時先裝驅動程式，見<a href="setup.html#s2">環境安裝</a>講義。</li>
+        <li><b>供電</b>：把 USB 的 5V 供給 <span class="nw">ESP32-CAM</span>。</li>
+        <li><b>按鈕</b>：IO0 鍵和 RST 鍵，燒錄失敗時用來手動進入燒錄模式。</li>
+      </ul>
+      <p class="note">插上底板時，對照兩塊板子上印的腳位名稱（5V、GND、IO12……）插，不要插反。燒好程式以後，<span class="nw">ESP32-CAM</span> 可以留在底板上，用 USB 充電器供電。</p>
+    </section>
+
+    <section class="sec" id="s2" aria-labelledby="s2-h">
+      <p class="sec-no">02</p>
+      <h2 id="s2-h">規格要看什麼</h2>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">規格</th><th scope="col"><span class="nw">ESP32-CAM</span></th><th scope="col">什麼時候要在乎</th></tr></thead><tbody>
+<tr><th scope="row">處理器</th><td data-label="ESP32-CAM">經典款 ESP32，雙核心 240&nbsp;MHz，沒有 AI 加速</td><td data-label="什麼時候要在乎">想在板子上做 AI 辨識時：跑不動物件偵測，只能做顏色篩選、畫面變化這類簡單的運算。</td></tr>
+<tr><th scope="row">記憶體</th><td data-label="ESP32-CAM">520&nbsp;KB，加上 4&nbsp;MB PSRAM</td><td data-label="什麼時候要在乎">拍高解析度照片時。PSRAM 要選對開發板才會啟用。</td></tr>
+<tr><th scope="row">程式空間</th><td data-label="ESP32-CAM">4&nbsp;MB 快閃記憶體，程式最多約 3&nbsp;MB</td><td data-label="什麼時候要在乎">程式加上網頁、<span class="nw">Wi-Fi</span>、相機函式庫時，已經用掉三分之一。</td></tr>
+<tr><th scope="row">相機</th><td data-label="ESP32-CAM">OV2640，200 萬像素，最大 1600×1200，相機直接輸出 JPEG</td><td data-label="什麼時候要在乎">要拍清楚的照片時。小鏡頭在暗處畫質很差，也沒有紅外線夜視。</td></tr>
+<tr><th scope="row">記憶卡</th><td data-label="ESP32-CAM">microSD</td><td data-label="什麼時候要在乎">要存照片時。用 32&nbsp;GB 以下、格式化成 FAT32 的卡最穩。</td></tr>
+<tr><th scope="row">無線</th><td data-label="ESP32-CAM"><span class="nw">Wi-Fi</span> 2.4&nbsp;GHz、藍牙</td><td data-label="什麼時候要在乎">現場只有 5&nbsp;GHz，或要網頁登入的 <span class="nw">Wi-Fi</span>，連不上。</td></tr>
+<tr><th scope="row">供電</th><td data-label="ESP32-CAM">5V，從底板的 USB 供電</td><td data-label="什麼時候要在乎"><span class="nw">Wi-Fi</span> 傳送和閃光燈會讓電流突然變大，電源不穩就重新開機。</td></tr>
+<tr><th scope="row">腳位</th><td data-label="ESP32-CAM">排針 16 支，大多被相機和記憶卡佔用</td><td data-label="什麼時候要在乎">要接感測器時，能用的只剩一兩支，見第 04 節。</td></tr>
+</tbody></table></div>
+      <p class="note">有些賣家的 <span class="nw">ESP32-CAM</span> 換成 OV3660 或 OV5640 相機，程式要做的調整比較多。買的時候看清楚相機型號。</p>
+    </section>
+
+    <section class="sec" id="s3" aria-labelledby="s3-h">
+      <p class="sec-no">03</p>
+      <h2 id="s3-h">燒錄與第一次執行</h2>
+      <p>先照<a href="setup.html#s2">環境安裝</a>講義裝好 Arduino&nbsp;IDE 和 ESP32 開發板套件。Arduino&nbsp;IDE 的「工具」選單這樣設定：</p>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">選項</th><th scope="col">選什麼</th></tr></thead><tbody>
+<tr><th scope="row">開發板</th><td data-label="選什麼">esp32 → <b>AI&nbsp;Thinker&nbsp;<span class="nw">ESP32-CAM</span></b></td></tr>
+<tr><th scope="row">Partition Scheme</th><td data-label="選什麼">Huge APP (3MB No OTA/1MB SPIFFS)，選了開發板就是這個</td></tr>
+<tr><th scope="row">連接埠</th><td data-label="選什麼">底板插上電腦後多出來的那一個</td></tr>
+<tr><th scope="row">序列埠監控視窗</th><td data-label="選什麼">115200 baud</td></tr>
+</tbody></table></div>
+      <ol class="prose">
+        <li>把 <span class="nw">ESP32-CAM</span> 插在底板上，用 USB 傳輸線接電腦。</li>
+        <li>選好開發板和連接埠，按「上傳」。</li>
+        <li>一直停在 <code>Connecting......</code>：按住底板的 IO0 鍵，按一下 RST 鍵再放開，最後放開 IO0，再按一次上傳。</li>
+        <li>上傳完成後，按一下 RST 鍵，程式才會開始執行。</li>
+        <li>打開序列埠監控視窗，選 115200。沒有看到文字，就再按一次 RST 鍵。</li>
+      </ol>
+      <p class="note">選了 AI&nbsp;Thinker&nbsp;<span class="nw">ESP32-CAM</span>，打開序列埠監控視窗不會讓板子重新開機，所以開機時印的文字要按 RST 才看得到。</p>
+    </section>
+
+    <section class="sec" id="s4" aria-labelledby="s4-h">
+      <p class="sec-no">04</p>
+      <h2 id="s4-h">腳位</h2>
+      <p>相機用掉了 ESP32 大部分的腳，排針上的 16 支也大多有別的用途：</p>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">排針</th><th scope="col">用途</th><th scope="col">能接零件嗎</th></tr></thead><tbody>
+<tr class="grp"><th colspan="3" scope="colgroup">左排（照第 01 節照片的方向）</th></tr>
+<tr><th scope="row"><span class="pin">5V</span>・<span class="pin">GND</span></th><td data-label="用途">電源輸入</td><td data-label="能接零件嗎">不用底板時，從這裡接 5V 供電</td></tr>
+<tr><th scope="row"><span class="pin">IO12</span></th><td data-label="用途">記憶卡（<span class="nw">4-bit</span> 模式）；開機模式腳</td><td data-label="能接零件嗎">可以，但開機那一刻不能是高電位，否則開不了機</td></tr>
+<tr><th scope="row"><span class="pin hl">IO13</span></th><td data-label="用途">記憶卡（<span class="nw">4-bit</span> 模式）</td><td data-label="能接零件嗎"><b>最適合</b>：用 <span class="nw">1-bit</span> 模式或不插記憶卡時就空出來</td></tr>
+<tr><th scope="row"><span class="pin">IO15</span>・<span class="pin">IO14</span>・<span class="pin">IO2</span></th><td data-label="用途">記憶卡（兩種模式都用）；IO2、IO15 是開機模式腳</td><td data-label="能接零件嗎">不插記憶卡時才可以</td></tr>
+<tr><th scope="row"><span class="pin">IO4</span></th><td data-label="用途">閃光燈；記憶卡（<span class="nw">4-bit</span> 模式）</td><td data-label="能接零件嗎">接了零件，閃光燈會跟著亮</td></tr>
+<tr class="grp"><th colspan="3" scope="colgroup">右排</th></tr>
+<tr><th scope="row"><span class="pin">3V3</span>・<span class="pin">GND</span></th><td data-label="用途">3.3V 輸出</td><td data-label="能接零件嗎">給 3.3V 的感測器供電</td></tr>
+<tr><th scope="row"><span class="pin">IO16</span></th><td data-label="用途">PSRAM</td><td data-label="能接零件嗎">不行</td></tr>
+<tr><th scope="row"><span class="pin">IO0</span></th><td data-label="用途">相機時脈；燒錄模式腳</td><td data-label="能接零件嗎">不行</td></tr>
+<tr><th scope="row"><span class="pin">VCC</span></th><td data-label="用途">電源輸出，多半是 3.3V</td><td data-label="能接零件嗎">不要從這裡接電源進去</td></tr>
+<tr><th scope="row"><span class="pin">U0R</span>・<span class="pin">U0T</span></th><td data-label="用途">GPIO 3、1，燒錄和序列埠監控視窗用</td><td data-label="能接零件嗎">不要接，否則不能燒錄</td></tr>
+</tbody></table></div>
+      <p class="note">要接人體紅外線感測器或按鈕，先用 IO13，記憶卡用 <span class="nw">1-bit</span> 模式（範例 4 的寫法）。要接很多零件，就換一塊 ESP32 開發板，或讓兩塊板子用序列埠互傳。</p>
+    </section>
+
+    <section class="sec" id="s5" aria-labelledby="s5-h">
+      <p class="sec-no">05</p>
+      <h2 id="s5-h">適合用在哪裡</h2>
+      <p><span class="nw">ESP32-CAM</span> 擅長「拍下來、傳出去」：便宜、小、自己連 <span class="nw">Wi-Fi</span>。複雜的判斷交給電腦或雲端。</p>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">場合</th><th scope="col">例子</th><th scope="col">做法</th></tr></thead><tbody>
+<tr><th scope="row">遠端看畫面</th><td data-label="例子">看寵物、看 3D 列印進度、小車的第一人稱鏡頭</td><td data-label="做法">範例 2、3：同一個網路的手機或電腦用瀏覽器看</td></tr>
+<tr><th scope="row">定時拍照紀錄</th><td data-label="例子">植物生長、天空變化、作品製作過程的縮時攝影</td><td data-label="做法">範例 4：照片存在記憶卡，不用網路</td></tr>
+<tr><th scope="row">有動靜才記錄</th><td data-label="例子">信箱有沒有信、抽屜有沒有被打開、走廊有沒有人經過</td><td data-label="做法">範例 5：畫面變化超過門檻才拍；或在 IO13 接人體紅外線感測器</td></tr>
+<tr><th scope="row">交給電腦做 AI 辨識</th><td data-label="例子">數人數、認出有沒有人、判斷姿勢</td><td data-label="做法">範例 3 送出畫面，電腦用<a href="vision.html#s7">影像辨識</a>講義的程式辨識（<a href="monitor-esp32cam.html">微專題&nbsp;02</a>）</td></tr>
+</tbody></table></div>
+      <h3>不適合</h3>
+      <ul class="prose">
+        <li><b>板子上直接跑 AI 物件偵測</b>：換 <span class="nw">ESP32-S3</span>、<span class="nw">AMB82-mini</span> 這類有 AI 加速的板子，或交給電腦。</li>
+        <li><b>錄影存檔</b>：沒有影片壓縮，只能一張一張存 JPEG，記憶卡也寫得慢。</li>
+        <li><b>暗處、夜間</b>：沒有紅外線，閃光燈只照得到眼前一點。</li>
+        <li><b>用電池撐很久</b>：開著 <span class="nw">Wi-Fi</span> 串流時一直耗電。</li>
+        <li><b>接很多感測器</b>：能用的腳只有一兩支。</li>
+        <li><b>戶外長期使用</b>：要另外處理防水、日曬和散熱。</li>
+      </ul>
+    </section>
+
+    <section class="sec" id="s6" aria-labelledby="s6-h">
+      <p class="sec-no">06</p>
+      <h2 id="s6-h">範例程式</h2>
+      <p>每個範例都是一支完整的程式，從範例 1 開始，確認板子能燒錄。範例 2 是開發板套件附的官方範例，其他四支已用 esp32 開發板套件 3.3 版編譯過。</p>
+      <ol class="ex-index lead-in">
+        <li><a href="#ex1"><span class="n">範例 1</span>檢查板子<span class="k">序列埠</span></a></li>
+        <li><a href="#ex2"><span class="n">範例 2</span>官方範例：網頁看畫面、調設定<span class="k">瀏覽器</span></a></li>
+        <li><a href="#ex3"><span class="n">範例 3</span>串流與拍照網址<span class="k">瀏覽器・Python</span></a></li>
+        <li><a href="#ex4"><span class="n">範例 4</span>定時拍照存記憶卡<span class="k">記憶卡</span></a></li>
+        <li><a href="#ex5"><span class="n">範例 5</span>畫面變化偵測<span class="k">序列繪圖家</span></a></li>
+      </ol>
+
+      <article class="ex" id="ex1" aria-labelledby="ex1-h">
+        <p class="ex-no">範例 1</p>
+        <h3 id="ex1-h">檢查板子</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>不用接線</span></p>
+        <p class="ex-goal"><b>目標</b>：確認能燒錄，印出晶片和記憶體的資訊，讓紅色 LED 和閃光燈閃爍。</p>
+        <p class="ex-h">程式</p>
+<!-- code:esp32cam/board_check/board_check.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">board_check.ino</span><span class="code-lines">41 行</span></span><button class="copy" type="button" aria-label="複製 board_check.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 範例 1：檢查板子（PSRAM、快閃記憶體、LED）</span>
+<span class="c">// 開發板選「AI Thinker ESP32-CAM」，序列埠監控視窗的速率選 115200</span>
+<span class="c">// 紅色 LED 在板子背面，接 GPIO 33，輸出 LOW 才會亮</span>
+<span class="c">// 閃光燈是正面的白色大 LED，接 GPIO 4，很亮，不要直視</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">RED_LED</span> = <span class="n">33</span>;    <span class="c">// 板子背面的紅色小 LED</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">FLASH_LED</span> = <span class="n">4</span>;   <span class="c">// 正面的閃光燈</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">FLASH_MAX</span> = <span class="n">30</span>;  <span class="c">// 閃光燈亮度上限（0–255），太亮會刺眼又發燙</span>
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">115200</span>);
+  <span class="f">delay</span>(<span class="n">500</span>);
+  <span class="f">pinMode</span>(<span class="n">RED_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">ledcAttach</span>(<span class="n">FLASH_LED</span>, <span class="n">5000</span>, <span class="n">8</span>);  <span class="c">// PWM：5 kHz、8 位元（0–255）</span>
+
+  <span class="t">Serial</span>.<span class="f">println</span>();
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"===== ESP32-CAM 檢查 ====="</span>);
+  <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"晶片：%s，%d 核心，%d MHz\n"</span>, <span class="n">ESP</span>.<span class="f">getChipModel</span>(), <span class="n">ESP</span>.<span class="f">getChipCores</span>(), <span class="n">ESP</span>.<span class="f">getCpuFreqMHz</span>());
+  <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"快閃記憶體：%u MB\n"</span>, <span class="n">ESP</span>.<span class="f">getFlashChipSize</span>() / (<span class="n">1024</span> * <span class="n">1024</span>));
+  <span class="k">if</span> (<span class="f">psramFound</span>()) {
+    <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"PSRAM：%u KB（可以拍高解析度照片）\n"</span>, <span class="n">ESP</span>.<span class="f">getPsramSize</span>() / <span class="n">1024</span>);
+  } <span class="k">else</span> {
+    <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"PSRAM：找不到。開發板沒選 AI Thinker ESP32-CAM，或板子沒有 PSRAM"</span>);
+  }
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="c">// 紅色 LED 亮，閃光燈慢慢變亮</span>
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">LOW</span>);
+  <span class="k">for</span> (<span class="t">int</span> d = <span class="n">0</span>; d &lt;= <span class="n">FLASH_MAX</span>; d++) {
+    <span class="f">ledcWrite</span>(<span class="n">FLASH_LED</span>, d);
+    <span class="f">delay</span>(<span class="n">20</span>);
+  }
+  <span class="c">// 紅色 LED 滅，閃光燈慢慢變暗</span>
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">HIGH</span>);
+  <span class="k">for</span> (<span class="t">int</span> d = <span class="n">FLASH_MAX</span>; d &gt;= <span class="n">0</span>; d--) {
+    <span class="f">ledcWrite</span>(<span class="n">FLASH_LED</span>, d);
+    <span class="f">delay</span>(<span class="n">20</span>);
+  }
+  <span class="f">delay</span>(<span class="n">400</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <p class="ex-h">完成標準</p>
+        <p>按 RST 後，序列埠監控視窗印出晶片 ESP32、快閃記憶體 4&nbsp;MB、PSRAM 約 4096&nbsp;KB；背面的紅色 LED 和正面的閃光燈一起慢慢閃。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>PSRAM 找不到</b>：開發板沒選 AI&nbsp;Thinker&nbsp;<span class="nw">ESP32-CAM</span>；選對了還是找不到，可能是仿冒板。</li>
+              <li><b>編譯錯誤 ledcAttach 不存在</b>：ESP32 開發板套件是 2.x 版，請升級到 3.3 版。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>PSRAM</dt><dd>接在 ESP32 外面的記憶體，比較慢但容量大。一張高解析度照片放不進 ESP32 內建的 520&nbsp;KB，要放在這裡。</dd>
+          <dt>PWM</dt><dd>快速開關腳位，用「開著的時間比例」控制亮度。ledcWrite 的數字 0–255 就是這個比例。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="ex2" aria-labelledby="ex2-h">
+        <p class="ex-no">範例 2</p>
+        <h3 id="ex2-h">官方範例：網頁看畫面、調設定</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>瀏覽器</span><span>2.4&nbsp;GHz <span class="nw">Wi-Fi</span></span></p>
+        <p class="ex-goal"><b>目標</b>：用瀏覽器看即時畫面，試試解析度、畫質、亮度這些設定。</p>
+        <p class="ex-h">步驟</p>
+        <ol class="prose">
+          <li>開發板先選好 AI&nbsp;Thinker&nbsp;<span class="nw">ESP32-CAM</span>，再打開「檔案 → 範例 → ESP32 → Camera → CameraWebServer」，另存到課程資料夾。</li>
+          <li>切到 <code>board_config.h</code> 分頁：在 <code>#define CAMERA_MODEL_ESP_EYE</code> 前面加上 <code>//</code>，再把 <code>//#define CAMERA_MODEL_AI_THINKER</code> 前面的 <code>//</code> 刪掉。</li>
+          <li>回到 <code>CameraWebServer.ino</code>，把 <code>ssid</code> 和 <code>password</code> 的星號換成你的 <span class="nw">Wi-Fi</span> 名稱和密碼。</li>
+          <li>上傳，按 RST。序列埠監控視窗最後會印出 <code>Camera Ready!</code> 和板子的網址，例如 <code>http://192.168.1.23</code>。</li>
+          <li>用同一個 <span class="nw">Wi-Fi</span> 的電腦或手機打開這個網址，按「Start Stream」。</li>
+        </ol>
+        <p class="ex-h">完成標準</p>
+        <p>看到即時畫面。左邊的 Resolution 從 QVGA 調到 UXGA，畫面變清楚、也變慢；LED Intensity 可以調閃光燈亮度。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>Camera init failed with error 0x20001（或 0x105）</b>：找不到相機。board_config.h 沒改成 AI_THINKER，或相機排線沒插好。</li>
+              <li><b>一直印 WiFi connecting……</b>：名稱或密碼打錯，或 <span class="nw">Wi-Fi</span> 是 5&nbsp;GHz。</li>
+              <li><b>網址打不開</b>：電腦和板子不在同一個網路。學校、公共 <span class="nw">Wi-Fi</span> 常會擋同一個網路裡的裝置互連，改用手機熱點。</li>
+            </ul>
+          </div>
+        </details>
+      </article>
+
+      <article class="ex" id="ex3" aria-labelledby="ex3-h">
+        <p class="ex-no">範例 3</p>
+        <h3 id="ex3-h">串流與拍照網址</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>瀏覽器</span><span>Python</span><span>2.4&nbsp;GHz <span class="nw">Wi-Fi</span></span></p>
+        <p class="ex-goal"><b>目標</b>：只留三個網址：首頁、拍一張、連續串流。程式比官方範例短很多，<a href="monitor-esp32cam.html">微專題&nbsp;02</a> 的 Python 從 /capture 拿畫面。</p>
+        <p class="ex-h">程式</p>
+        <p>燒錄前先改 WIFI_SSID、WIFI_PASS。</p>
+<!-- code:esp32cam/cam_server/cam_server.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">cam_server.ino</span><span class="code-lines">194 行</span></span><button class="copy" type="button" aria-label="複製 cam_server.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 範例 3：串流與拍照網址（微專題 02 的 Python 從這裡拿畫面）</span>
+<span class="c">// 開發板選「AI Thinker ESP32-CAM」，序列埠監控視窗的速率選 115200</span>
+<span class="c">// 燒錄前先改 WIFI_SSID、WIFI_PASS；只能連 2.4 GHz 的 Wi-Fi</span>
+<span class="c">// 開機後序列埠會印出板子的 IP，例如 192.168.1.23：</span>
+<span class="c">//   http://192.168.1.23/           瀏覽器看即時畫面</span>
+<span class="c">//   http://192.168.1.23/capture    拍一張 JPEG（Python 用這個）</span>
+<span class="c">//   http://192.168.1.23:81/stream  連續畫面（同時只能一個人看）</span>
+<span class="c">// 這些網址沒有密碼，連到同一個 Wi-Fi 的人都打得開</span>
+
+<span class="k">#include</span> <span class="s">"esp_camera.h"</span>
+<span class="k">#include</span> <span class="s">"esp_http_server.h"</span>
+<span class="k">#include</span> &lt;<span class="t">WiFi</span>.h&gt;
+
+<span class="k">const</span> <span class="t">char</span> *<span class="n">WIFI_SSID</span> = <span class="s">"你的 Wi-Fi 名稱"</span>;
+<span class="k">const</span> <span class="t">char</span> *<span class="n">WIFI_PASS</span> = <span class="s">"你的 Wi-Fi 密碼"</span>;
+
+<span class="k">const</span> framesize_t <span class="n">FRAME_SIZE</span> = <span class="n">FRAMESIZE_VGA</span>;  <span class="c">// 640×480；要更順可以改 FRAMESIZE_QVGA（320×240）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">JPEG_QUALITY</span> = <span class="n">12</span>;                   <span class="c">// 10–63，數字越小畫質越好、檔案越大</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">RED_LED</span> = <span class="n">33</span>;                        <span class="c">// 背面紅色 LED，LOW 亮：亮著代表沒連上 Wi-Fi</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">FLASH_LED</span> = <span class="n">4</span>;                       <span class="c">// 閃光燈，這個範例不用，保持關閉</span>
+
+<span class="c">// AI Thinker ESP32-CAM 的相機腳位（和官方範例 camera_pins.h 的 CAMERA_MODEL_AI_THINKER 相同）</span>
+<span class="k">#define</span> <span class="n">PWDN_GPIO_NUM</span>  <span class="n">32</span>
+<span class="k">#define</span> <span class="n">RESET_GPIO_NUM</span> -<span class="n">1</span>
+<span class="k">#define</span> <span class="n">XCLK_GPIO_NUM</span>  <span class="n">0</span>
+<span class="k">#define</span> <span class="n">SIOD_GPIO_NUM</span>  <span class="n">26</span>
+<span class="k">#define</span> <span class="n">SIOC_GPIO_NUM</span>  <span class="n">27</span>
+<span class="k">#define</span> <span class="n">Y9_GPIO_NUM</span>    <span class="n">35</span>
+<span class="k">#define</span> <span class="n">Y8_GPIO_NUM</span>    <span class="n">34</span>
+<span class="k">#define</span> <span class="n">Y7_GPIO_NUM</span>    <span class="n">39</span>
+<span class="k">#define</span> <span class="n">Y6_GPIO_NUM</span>    <span class="n">36</span>
+<span class="k">#define</span> <span class="n">Y5_GPIO_NUM</span>    <span class="n">21</span>
+<span class="k">#define</span> <span class="n">Y4_GPIO_NUM</span>    <span class="n">19</span>
+<span class="k">#define</span> <span class="n">Y3_GPIO_NUM</span>    <span class="n">18</span>
+<span class="k">#define</span> <span class="n">Y2_GPIO_NUM</span>    <span class="n">5</span>
+<span class="k">#define</span> <span class="n">VSYNC_GPIO_NUM</span> <span class="n">25</span>
+<span class="k">#define</span> <span class="n">HREF_GPIO_NUM</span>  <span class="n">23</span>
+<span class="k">#define</span> <span class="n">PCLK_GPIO_NUM</span>  <span class="n">22</span>
+
+<span class="k">#define</span> <span class="n">BOUNDARY</span> <span class="s">"frame"</span>
+
+<span class="c">// 首頁：一張圖，來源是 81 埠的串流</span>
+<span class="k">const</span> <span class="t">char</span> <span class="n">INDEX_HTML</span>[] = R<span class="s">"html(&lt;!doctype html&gt;</span>
+&lt;html lang=<span class="s">"zh-Hant"</span>&gt;&lt;head&gt;&lt;meta charset=<span class="s">"utf-8"</span>&gt;
+&lt;meta name=<span class="s">"viewport"</span> content=<span class="s">"width=device-width, initial-scale=1"</span>&gt;&lt;title&gt;<span class="n">ESP32</span>-<span class="n">CAM</span>&lt;/title&gt;
+&lt;style&gt;body{margin:<span class="n">0</span>;background:#<span class="n">111</span>;color:#eee;font-family:sans-serif;text-align:center}img{max-width:<span class="n">100</span>%}a{color:#f9a}&lt;/style&gt;
+&lt;/head&gt;&lt;body&gt;&lt;img id=<span class="s">"v"</span> alt=<span class="s">"即時畫面"</span>&gt;&lt;p&gt;&lt;a href=<span class="s">"/capture"</span>&gt;拍一張&lt;/a&gt;&lt;/p&gt;
+&lt;script&gt;document.<span class="f">getElementById</span>(<span class="s">"v"</span>).src = <span class="s">"http://"</span> + location.hostname + <span class="s">":81/stream"</span>;&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;)html<span class="s">";</span>
+
+httpd_handle_t webServer = <span class="n">NULL</span>;     <span class="c">// 80 埠：首頁、拍照</span>
+httpd_handle_t streamServer = <span class="n">NULL</span>;  <span class="c">// 81 埠：串流</span>
+
+<span class="t">bool</span> <span class="f">initCamera</span>() {
+  camera_config_t c = {};
+  c.ledc_channel = <span class="n">LEDC_CHANNEL_0</span>;
+  c.ledc_timer = <span class="n">LEDC_TIMER_0</span>;
+  c.pin_d0 = <span class="n">Y2_GPIO_NUM</span>;
+  c.pin_d1 = <span class="n">Y3_GPIO_NUM</span>;
+  c.pin_d2 = <span class="n">Y4_GPIO_NUM</span>;
+  c.pin_d3 = <span class="n">Y5_GPIO_NUM</span>;
+  c.pin_d4 = <span class="n">Y6_GPIO_NUM</span>;
+  c.pin_d5 = <span class="n">Y7_GPIO_NUM</span>;
+  c.pin_d6 = <span class="n">Y8_GPIO_NUM</span>;
+  c.pin_d7 = <span class="n">Y9_GPIO_NUM</span>;
+  c.pin_xclk = <span class="n">XCLK_GPIO_NUM</span>;
+  c.pin_pclk = <span class="n">PCLK_GPIO_NUM</span>;
+  c.pin_vsync = <span class="n">VSYNC_GPIO_NUM</span>;
+  c.pin_href = <span class="n">HREF_GPIO_NUM</span>;
+  c.pin_sccb_sda = <span class="n">SIOD_GPIO_NUM</span>;
+  c.pin_sccb_scl = <span class="n">SIOC_GPIO_NUM</span>;
+  c.pin_pwdn = <span class="n">PWDN_GPIO_NUM</span>;
+  c.pin_reset = <span class="n">RESET_GPIO_NUM</span>;
+  c.xclk_freq_hz = <span class="n">20000000</span>;
+  c.pixel_format = <span class="n">PIXFORMAT_JPEG</span>;     <span class="c">// 相機直接輸出 JPEG</span>
+  c.frame_size = <span class="n">FRAME_SIZE</span>;
+  c.jpeg_quality = <span class="n">JPEG_QUALITY</span>;
+  c.fb_count = <span class="n">2</span>;                      <span class="c">// 兩個畫面緩衝區，放在 PSRAM</span>
+  c.fb_location = <span class="n">CAMERA_FB_IN_PSRAM</span>;
+  c.grab_mode = <span class="n">CAMERA_GRAB_LATEST</span>;    <span class="c">// 永遠拿最新的畫面</span>
+  esp_err_t err = <span class="f">esp_camera_init</span>(&amp;c);
+  <span class="k">if</span> (err != <span class="n">ESP_OK</span>) {
+    <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"相機啟動失敗：0x%x（排線沒插好，或開發板選錯）\n"</span>, err);
+    <span class="k">return</span> <span class="n">false</span>;
+  }
+  <span class="k">return</span> <span class="n">true</span>;
+}
+
+<span class="c">// http://IP/</span>
+esp_err_t <span class="f">indexHandler</span>(httpd_req_t *req) {
+  <span class="f">httpd_resp_set_type</span>(req, <span class="s">"text/html; charset=utf-8"</span>);
+  <span class="k">return</span> <span class="f">httpd_resp_send</span>(req, <span class="n">INDEX_HTML</span>, <span class="n">HTTPD_RESP_USE_STRLEN</span>);
+}
+
+<span class="c">// http://IP/capture：回傳一張 JPEG</span>
+esp_err_t <span class="f">captureHandler</span>(httpd_req_t *req) {
+  camera_fb_t *fb = <span class="f">esp_camera_fb_get</span>();
+  <span class="k">if</span> (!fb) {
+    <span class="f">httpd_resp_send_500</span>(req);
+    <span class="k">return</span> <span class="n">ESP_FAIL</span>;
+  }
+  <span class="f">httpd_resp_set_type</span>(req, <span class="s">"image/jpeg"</span>);
+  <span class="f">httpd_resp_set_hdr</span>(req, <span class="s">"Cache-Control"</span>, <span class="s">"no-store"</span>);
+  <span class="f">httpd_resp_set_hdr</span>(req, <span class="s">"Access-Control-Allow-Origin"</span>, <span class="s">"*"</span>);
+  esp_err_t res = <span class="f">httpd_resp_send</span>(req, (<span class="k">const</span> <span class="t">char</span> *)fb-&gt;buf, fb-&gt;len);
+  <span class="f">esp_camera_fb_return</span>(fb);
+  <span class="k">return</span> res;
+}
+
+<span class="c">// http://IP:81/stream：一張接一張送 JPEG，直到對方關掉</span>
+esp_err_t <span class="f">streamHandler</span>(httpd_req_t *req) {
+  <span class="f">httpd_resp_set_type</span>(req, <span class="s">"multipart/x-mixed-replace;boundary="</span> <span class="n">BOUNDARY</span>);
+  <span class="f">httpd_resp_set_hdr</span>(req, <span class="s">"Access-Control-Allow-Origin"</span>, <span class="s">"*"</span>);
+  <span class="t">char</span> head[<span class="n">80</span>];
+  <span class="k">while</span> (<span class="n">true</span>) {
+    camera_fb_t *fb = <span class="f">esp_camera_fb_get</span>();
+    <span class="k">if</span> (!fb) <span class="k">return</span> <span class="n">ESP_FAIL</span>;
+    <span class="t">int</span> n = <span class="f">snprintf</span>(head, <span class="k">sizeof</span>(head),
+                     <span class="s">"\r\n--"</span> <span class="n">BOUNDARY</span> <span class="s">"\r\nContent-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"</span>, fb-&gt;len);
+    esp_err_t res = <span class="f">httpd_resp_send_chunk</span>(req, head, n);
+    <span class="k">if</span> (res == <span class="n">ESP_OK</span>) res = <span class="f">httpd_resp_send_chunk</span>(req, (<span class="k">const</span> <span class="t">char</span> *)fb-&gt;buf, fb-&gt;len);
+    <span class="f">esp_camera_fb_return</span>(fb);
+    <span class="k">if</span> (res != <span class="n">ESP_OK</span>) <span class="k">return</span> res;  <span class="c">// 瀏覽器或 Python 關掉了</span>
+  }
+}
+
+<span class="t">void</span> <span class="f">startServers</span>() {
+  httpd_config_t config = <span class="f">HTTPD_DEFAULT_CONFIG</span>();
+  httpd_uri_t indexUri = {.uri = <span class="s">"/"</span>, .method = <span class="n">HTTP_GET</span>, .handler = indexHandler, .user_ctx = <span class="n">NULL</span>};
+  httpd_uri_t captureUri = {.uri = <span class="s">"/capture"</span>, .method = <span class="n">HTTP_GET</span>, .handler = captureHandler, .user_ctx = <span class="n">NULL</span>};
+  httpd_uri_t streamUri = {.uri = <span class="s">"/stream"</span>, .method = <span class="n">HTTP_GET</span>, .handler = streamHandler, .user_ctx = <span class="n">NULL</span>};
+
+  <span class="k">if</span> (<span class="f">httpd_start</span>(&amp;webServer, &amp;config) == <span class="n">ESP_OK</span>) {
+    <span class="f">httpd_register_uri_handler</span>(webServer, &amp;indexUri);
+    <span class="f">httpd_register_uri_handler</span>(webServer, &amp;captureUri);
+  }
+  <span class="c">// 串流會一直佔著伺服器，所以另外開一個在 81 埠</span>
+  config.server_port += <span class="n">1</span>;
+  config.ctrl_port += <span class="n">1</span>;
+  <span class="k">if</span> (<span class="f">httpd_start</span>(&amp;streamServer, &amp;config) == <span class="n">ESP_OK</span>) {
+    <span class="f">httpd_register_uri_handler</span>(streamServer, &amp;streamUri);
+  }
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">115200</span>);
+  <span class="f">pinMode</span>(<span class="n">RED_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">LOW</span>);
+  <span class="f">pinMode</span>(<span class="n">FLASH_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">FLASH_LED</span>, <span class="n">LOW</span>);
+
+  <span class="k">if</span> (!<span class="f">initCamera</span>()) {
+    <span class="k">while</span> (<span class="n">true</span>) <span class="f">delay</span>(<span class="n">1000</span>);  <span class="c">// 相機壞了就停在這裡，紅燈一直亮</span>
+  }
+
+  <span class="t">WiFi</span>.<span class="f">mode</span>(<span class="n">WIFI_STA</span>);
+  <span class="t">WiFi</span>.<span class="f">setSleep</span>(<span class="n">false</span>);  <span class="c">// 關掉 Wi-Fi 省電模式，畫面延遲比較小</span>
+  <span class="t">WiFi</span>.<span class="f">begin</span>(<span class="n">WIFI_SSID</span>, <span class="n">WIFI_PASS</span>);
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">"連線 Wi-Fi"</span>);
+  <span class="t">unsigned</span> <span class="t">long</span> start = <span class="f">millis</span>();
+  <span class="k">while</span> (<span class="t">WiFi</span>.<span class="f">status</span>() != <span class="n">WL_CONNECTED</span>) {
+    <span class="k">if</span> (<span class="f">millis</span>() - start &gt; <span class="n">20000</span>) {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"\n連不上 Wi-Fi：檢查名稱、密碼，以及是不是 2.4 GHz。5 秒後重新開機"</span>);
+      <span class="f">delay</span>(<span class="n">5000</span>);
+      <span class="n">ESP</span>.<span class="f">restart</span>();
+    }
+    <span class="f">delay</span>(<span class="n">500</span>);
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">"."</span>);
+  }
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">HIGH</span>);
+
+  <span class="f">startServers</span>();
+  <span class="t">String</span> ip = <span class="t">WiFi</span>.<span class="f">localIP</span>().<span class="f">toString</span>();
+  <span class="t">Serial</span>.<span class="f">println</span>();
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"即時畫面：http://"</span> + ip + <span class="s">"/"</span>);
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"拍一張：  http://"</span> + ip + <span class="s">"/capture"</span>);
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"串流：    http://"</span> + ip + <span class="s">":81/stream"</span>);
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="c">// 網頁伺服器在背景執行，這裡只顯示 Wi-Fi 狀態</span>
+  <span class="k">static</span> <span class="t">bool</span> wasConnected = <span class="n">true</span>;
+  <span class="t">bool</span> connected = <span class="t">WiFi</span>.<span class="f">status</span>() == <span class="n">WL_CONNECTED</span>;
+  <span class="k">if</span> (connected != wasConnected) {
+    <span class="k">if</span> (connected) {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"Wi-Fi 重新連上了，IP："</span> + <span class="t">WiFi</span>.<span class="f">localIP</span>().<span class="f">toString</span>());  <span class="c">// IP 可能和之前不同</span>
+    } <span class="k">else</span> {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"Wi-Fi 斷線，自動重連中"</span>);
+    }
+    <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, connected ? <span class="n">HIGH</span> : <span class="n">LOW</span>);
+    wasConnected = connected;
+  }
+  <span class="f">delay</span>(<span class="n">1000</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <p class="note"><span class="nw">Wi-Fi</span> 密碼寫在程式裡，截圖、貼給 AI 或上傳 GitHub 之前先刪掉。</p>
+        <p class="ex-h">完成標準</p>
+        <ul class="prose">
+          <li>按 RST 後序列埠印出三個網址，背面紅燈熄滅（亮著代表還沒連上 <span class="nw">Wi-Fi</span>）。</li>
+          <li>瀏覽器打開第一個網址，看到即時畫面；打開 /capture 看到一張照片。</li>
+          <li>在電腦上用<a href="vision.html#s7">影像辨識</a>講義的程式看 <span class="nw">ESP32-CAM</span> 的畫面，出現辨識結果。IP 換成序列埠印出的：</li>
+        </ul>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 用 ESP32-CAM 的畫面執行 vision_demo">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run vision_demo.py <span class="n">--source</span> http://192.168.1.23/capture</code></pre>
+</div>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>第二個人打不開串流</b>：串流同時只能一個人看，第二個人會一直等。改用 /capture，或先關掉第一個視窗。</li>
+              <li><b>畫面延遲好幾秒</b>：改用 FRAMESIZE_QVGA，或讓板子靠近路由器。</li>
+              <li><b>重新開機後網址變了</b>：路由器每次可能分配不同的 IP，以序列埠印出的為準。</li>
+            </ul>
+          </div>
+        </details>
+        <div class="ex-terms">
+          <p class="ex-h">這一步的新名詞</p>
+          <dl>
+          <dt>IP 位址</dt><dd>裝置在網路裡的地址，例如 192.168.1.23。同一個網路裡的裝置用它找到對方。</dd>
+          <dt>MJPEG 串流</dt><dd>一張接一張送 JPEG 照片，瀏覽器收到就換掉上一張，看起來就是影片。</dd>
+          <dt>埠</dt><dd>同一台裝置上可以同時開好幾個服務，用埠號區分。網址沒寫就是 80；串流用 81。</dd>
+          </dl>
+        </div>
+      </article>
+
+      <article class="ex" id="ex4" aria-labelledby="ex4-h">
+        <p class="ex-no">範例 4</p>
+        <h3 id="ex4-h">定時拍照存記憶卡</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>microSD 卡</span><span>不用網路</span></p>
+        <p class="ex-goal"><b>目標</b>：每 10 秒拍一張存到記憶卡，可以拿來做縮時攝影。</p>
+        <p class="ex-h">準備</p>
+        <p>記憶卡先在電腦上格式化成 FAT32（32&nbsp;GB 以下）。拔掉 USB 線，插好記憶卡，再接回去。</p>
+        <p class="ex-h">程式</p>
+<!-- code:esp32cam/timelapse_sd/timelapse_sd.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">timelapse_sd.ino</span><span class="code-lines">141 行</span></span><button class="copy" type="button" aria-label="複製 timelapse_sd.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 範例 4：定時拍照存到記憶卡</span>
+<span class="c">// 開發板選「AI Thinker ESP32-CAM」，序列埠監控視窗的速率選 115200</span>
+<span class="c">// 記憶卡：32 GB 以下，先在電腦上格式化成 FAT32，斷電後再插進板子</span>
+<span class="c">// 每 INTERVAL_S 秒拍一張，存成 /photo_00001.jpg、/photo_00002.jpg……</span>
+<span class="c">// 編號記在板子裡，重新開機會接著往下編</span>
+
+<span class="k">#include</span> <span class="s">"esp_camera.h"</span>
+<span class="k">#include</span> <span class="s">"SD_MMC.h"</span>
+<span class="k">#include</span> &lt;<span class="t">Preferences</span>.h&gt;
+
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">INTERVAL_S</span> = <span class="n">10</span>;            <span class="c">// 幾秒拍一張</span>
+<span class="k">const</span> framesize_t <span class="n">FRAME_SIZE</span> = <span class="n">FRAMESIZE_SVGA</span>;  <span class="c">// 800×600；最大 FRAMESIZE_UXGA（1600×1200）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">JPEG_QUALITY</span> = <span class="n">10</span>;                    <span class="c">// 10–63，數字越小畫質越好、檔案越大</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">RED_LED</span> = <span class="n">33</span>;                         <span class="c">// 背面紅色 LED，LOW 亮：存檔時閃一下</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">FLASH_LED</span> = <span class="n">4</span>;                        <span class="c">// 閃光燈，保持關閉</span>
+
+<span class="c">// AI Thinker ESP32-CAM 的相機腳位（和官方範例 camera_pins.h 的 CAMERA_MODEL_AI_THINKER 相同）</span>
+<span class="k">#define</span> <span class="n">PWDN_GPIO_NUM</span>  <span class="n">32</span>
+<span class="k">#define</span> <span class="n">RESET_GPIO_NUM</span> -<span class="n">1</span>
+<span class="k">#define</span> <span class="n">XCLK_GPIO_NUM</span>  <span class="n">0</span>
+<span class="k">#define</span> <span class="n">SIOD_GPIO_NUM</span>  <span class="n">26</span>
+<span class="k">#define</span> <span class="n">SIOC_GPIO_NUM</span>  <span class="n">27</span>
+<span class="k">#define</span> <span class="n">Y9_GPIO_NUM</span>    <span class="n">35</span>
+<span class="k">#define</span> <span class="n">Y8_GPIO_NUM</span>    <span class="n">34</span>
+<span class="k">#define</span> <span class="n">Y7_GPIO_NUM</span>    <span class="n">39</span>
+<span class="k">#define</span> <span class="n">Y6_GPIO_NUM</span>    <span class="n">36</span>
+<span class="k">#define</span> <span class="n">Y5_GPIO_NUM</span>    <span class="n">21</span>
+<span class="k">#define</span> <span class="n">Y4_GPIO_NUM</span>    <span class="n">19</span>
+<span class="k">#define</span> <span class="n">Y3_GPIO_NUM</span>    <span class="n">18</span>
+<span class="k">#define</span> <span class="n">Y2_GPIO_NUM</span>    <span class="n">5</span>
+<span class="k">#define</span> <span class="n">VSYNC_GPIO_NUM</span> <span class="n">25</span>
+<span class="k">#define</span> <span class="n">HREF_GPIO_NUM</span>  <span class="n">23</span>
+<span class="k">#define</span> <span class="n">PCLK_GPIO_NUM</span>  <span class="n">22</span>
+
+<span class="t">Preferences</span> prefs;
+<span class="t">unsigned</span> <span class="t">long</span> photoNo;   <span class="c">// 下一張照片的編號</span>
+<span class="t">unsigned</span> <span class="t">long</span> lastShot;  <span class="c">// 上一次拍照的時間</span>
+
+<span class="t">bool</span> <span class="f">initCamera</span>() {
+  camera_config_t c = {};
+  c.ledc_channel = <span class="n">LEDC_CHANNEL_0</span>;
+  c.ledc_timer = <span class="n">LEDC_TIMER_0</span>;
+  c.pin_d0 = <span class="n">Y2_GPIO_NUM</span>;
+  c.pin_d1 = <span class="n">Y3_GPIO_NUM</span>;
+  c.pin_d2 = <span class="n">Y4_GPIO_NUM</span>;
+  c.pin_d3 = <span class="n">Y5_GPIO_NUM</span>;
+  c.pin_d4 = <span class="n">Y6_GPIO_NUM</span>;
+  c.pin_d5 = <span class="n">Y7_GPIO_NUM</span>;
+  c.pin_d6 = <span class="n">Y8_GPIO_NUM</span>;
+  c.pin_d7 = <span class="n">Y9_GPIO_NUM</span>;
+  c.pin_xclk = <span class="n">XCLK_GPIO_NUM</span>;
+  c.pin_pclk = <span class="n">PCLK_GPIO_NUM</span>;
+  c.pin_vsync = <span class="n">VSYNC_GPIO_NUM</span>;
+  c.pin_href = <span class="n">HREF_GPIO_NUM</span>;
+  c.pin_sccb_sda = <span class="n">SIOD_GPIO_NUM</span>;
+  c.pin_sccb_scl = <span class="n">SIOC_GPIO_NUM</span>;
+  c.pin_pwdn = <span class="n">PWDN_GPIO_NUM</span>;
+  c.pin_reset = <span class="n">RESET_GPIO_NUM</span>;
+  c.xclk_freq_hz = <span class="n">20000000</span>;
+  c.pixel_format = <span class="n">PIXFORMAT_JPEG</span>;
+  c.frame_size = <span class="n">FRAME_SIZE</span>;
+  c.jpeg_quality = <span class="n">JPEG_QUALITY</span>;
+  c.fb_count = <span class="n">2</span>;
+  c.fb_location = <span class="n">CAMERA_FB_IN_PSRAM</span>;
+  c.grab_mode = <span class="n">CAMERA_GRAB_LATEST</span>;  <span class="c">// 拿最新的畫面，不會拿到 10 秒前拍好放著的那張</span>
+  esp_err_t err = <span class="f">esp_camera_init</span>(&amp;c);
+  <span class="k">if</span> (err != <span class="n">ESP_OK</span>) {
+    <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"相機啟動失敗：0x%x（排線沒插好，或開發板選錯）\n"</span>, err);
+    <span class="k">return</span> <span class="n">false</span>;
+  }
+  <span class="k">return</span> <span class="n">true</span>;
+}
+
+<span class="t">void</span> <span class="f">stopHere</span>(<span class="k">const</span> <span class="t">char</span> *why) {
+  <span class="t">Serial</span>.<span class="f">println</span>(why);
+  <span class="k">while</span> (<span class="n">true</span>) {  <span class="c">// 紅燈快閃，表示出錯</span>
+    <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, !<span class="f">digitalRead</span>(<span class="n">RED_LED</span>));
+    <span class="f">delay</span>(<span class="n">150</span>);
+  }
+}
+
+<span class="t">void</span> <span class="f">takePhoto</span>() {
+  camera_fb_t *fb = <span class="f">esp_camera_fb_get</span>();
+  <span class="k">if</span> (!fb) {
+    <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"拍照失敗"</span>);
+    <span class="k">return</span>;
+  }
+  <span class="t">char</span> path[<span class="n">24</span>];
+  <span class="f">snprintf</span>(path, <span class="k">sizeof</span>(path), <span class="s">"/photo_%05lu.jpg"</span>, photoNo);
+  <span class="t">File</span> file = <span class="n">SD_MMC</span>.<span class="f">open</span>(path, <span class="n">FILE_WRITE</span>);
+  <span class="k">if</span> (!file) {
+    <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"開不了檔案 %s：記憶卡滿了或被拔掉\n"</span>, path);
+    <span class="f">esp_camera_fb_return</span>(fb);
+    <span class="k">return</span>;
+  }
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">LOW</span>);
+  file.<span class="f">write</span>(fb-&gt;buf, fb-&gt;len);
+  file.<span class="f">close</span>();
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">HIGH</span>);
+  <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"存好 %s（%u KB）\n"</span>, path, fb-&gt;len / <span class="n">1024</span>);
+  <span class="f">esp_camera_fb_return</span>(fb);
+
+  photoNo++;
+  prefs.<span class="f">putULong</span>(<span class="s">"next"</span>, photoNo);  <span class="c">// 記下編號，重新開機不會蓋掉舊照片</span>
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">115200</span>);
+  <span class="f">pinMode</span>(<span class="n">RED_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">HIGH</span>);
+
+  <span class="k">if</span> (!<span class="f">initCamera</span>()) <span class="f">stopHere</span>(<span class="s">"停止"</span>);
+
+  <span class="c">// 1-bit 模式只用 GPIO 2、14、15；4-bit 模式會用到 GPIO 4，閃光燈會跟著閃</span>
+  <span class="k">if</span> (!<span class="n">SD_MMC</span>.<span class="f">begin</span>(<span class="s">"/sdcard"</span>, <span class="n">true</span>)) {
+    <span class="f">stopHere</span>(<span class="s">"讀不到記憶卡：確認有插好、是 FAT32、32 GB 以下"</span>);
+  }
+  <span class="f">pinMode</span>(<span class="n">FLASH_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">FLASH_LED</span>, <span class="n">LOW</span>);
+  <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"記憶卡 %llu MB\n"</span>, <span class="n">SD_MMC</span>.<span class="f">cardSize</span>() / (<span class="n">1024</span> * <span class="n">1024</span>));
+
+  prefs.<span class="f">begin</span>(<span class="s">"timelapse"</span>, <span class="n">false</span>);
+  photoNo = prefs.<span class="f">getULong</span>(<span class="s">"next"</span>, <span class="n">1</span>);
+  <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"從第 %lu 張開始，每 %lu 秒拍一張\n"</span>, photoNo, <span class="n">INTERVAL_S</span>);
+
+  <span class="c">// 相機剛啟動時自動曝光還沒調好，先丟掉幾張</span>
+  <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; <span class="n">5</span>; i++) {
+    camera_fb_t *fb = <span class="f">esp_camera_fb_get</span>();
+    <span class="k">if</span> (fb) <span class="f">esp_camera_fb_return</span>(fb);
+    <span class="f">delay</span>(<span class="n">200</span>);
+  }
+  <span class="f">takePhoto</span>();
+  lastShot = <span class="f">millis</span>();
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="k">if</span> (<span class="f">millis</span>() - lastShot &gt;= <span class="n">INTERVAL_S</span> * <span class="n">1000UL</span>) {
+    lastShot = <span class="f">millis</span>();
+    <span class="f">takePhoto</span>();
+  }
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <p class="ex-h">完成標準</p>
+        <p>序列埠每 10 秒印一次「存好 /photo_00001.jpg（xx KB）」，紅燈同時閃一下。拔掉電源，把記憶卡插到電腦，照片依編號排好；重新插回去開機，編號接著往下。</p>
+        <details class="fold">
+          <summary>常見問題</summary>
+          <div class="fold-body">
+            <ul class="prose">
+              <li><b>讀不到記憶卡，紅燈快閃</b>：卡沒插到底、不是 FAT32，或容量太大。</li>
+              <li><b>照片太暗或偏色</b>：剛開機時自動曝光還在調，程式已經先丟掉 5 張；光線很暗時照片還是會很暗。</li>
+              <li><b>想做成影片</b>：把照片依編號串起來。影片剪輯軟體大多能「匯入圖片序列」。</li>
+            </ul>
+          </div>
+        </details>
+      </article>
+
+      <article class="ex" id="ex5" aria-labelledby="ex5-h">
+        <p class="ex-no">範例 5</p>
+        <h3 id="ex5-h">畫面變化偵測</h3>
+        <p class="ex-tags"><span class="kind">Arduino</span><span>序列繪圖家</span><span>不用 AI</span></p>
+        <p class="ex-goal"><b>目標</b>：在板子上比較前後兩張灰階畫面，畫面有動靜就亮紅燈。原理見<a href="vision.html#s2">影像辨識</a>講義的「畫面相減」。</p>
+        <p class="ex-h">程式</p>
+<!-- code:esp32cam/motion_diff/motion_diff.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">motion_diff.ino</span><span class="code-lines">125 行</span></span><button class="copy" type="button" aria-label="複製 motion_diff.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 範例 5：畫面變化偵測（不用 AI）</span>
+<span class="c">// 開發板選「AI Thinker ESP32-CAM」，序列埠監控視窗的速率選 115200</span>
+<span class="c">// 每 0.1 秒拍一張 160×120 的灰階畫面，和上一張逐點比較，算出有幾 % 的像素變了</span>
+<span class="c">// 超過門檻就亮紅色 LED，序列埠印出「偵測到畫面變化」</span>
+<span class="c">// 打開序列繪圖家，可以看到「變化」和「門檻」兩條線</span>
+
+<span class="k">#include</span> <span class="s">"esp_camera.h"</span>
+
+<span class="k">const</span> <span class="t">int</span> <span class="n">PIXEL_DIFF</span> = <span class="n">25</span>;            <span class="c">// 一個像素的亮度差超過這個值（0–255），才算「變了」</span>
+<span class="k">const</span> <span class="t">float</span> <span class="n">TRIGGER_PERCENT</span> = <span class="n">5.0</span>;    <span class="c">// 變了的像素超過幾 %，才算畫面有動靜</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">HOLD_MS</span> = <span class="n">1000</span>;   <span class="c">// 偵測到之後，紅燈至少亮多久</span>
+<span class="k">const</span> <span class="t">unsigned</span> <span class="t">long</span> <span class="n">WARMUP_MS</span> = <span class="n">3000</span>; <span class="c">// 開機後先等自動曝光穩定</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">RED_LED</span> = <span class="n">33</span>;               <span class="c">// 背面紅色 LED，LOW 亮</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">FLASH_LED</span> = <span class="n">4</span>;              <span class="c">// 閃光燈，保持關閉</span>
+
+<span class="k">const</span> <span class="t">int</span> W = <span class="n">160</span>;
+<span class="k">const</span> <span class="t">int</span> H = <span class="n">120</span>;
+
+<span class="c">// AI Thinker ESP32-CAM 的相機腳位（和官方範例 camera_pins.h 的 CAMERA_MODEL_AI_THINKER 相同）</span>
+<span class="k">#define</span> <span class="n">PWDN_GPIO_NUM</span>  <span class="n">32</span>
+<span class="k">#define</span> <span class="n">RESET_GPIO_NUM</span> -<span class="n">1</span>
+<span class="k">#define</span> <span class="n">XCLK_GPIO_NUM</span>  <span class="n">0</span>
+<span class="k">#define</span> <span class="n">SIOD_GPIO_NUM</span>  <span class="n">26</span>
+<span class="k">#define</span> <span class="n">SIOC_GPIO_NUM</span>  <span class="n">27</span>
+<span class="k">#define</span> <span class="n">Y9_GPIO_NUM</span>    <span class="n">35</span>
+<span class="k">#define</span> <span class="n">Y8_GPIO_NUM</span>    <span class="n">34</span>
+<span class="k">#define</span> <span class="n">Y7_GPIO_NUM</span>    <span class="n">39</span>
+<span class="k">#define</span> <span class="n">Y6_GPIO_NUM</span>    <span class="n">36</span>
+<span class="k">#define</span> <span class="n">Y5_GPIO_NUM</span>    <span class="n">21</span>
+<span class="k">#define</span> <span class="n">Y4_GPIO_NUM</span>    <span class="n">19</span>
+<span class="k">#define</span> <span class="n">Y3_GPIO_NUM</span>    <span class="n">18</span>
+<span class="k">#define</span> <span class="n">Y2_GPIO_NUM</span>    <span class="n">5</span>
+<span class="k">#define</span> <span class="n">VSYNC_GPIO_NUM</span> <span class="n">25</span>
+<span class="k">#define</span> <span class="n">HREF_GPIO_NUM</span>  <span class="n">23</span>
+<span class="k">#define</span> <span class="n">PCLK_GPIO_NUM</span>  <span class="n">22</span>
+
+<span class="t">uint8_t</span> *prevFrame;          <span class="c">// 上一張畫面</span>
+<span class="t">bool</span> hasPrev = <span class="n">false</span>;
+<span class="t">bool</span> moving = <span class="n">false</span>;         <span class="c">// 現在是不是「有動靜」</span>
+<span class="t">unsigned</span> <span class="t">long</span> lastMotion = <span class="n">0</span>;
+
+<span class="t">bool</span> <span class="f">initCamera</span>() {
+  camera_config_t c = {};
+  c.ledc_channel = <span class="n">LEDC_CHANNEL_0</span>;
+  c.ledc_timer = <span class="n">LEDC_TIMER_0</span>;
+  c.pin_d0 = <span class="n">Y2_GPIO_NUM</span>;
+  c.pin_d1 = <span class="n">Y3_GPIO_NUM</span>;
+  c.pin_d2 = <span class="n">Y4_GPIO_NUM</span>;
+  c.pin_d3 = <span class="n">Y5_GPIO_NUM</span>;
+  c.pin_d4 = <span class="n">Y6_GPIO_NUM</span>;
+  c.pin_d5 = <span class="n">Y7_GPIO_NUM</span>;
+  c.pin_d6 = <span class="n">Y8_GPIO_NUM</span>;
+  c.pin_d7 = <span class="n">Y9_GPIO_NUM</span>;
+  c.pin_xclk = <span class="n">XCLK_GPIO_NUM</span>;
+  c.pin_pclk = <span class="n">PCLK_GPIO_NUM</span>;
+  c.pin_vsync = <span class="n">VSYNC_GPIO_NUM</span>;
+  c.pin_href = <span class="n">HREF_GPIO_NUM</span>;
+  c.pin_sccb_sda = <span class="n">SIOD_GPIO_NUM</span>;
+  c.pin_sccb_scl = <span class="n">SIOC_GPIO_NUM</span>;
+  c.pin_pwdn = <span class="n">PWDN_GPIO_NUM</span>;
+  c.pin_reset = <span class="n">RESET_GPIO_NUM</span>;
+  c.xclk_freq_hz = <span class="n">20000000</span>;
+  c.pixel_format = <span class="n">PIXFORMAT_GRAYSCALE</span>;  <span class="c">// 灰階：每個像素一個位元組，0 黑、255 白</span>
+  c.frame_size = <span class="n">FRAMESIZE_QQVGA</span>;        <span class="c">// 160×120，小張才算得快</span>
+  c.fb_count = <span class="n">2</span>;
+  c.fb_location = <span class="n">CAMERA_FB_IN_PSRAM</span>;
+  c.grab_mode = <span class="n">CAMERA_GRAB_LATEST</span>;
+  esp_err_t err = <span class="f">esp_camera_init</span>(&amp;c);
+  <span class="k">if</span> (err != <span class="n">ESP_OK</span>) {
+    <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"相機啟動失敗：0x%x（排線沒插好，或開發板選錯）\n"</span>, err);
+    <span class="k">return</span> <span class="n">false</span>;
+  }
+  <span class="k">return</span> <span class="n">true</span>;
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">115200</span>);
+  <span class="f">pinMode</span>(<span class="n">RED_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">HIGH</span>);
+  <span class="f">pinMode</span>(<span class="n">FLASH_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">FLASH_LED</span>, <span class="n">LOW</span>);
+
+  prevFrame = (<span class="t">uint8_t</span> *)<span class="f">malloc</span>(W * H);
+  <span class="k">if</span> (!prevFrame || !<span class="f">initCamera</span>()) {
+    <span class="k">while</span> (<span class="n">true</span>) <span class="f">delay</span>(<span class="n">1000</span>);
+  }
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  camera_fb_t *fb = <span class="f">esp_camera_fb_get</span>();
+  <span class="k">if</span> (!fb) <span class="k">return</span>;
+  <span class="k">if</span> (fb-&gt;len != W * H) {  <span class="c">// 不是預期的大小就跳過</span>
+    <span class="f">esp_camera_fb_return</span>(fb);
+    <span class="k">return</span>;
+  }
+
+  <span class="c">// 逐點比較：亮度差超過 PIXEL_DIFF 的像素有幾個</span>
+  <span class="t">int</span> changed = <span class="n">0</span>;
+  <span class="k">if</span> (hasPrev) {
+    <span class="k">for</span> (<span class="t">int</span> i = <span class="n">0</span>; i &lt; W * H; i++) {
+      <span class="k">if</span> (<span class="f">abs</span>((<span class="t">int</span>)fb-&gt;buf[i] - (<span class="t">int</span>)prevFrame[i]) &gt; <span class="n">PIXEL_DIFF</span>) changed++;
+    }
+  }
+  <span class="f">memcpy</span>(prevFrame, fb-&gt;buf, W * H);  <span class="c">// 這一張變成下一輪的「上一張」</span>
+  <span class="f">esp_camera_fb_return</span>(fb);
+
+  <span class="k">if</span> (!hasPrev || <span class="f">millis</span>() &lt; <span class="n">WARMUP_MS</span>) {
+    hasPrev = <span class="n">true</span>;
+    <span class="f">delay</span>(<span class="n">100</span>);
+    <span class="k">return</span>;
+  }
+
+  <span class="t">float</span> percent = changed * <span class="n">100.0</span> / (W * H);
+  <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"變化:%.1f 門檻:%.1f\n"</span>, percent, <span class="n">TRIGGER_PERCENT</span>);  <span class="c">// 單位是 %</span>
+
+  <span class="k">if</span> (percent &gt; <span class="n">TRIGGER_PERCENT</span>) {
+    <span class="k">if</span> (!moving) <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"偵測到畫面變化"</span>);
+    moving = <span class="n">true</span>;
+    lastMotion = <span class="f">millis</span>();
+  } <span class="k">else</span> <span class="k">if</span> (moving &amp;&amp; <span class="f">millis</span>() - lastMotion &gt; <span class="n">HOLD_MS</span>) {
+    moving = <span class="n">false</span>;
+  }
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, moving ? <span class="n">LOW</span> : <span class="n">HIGH</span>);
+  <span class="f">delay</span>(<span class="n">100</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+        <p class="ex-h">完成標準</p>
+        <p>按 RST，等 3 秒。打開序列繪圖家（Arduino&nbsp;IDE 右上角的折線圖示），鏡頭前不動時「變化」接近 0；在鏡頭前揮手，「變化」超過門檻線，紅燈亮起。</p>
+        <p class="ex-h">試試看</p>
+        <ul class="prose">
+          <li>打開或關掉房間的燈：整個畫面都變了，也會觸發。這就是畫面相減分不出「人在動」和「燈變了」。</li>
+          <li>把 PIXEL_DIFF 調大，比較不會被雜訊觸發；把 TRIGGER_PERCENT 調小，比較小的動作也會觸發。</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="sec" id="s7" aria-labelledby="s7-h">
+      <p class="sec-no">07</p>
+      <h2 id="s7-h">常見狀況</h2>
+      <ul class="fails lead-in">
+        <li><div><b>序列埠一直印 Brownout detector was triggered，板子不停重開</b>：電壓不夠。換一條短一點的 USB 線、直接插電腦（不要經過 USB 集線器），或改用 5V 2A 的充電器。AI 可能叫你在程式裡關掉這個偵測，這只是不讓它報錯，電壓還是不夠。</div></li>
+        <li><div><b>相機啟動失敗</b>：相機排線沒插到底，或排線插座的扣子沒扣上；程式裡的相機腳位不是 AI Thinker 的。</div></li>
+        <li><div><b>畫面偏綠、偏紫，或上下顛倒</b>：剛開機的前幾張還沒調好顏色，等幾秒；換過相機型號時要調整翻轉設定。</div></li>
+        <li><div><b>板子很燙</b>：串流時摸起來溫溫的是正常的。閃光燈長時間全亮會很燙，不要讓它一直亮；不要包在不透氣的盒子裡。</div></li>
+        <li><div><b><span class="nw">Wi-Fi</span> 訊號弱、畫面一直卡</b>：板子靠近路由器，天線那一端不要被金屬擋住。外接天線要改焊板子上的一顆小電阻，不是插上就有用。</div></li>
+        <li><div><b>上傳一直失敗</b>：照第 03 節按 IO0 和 RST 進入燒錄模式；還是不行，換一條能傳資料的 USB 線。</div></li>
+      </ul>
+    </section>
+
+    <section class="sec" id="s8" aria-labelledby="s8-h">
+      <p class="sec-no">08</p>
+      <h2 id="s8-h">請 AI 幫你寫</h2>
+      <dl class="qa lead-in">
+        <dt>你要準備</dt><dd>板子是 AI&nbsp;Thinker&nbsp;<span class="nw">ESP32-CAM</span> 加 <span class="nw">ESP32-CAM-MB</span> 底板、ESP32 開發板套件 3.3 版、要用的解析度、有沒有用記憶卡、要接哪些零件到哪幾支腳。</dd>
+        <dt>AI 能幫你</dt><dd>從本頁的範例改起：換解析度、加網址、加拍照的條件、把照片傳到別的地方；解釋序列埠印出的錯誤訊息。</dd>
+        <dt>怎麼查證</dt><dd>先燒範例 1 確認板子正常；相機腳位對照官方範例 camera_pins.h 裡的 CAMERA_MODEL_AI_THINKER；一次只改一個地方，改完就燒一次。</dd>
+        <dt class="is-trap">常見陷阱</dt><dd><ul>
+<li>AI 用 2.x 版的寫法（ledcSetup、ledcAttachPin），在 3.x 版編譯失敗。說清楚：我用的是 ESP32 Arduino 3.x 版。</li>
+<li>相機腳位用了 <span class="nw">ESP-EYE</span> 或 <span class="nw">WROVER-KIT</span> 的設定，相機啟動失敗。</li>
+<li>把 GPIO 0、16 或 U0R、U0T 拿去接零件。</li>
+<li>叫你在程式裡關掉 brownout 偵測，而不是處理電源。</li>
+</ul></dd>
+      </dl>
+    </section>
+    <nav class="doc-end" aria-label="下一步"><a class="back" href="../handout.html">← 講義選單</a><a href="monitor-esp32cam.html">微專題&nbsp;02：簡易 AI 監控系統 →</a></nav>
+    <footer class="credits"><h2>圖片來源</h2><ol>
+<li><span class="nw">ESP32-CAM</span>：<a href="https://commons.wikimedia.org/wiki/File:ESP32-CAM.jpg" target="_blank" rel="noopener">ESP32-CAM.jpg</a>，Nowforever，<a href="https://creativecommons.org/licenses/by-sa/4.0" target="_blank" rel="noopener">CC <span class="nw">BY-SA</span> 4.0</a></li>
+</ol></footer>
+  </main>
+</div>
+<script src="../assets/handout.js"></script>
+</body>
+</html>

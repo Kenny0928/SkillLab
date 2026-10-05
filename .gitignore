@@ -12,3 +12,6 @@ __pycache__/
 *.pyc
 .venv/
 .pytest_cache/
+
+# md2html previews
+handout/_preview-*.html

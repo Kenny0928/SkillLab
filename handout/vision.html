@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>影像辨識｜SkillLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/handout.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
+  <a href="../handout.html">講義</a><span class="sep">/</span>
+  <span class="here">影像辨識</span>
+</div></header>
+
+<div class="page has-toc">
+  <header class="doc-head">
+    <p class="kicker" data-type="concept"><span class="type-tag">觀念</span></p>
+    <h1>影像辨識</h1>
+    <p class="lead">電腦看到的只是一格一格的數字。從像素和顏色開始，認識現在常見的辨識方法、它們各自回答什麼問題，以及什麼時候會看錯。</p>
+  </header>
+  <nav class="toc" aria-label="目錄">
+    <p class="toc-h">目錄</p>
+    <ol>
+      <li><a href="#s1"><span class="n">01</span>電腦看到的是什麼</a></li>
+      <li><a href="#s2"><span class="n">02</span>不用 AI 的方法</a></li>
+      <li><a href="#s3"><span class="n">03</span>AI 能做的五種事</a></li>
+      <li><a href="#s4"><span class="n">04</span>看懂辨識結果</a></li>
+      <li><a href="#s5"><span class="n">05</span>模型從哪裡來</a></li>
+      <li><a href="#s6"><span class="n">06</span>在哪裡跑</a></li>
+      <li><a href="#s7"><span class="n">07</span>自己試試看</a></li>
+      <li><a href="#s8"><span class="n">08</span>什麼情況下會看錯</a></li>
+      <li><a href="#s9"><span class="n">09</span>請 AI 幫你寫</a></li>
+    </ol>
+  </nav>
+  <main class="doc">
+    <section class="sec" id="s1" aria-labelledby="s1-h">
+      <p class="sec-no">01</p>
+      <h2 id="s1-h">電腦看到的是什麼</h2>
+      <figure class="figure panel lead-in">
+<svg class="dg" viewBox="0 0 480 170" role="img" aria-label="一顆橘色的球放大後是一格一格的像素，其中一格標出它的紅、綠、藍數值：228、87、46" xmlns="http://www.w3.org/2000/svg">
+  <rect class="px-w" x="0" y="0" width="17" height="17"/><rect class="px-w" x="17" y="0" width="17" height="17"/><rect class="px-w" x="34" y="0" width="17" height="17"/><rect class="px-w" x="51" y="0" width="17" height="17"/><rect class="px-w" x="68" y="0" width="17" height="17"/><rect class="px-w" x="85" y="0" width="17" height="17"/><rect class="px-w" x="102" y="0" width="17" height="17"/><rect class="px-w" x="119" y="0" width="17" height="17"/><rect class="px-w" x="136" y="0" width="17" height="17"/><rect class="px-w" x="153" y="0" width="17" height="17"/><rect class="px-w" x="170" y="0" width="17" height="17"/><rect class="px-w" x="187" y="0" width="17" height="17"/><rect class="px-w" x="204" y="0" width="17" height="17"/><rect class="px-w" x="221" y="0" width="17" height="17"/><rect class="px-w" x="238" y="0" width="17" height="17"/><rect class="px-w" x="255" y="0" width="17" height="17"/><rect class="px-w" x="0" y="17" width="17" height="17"/><rect class="px-w" x="17" y="17" width="17" height="17"/><rect class="px-w" x="34" y="17" width="17" height="17"/><rect class="px-w" x="51" y="17" width="17" height="17"/><rect class="px-w" x="68" y="17" width="17" height="17"/><rect class="px-w" x="85" y="17" width="17" height="17"/><rect class="px-e" x="102" y="17" width="17" height="17"/><rect class="px-e" x="119" y="17" width="17" height="17"/><rect class="px-e" x="136" y="17" width="17" height="17"/><rect class="px-e" x="153" y="17" width="17" height="17"/><rect class="px-w" x="170" y="17" width="17" height="17"/><rect class="px-w" x="187" y="17" width="17" height="17"/><rect class="px-w" x="204" y="17" width="17" height="17"/><rect class="px-w" x="221" y="17" width="17" height="17"/><rect class="px-w" x="238" y="17" width="17" height="17"/><rect class="px-w" x="255" y="17" width="17" height="17"/><rect class="px-w" x="0" y="34" width="17" height="17"/><rect class="px-w" x="17" y="34" width="17" height="17"/><rect class="px-w" x="34" y="34" width="17" height="17"/><rect class="px-w" x="51" y="34" width="17" height="17"/><rect class="px-w" x="68" y="34" width="17" height="17"/><rect class="px-e" x="85" y="34" width="17" height="17"/><rect class="px-b" x="102" y="34" width="17" height="17"/><rect class="px-b" x="119" y="34" width="17" height="17"/><rect class="px-b" x="136" y="34" width="17" height="17"/><rect class="px-b" x="153" y="34" width="17" height="17"/><rect class="px-e" x="170" y="34" width="17" height="17"/><rect class="px-w" x="187" y="34" width="17" height="17"/><rect class="px-w" x="204" y="34" width="17" height="17"/><rect class="px-w" x="221" y="34" width="17" height="17"/><rect class="px-w" x="238" y="34" width="17" height="17"/><rect class="px-w" x="255" y="34" width="17" height="17"/><rect class="px-w" x="0" y="51" width="17" height="17"/><rect class="px-w" x="17" y="51" width="17" height="17"/><rect class="px-w" x="34" y="51" width="17" height="17"/><rect class="px-w" x="51" y="51" width="17" height="17"/><rect class="px-e" x="68" y="51" width="17" height="17"/><rect class="px-b" x="85" y="51" width="17" height="17"/><rect class="px-b" x="102" y="51" width="17" height="17"/><rect class="px-b" x="119" y="51" width="17" height="17"/><rect class="px-b" x="136" y="51" width="17" height="17"/><rect class="px-b" x="153" y="51" width="17" height="17"/><rect class="px-b" x="170" y="51" width="17" height="17"/><rect class="px-e" x="187" y="51" width="17" height="17"/><rect class="px-w" x="204" y="51" width="17" height="17"/><rect class="px-w" x="221" y="51" width="17" height="17"/><rect class="px-w" x="238" y="51" width="17" height="17"/><rect class="px-w" x="255" y="51" width="17" height="17"/><rect class="px-w" x="0" y="68" width="17" height="17"/><rect class="px-w" x="17" y="68" width="17" height="17"/><rect class="px-w" x="34" y="68" width="17" height="17"/><rect class="px-w" x="51" y="68" width="17" height="17"/><rect class="px-e" x="68" y="68" width="17" height="17"/><rect class="px-b" x="85" y="68" width="17" height="17"/><rect class="px-b" x="102" y="68" width="17" height="17"/><rect class="px-b" x="119" y="68" width="17" height="17"/><rect class="px-b" x="136" y="68" width="17" height="17"/><rect class="px-b" x="153" y="68" width="17" height="17"/><rect class="px-b" x="170" y="68" width="17" height="17"/><rect class="px-e" x="187" y="68" width="17" height="17"/><rect class="px-w" x="204" y="68" width="17" height="17"/><rect class="px-w" x="221" y="68" width="17" height="17"/><rect class="px-w" x="238" y="68" width="17" height="17"/><rect class="px-w" x="255" y="68" width="17" height="17"/><rect class="px-w" x="0" y="85" width="17" height="17"/><rect class="px-w" x="17" y="85" width="17" height="17"/><rect class="px-w" x="34" y="85" width="17" height="17"/><rect class="px-w" x="51" y="85" width="17" height="17"/><rect class="px-e" x="68" y="85" width="17" height="17"/><rect class="px-b" x="85" y="85" width="17" height="17"/><rect class="px-b" x="102" y="85" width="17" height="17"/><rect class="px-b" x="119" y="85" width="17" height="17"/><rect class="px-b" x="136" y="85" width="17" height="17"/><rect class="px-b" x="153" y="85" width="17" height="17"/><rect class="px-b" x="170" y="85" width="17" height="17"/><rect class="px-e" x="187" y="85" width="17" height="17"/><rect class="px-w" x="204" y="85" width="17" height="17"/><rect class="px-w" x="221" y="85" width="17" height="17"/><rect class="px-w" x="238" y="85" width="17" height="17"/><rect class="px-w" x="255" y="85" width="17" height="17"/><rect class="px-w" x="0" y="102" width="17" height="17"/><rect class="px-w" x="17" y="102" width="17" height="17"/><rect class="px-w" x="34" y="102" width="17" height="17"/><rect class="px-w" x="51" y="102" width="17" height="17"/><rect class="px-e" x="68" y="102" width="17" height="17"/><rect class="px-b" x="85" y="102" width="17" height="17"/><rect class="px-b" x="102" y="102" width="17" height="17"/><rect class="px-b" x="119" y="102" width="17" height="17"/><rect class="px-b" x="136" y="102" width="17" height="17"/><rect class="px-b" x="153" y="102" width="17" height="17"/><rect class="px-b" x="170" y="102" width="17" height="17"/><rect class="px-e" x="187" y="102" width="17" height="17"/><rect class="px-w" x="204" y="102" width="17" height="17"/><rect class="px-w" x="221" y="102" width="17" height="17"/><rect class="px-w" x="238" y="102" width="17" height="17"/><rect class="px-w" x="255" y="102" width="17" height="17"/><rect class="px-w" x="0" y="119" width="17" height="17"/><rect class="px-w" x="17" y="119" width="17" height="17"/><rect class="px-w" x="34" y="119" width="17" height="17"/><rect class="px-w" x="51" y="119" width="17" height="17"/><rect class="px-w" x="68" y="119" width="17" height="17"/><rect class="px-e" x="85" y="119" width="17" height="17"/><rect class="px-b" x="102" y="119" width="17" height="17"/><rect class="px-b" x="119" y="119" width="17" height="17"/><rect class="px-b" x="136" y="119" width="17" height="17"/><rect class="px-b" x="153" y="119" width="17" height="17"/><rect class="px-e" x="170" y="119" width="17" height="17"/><rect class="px-w" x="187" y="119" width="17" height="17"/><rect class="px-w" x="204" y="119" width="17" height="17"/><rect class="px-w" x="221" y="119" width="17" height="17"/><rect class="px-w" x="238" y="119" width="17" height="17"/><rect class="px-w" x="255" y="119" width="17" height="17"/><rect class="px-w" x="0" y="136" width="17" height="17"/><rect class="px-w" x="17" y="136" width="17" height="17"/><rect class="px-w" x="34" y="136" width="17" height="17"/><rect class="px-w" x="51" y="136" width="17" height="17"/><rect class="px-w" x="68" y="136" width="17" height="17"/><rect class="px-w" x="85" y="136" width="17" height="17"/><rect class="px-e" x="102" y="136" width="17" height="17"/><rect class="px-e" x="119" y="136" width="17" height="17"/><rect class="px-e" x="136" y="136" width="17" height="17"/><rect class="px-e" x="153" y="136" width="17" height="17"/><rect class="px-w" x="170" y="136" width="17" height="17"/><rect class="px-w" x="187" y="136" width="17" height="17"/><rect class="px-w" x="204" y="136" width="17" height="17"/><rect class="px-w" x="221" y="136" width="17" height="17"/><rect class="px-w" x="238" y="136" width="17" height="17"/><rect class="px-w" x="255" y="136" width="17" height="17"/><rect class="px-w" x="0" y="153" width="17" height="17"/><rect class="px-w" x="17" y="153" width="17" height="17"/><rect class="px-w" x="34" y="153" width="17" height="17"/><rect class="px-w" x="51" y="153" width="17" height="17"/><rect class="px-w" x="68" y="153" width="17" height="17"/><rect class="px-w" x="85" y="153" width="17" height="17"/><rect class="px-w" x="102" y="153" width="17" height="17"/><rect class="px-w" x="119" y="153" width="17" height="17"/><rect class="px-w" x="136" y="153" width="17" height="17"/><rect class="px-w" x="153" y="153" width="17" height="17"/><rect class="px-w" x="170" y="153" width="17" height="17"/><rect class="px-w" x="187" y="153" width="17" height="17"/><rect class="px-w" x="204" y="153" width="17" height="17"/><rect class="px-w" x="221" y="153" width="17" height="17"/><rect class="px-w" x="238" y="153" width="17" height="17"/><rect class="px-w" x="255" y="153" width="17" height="17"/>
+  <rect class="px-hl" x="119" y="68" width="17" height="17"/>
+  <line class="ln" x1="136" y1="76.5" x2="300" y2="76.5"/>
+  <text x="312" y="50">一個像素</text>
+  <text class="tm" x="312" y="82">R 228</text>
+  <text class="tm" x="312" y="106">G 87</text>
+  <text class="tm" x="312" y="130">B 46</text>
+</svg>
+        <figcaption>把照片放大，會看到一格一格的像素。每一格用紅（R）、綠（G）、藍（B）三個 0–255 的數字表示顏色。</figcaption>
+      </figure>
+      <ul class="prose">
+        <li><b>解析度</b>：橫向和直向各有幾個像素。640×480 的照片有 307,200 個像素，每個像素 3 個數字，一張就有九十多萬個數字。</li>
+        <li><b>每秒張數（fps）</b>：影片和串流是一張一張的照片連續送出。辨識的程式每秒處理得了幾張，決定它反應有多快。</li>
+        <li><b>灰階</b>：每個像素只留一個亮度數字（0 黑、255 白）。資料少三分之二，適合只在乎亮暗變化的時候。</li>
+        <li><b>JPEG 壓縮</b>：640×480 的照片原本約 900&nbsp;KB，壓成 JPEG 通常只剩幾十 KB。<span class="nw">ESP32-CAM</span> 送出來的就是 JPEG，到了電腦再解壓回像素。</li>
+      </ul>
+      <div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">解析度</th><th scope="col">名稱</th><th scope="col">像素</th><th scope="col">什麼時候用</th></tr></thead><tbody>
+<tr><th scope="row"><span class="pin">160×120</span></th><td data-label="名稱">QQVGA</td><td data-label="像素">約 1.9 萬</td><td data-label="什麼時候用">板子上自己算：顏色篩選、畫面變化</td></tr>
+<tr><th scope="row"><span class="pin">320×240</span></th><td data-label="名稱">QVGA</td><td data-label="像素">約 7.7 萬</td><td data-label="什麼時候用">串流要順、網路比較慢</td></tr>
+<tr><th scope="row"><span class="pin">640×480</span></th><td data-label="名稱">VGA</td><td data-label="像素">約 31 萬</td><td data-label="什麼時候用">送到電腦做 AI 辨識，速度和細節的折衷</td></tr>
+<tr><th scope="row"><span class="pin">1600×1200</span></th><td data-label="名稱">UXGA</td><td data-label="像素">約 192 萬</td><td data-label="什麼時候用">拍照存檔；<span class="nw">ESP32-CAM</span> 的最大解析度</td></tr>
+</tbody></table></div>
+      <p class="note">解析度越高，細節越多，但傳得慢、算得慢。遠處的人在 160×120 的畫面裡可能只有幾個像素高，任何方法都認不出來。</p>
+    </section>
+
+    <section class="sec" id="s2" aria-labelledby="s2-h">
+      <p class="sec-no">02</p>
+      <h2 id="s2-h">不用 AI 的方法</h2>
+      <p>AI 出現以前，影像辨識靠人寫規則：「橘色的像素」「和上一張不一樣的像素」。這些方法很快、不用訓練，連 <span class="nw">ESP32-CAM</span> 這種小板子都跑得動。條件單純的時候，它們常常比 AI 好用。</p>
+
+      <h3>HSV：用顏色找東西</h3>
+      <p>想找出畫面裡的橘色乒乓球，直覺是看 RGB。問題是同一顆球，照到光和在陰影裡，RGB 三個數字全部都變了。換成 HSV，顏色和亮度就分開了：</p>
+      <div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col"></th><th scope="col">顏色</th><th scope="col">RGB</th><th scope="col">HSV（OpenCV）</th></tr></thead><tbody>
+<tr><th scope="row">照到光</th><td data-label="顏色"><span class="swatch" role="img" aria-label="亮橘色"></span></td><td data-label="RGB"><span class="pin">228, 87, 46</span></td><td data-label="HSV（OpenCV）"><span class="pin"><b class="hl">7</b>, 204, 228</span></td></tr>
+<tr><th scope="row">在陰影裡</th><td data-label="顏色"><span class="swatch is-shade" role="img" aria-label="暗橘色"></span></td><td data-label="RGB"><span class="pin">146, 62, 38</span></td><td data-label="HSV（OpenCV）"><span class="pin"><b class="hl">7</b>, 189, 146</span></td></tr>
+</tbody></table></div>
+      <ul class="prose">
+        <li><b>H 色相</b>：是什麼顏色。上面兩格的 H 都是 7，都是橘色。</li>
+        <li><b>S 飽和度</b>：顏色有多鮮豔。白、灰、黑的 S 很低。</li>
+        <li><b>V 明度</b>：有多亮。陰影主要改變的是 V。</li>
+      </ul>
+      <p>所以找橘色的球，只要設定「H 在 5 到 20 之間、S 和 V 不能太低」，照到光和在陰影裡的部分都會被選到。</p>
+      <div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">顏色</th><th scope="col">H 大約在</th></tr></thead><tbody>
+<tr><th scope="row">紅</th><td data-label="H 大約在"><span class="pin">0–10</span> 和 <span class="pin">170–179</span>（跨過 0，要分兩段）</td></tr>
+<tr><th scope="row">橘</th><td data-label="H 大約在"><span class="pin">10–25</span></td></tr>
+<tr><th scope="row">黃</th><td data-label="H 大約在"><span class="pin">25–35</span></td></tr>
+<tr><th scope="row">綠</th><td data-label="H 大約在"><span class="pin">35–85</span></td></tr>
+<tr><th scope="row">藍</th><td data-label="H 大約在"><span class="pin">100–130</span></td></tr>
+<tr><th scope="row">紫</th><td data-label="H 大約在"><span class="pin">130–160</span></td></tr>
+</tbody></table></div>
+      <p class="note">OpenCV 的 H 是 0–179：色相原本是 0–360 度，除以 2 才放得進 0–255。繪圖軟體和網路上的取色器多半用 0–360，數字要先除以 2。表上的範圍只是起點，實際要在現場對著東西調。</p>
+      <p>做法是五個步驟：</p>
+      <ol class="prose">
+        <li>把畫面從 RGB 轉成 HSV。</li>
+        <li>設定 H、S、V 的上下限，範圍內的像素變白、其他變黑，得到一張黑白的「遮罩」。</li>
+        <li>去掉零星的白點（雜訊）。</li>
+        <li>找出最大的一塊白色區域。</li>
+        <li>算出它的中心點和面積：中心點告訴你東西在哪裡，面積大致告訴你多近。</li>
+      </ol>
+      <p class="note">第 07 節的程式有 HSV 模式，用滑桿調範圍、在畫面上點一下就看得到那一點的 HSV。</p>
+
+      <h3>畫面相減：找出哪裡在動</h3>
+      <p>把現在的畫面和上一張逐點相減，亮度差很多的像素就是「有變化」。變化的像素超過一定比例，就判定畫面裡有東西在動。<a href="esp32-cam.html#ex5"><span class="nw">ESP32-CAM</span> 講義的範例 5</a> 就是在板子上這樣做。</p>
+
+      <h3>這兩種方法做不到的</h3>
+      <ul class="prose">
+        <li>HSV 只認顏色：背景有同樣顏色的東西就會選錯；黃色燈光會把白色變成黃色；白、灰、黑的 H 不穩定，只能靠 S 和 V 分。</li>
+        <li>畫面相減只知道「有變化」，不知道是什麼在動：人走過、開燈、窗簾被風吹、相機自動調整亮度，對它來說都一樣。</li>
+        <li>兩種方法都不知道「人」是什麼。要分辨人、貓、車，就需要 AI。</li>
+      </ul>
+    </section>
+
+    <section class="sec" id="s3" aria-labelledby="s3-h">
+      <p class="sec-no">03</p>
+      <h2 id="s3-h">AI 能做的五種事</h2>
+      <p>AI 模型不是靠人寫規則，而是看過大量標好答案的照片，自己學出「人長什麼樣子」。同一張畫面，依照任務不同，模型給的答案也不同：</p>
+<div class="tasks lead-in">
+<figure>
+<svg class="tk" viewBox="0 0 240 170" role="img" aria-label="只剩橘色的球是亮的，其他都變暗，球外面有一個框，中心有一點" xmlns="http://www.w3.org/2000/svg"><g class="dim"><rect class="wall" width="240" height="118"/><rect class="floor" y="118" width="240" height="52"/><line class="edge" x1="0" y1="118" x2="240" y2="118"/><g class="body"><circle cx="70" cy="38" r="11"/><rect x="56" y="52" width="28" height="50" rx="9"/><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/></g><g class="body"><circle cx="152" cy="40" r="10.5"/><rect x="138" y="54" width="28" height="50" rx="9"/><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/></g><circle class="ball" cx="206" cy="136" r="11"/></g><circle class="ball" cx="206" cy="136" r="11"/><rect class="box ink" x="191" y="121" width="30" height="30"/><circle class="kp" cx="206" cy="136" r="2.5"/></svg>
+<figcaption><p class="t">HSV 顏色篩選</p><p class="d">只留下橘色的像素，找出那一塊的位置和大小。不用 AI。</p></figcaption>
+</figure>
+<figure>
+<svg class="tk" viewBox="0 0 240 170" role="img" aria-label="整張圖外圍一個框，左上角標籤寫「有人 0.91」" xmlns="http://www.w3.org/2000/svg"><g><rect class="wall" width="240" height="118"/><rect class="floor" y="118" width="240" height="52"/><line class="edge" x1="0" y1="118" x2="240" y2="118"/><g class="body"><circle cx="70" cy="38" r="11"/><rect x="56" y="52" width="28" height="50" rx="9"/><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/></g><g class="body"><circle cx="152" cy="40" r="10.5"/><rect x="138" y="54" width="28" height="50" rx="9"/><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/></g><circle class="ball" cx="206" cy="136" r="11"/></g><rect class="box" x="3" y="3" width="234" height="164"/><g class="tag"><rect x="3" y="6" width="66.5" height="16" rx="2"/><text x="8" y="17.5">有人 0.91</text></g></svg>
+<figcaption><p class="t">影像分類</p><p class="d">整張圖給一個答案，不說東西在哪裡。</p></figcaption>
+</figure>
+<figure>
+<svg class="tk" viewBox="0 0 240 170" role="img" aria-label="兩個人和一顆球各有一個框，框上標著類別和信心度" xmlns="http://www.w3.org/2000/svg"><g><rect class="wall" width="240" height="118"/><rect class="floor" y="118" width="240" height="52"/><line class="edge" x1="0" y1="118" x2="240" y2="118"/><g class="body"><circle cx="70" cy="38" r="11"/><rect x="56" y="52" width="28" height="50" rx="9"/><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/></g><g class="body"><circle cx="152" cy="40" r="10.5"/><rect x="138" y="54" width="28" height="50" rx="9"/><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/></g><circle class="ball" cx="206" cy="136" r="11"/></g><rect class="box" x="45" y="22" width="50" height="126"/><g class="tag"><rect x="45" y="6" width="77" height="16" rx="2"/><text x="50" y="17.5">person .88</text></g><rect class="box" x="127" y="21" width="62" height="129"/><g class="tag"><rect x="127" y="5" width="77" height="16" rx="2"/><text x="132" y="16.5">person .81</text></g><rect class="box" x="192" y="122" width="28" height="28"/><g class="tag"><rect x="109.5" y="152" width="110.5" height="16" rx="2"/><text x="114.5" y="163.5">sports ball .64</text></g></svg>
+<figcaption><p class="t">物件偵測</p><p class="d">每個東西一個框，加上類別和信心度。</p></figcaption>
+</figure>
+<figure>
+<svg class="tk" viewBox="0 0 240 170" role="img" aria-label="兩個人各自塗上不同的顏色，球塗上第三種樣式" xmlns="http://www.w3.org/2000/svg"><g><rect class="wall" width="240" height="118"/><rect class="floor" y="118" width="240" height="52"/><line class="edge" x1="0" y1="118" x2="240" y2="118"/><g class="body"><circle cx="70" cy="38" r="11"/><rect x="56" y="52" width="28" height="50" rx="9"/><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/></g><g class="body"><circle cx="152" cy="40" r="10.5"/><rect x="138" y="54" width="28" height="50" rx="9"/><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/></g><circle class="ball" cx="206" cy="136" r="11"/></g><g class="m1"><circle cx="70" cy="38" r="11"/><rect x="56" y="52" width="28" height="50" rx="9"/><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/></g><g class="m2"><circle cx="152" cy="40" r="10.5"/><rect x="138" y="54" width="28" height="50" rx="9"/><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/></g><circle class="m3" cx="206" cy="136" r="11"/><text class="lbl" x="70" y="164" text-anchor="middle">人 1</text><text class="lbl" x="152" y="164" text-anchor="middle">人 2</text></svg>
+<figcaption><p class="t">實例分割</p><p class="d">每個東西描出輪廓，兩個人分開算。</p></figcaption>
+</figure>
+<figure>
+<svg class="tk" viewBox="0 0 240 170" role="img" aria-label="牆、地板、人、球各塗一種樣式，兩個人塗成同一種" xmlns="http://www.w3.org/2000/svg"><rect class="s-wall" width="240" height="118"/><rect class="s-floor" y="118" width="240" height="52"/><g class="m1"><circle cx="70" cy="38" r="11"/><rect x="56" y="52" width="28" height="50" rx="9"/><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/></g><g class="m1"><circle cx="152" cy="40" r="10.5"/><rect x="138" y="54" width="28" height="50" rx="9"/><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/></g><circle class="m3" cx="206" cy="136" r="11"/><text class="lbl" x="214" y="22" text-anchor="middle">牆</text><text class="lbl" x="110" y="163" text-anchor="middle">地板</text><text class="lbl" x="111" y="78" text-anchor="middle">人</text><text class="lbl" x="206" y="111" text-anchor="middle">球</text></svg>
+<figcaption><p class="t">語意分割</p><p class="d">每個像素標一個類別。兩個人是同一類，不分你我。</p></figcaption>
+</figure>
+<figure>
+<svg class="tk" viewBox="0 0 240 170" role="img" aria-label="兩個人身上標出頭、肩、手肘、手腕、髖、膝、腳踝的點，用線連起來" xmlns="http://www.w3.org/2000/svg"><g class="dim"><rect class="wall" width="240" height="118"/><rect class="floor" y="118" width="240" height="52"/><line class="edge" x1="0" y1="118" x2="240" y2="118"/><g class="body"><circle cx="70" cy="38" r="11"/><rect x="56" y="52" width="28" height="50" rx="9"/><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/></g><g class="body"><circle cx="152" cy="40" r="10.5"/><rect x="138" y="54" width="28" height="50" rx="9"/><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/></g><circle class="ball" cx="206" cy="136" r="11"/></g><g class="sk"><polyline points="58,58 52,77 51,96"/><polyline points="62,100 63,121 63,142"/><polyline points="82,58 88,77 89,96"/><polyline points="78,100 77,121 77,142"/><polyline points="58,58 82,58"/><polyline points="62,100 78,100"/><polyline points="58,58 62,100"/><polyline points="82,58 78,100"/><polyline points="70,38 70,58"/></g><circle class="kp" cx="70" cy="38" r="2.6"/><circle class="kp" cx="58" cy="58" r="2.6"/><circle class="kp" cx="82" cy="58" r="2.6"/><circle class="kp" cx="52" cy="77" r="2.6"/><circle class="kp" cx="88" cy="77" r="2.6"/><circle class="kp" cx="51" cy="96" r="2.6"/><circle class="kp" cx="89" cy="96" r="2.6"/><circle class="kp" cx="62" cy="100" r="2.6"/><circle class="kp" cx="78" cy="100" r="2.6"/><circle class="kp" cx="63" cy="121" r="2.6"/><circle class="kp" cx="77" cy="121" r="2.6"/><circle class="kp" cx="63" cy="142" r="2.6"/><circle class="kp" cx="77" cy="142" r="2.6"/><g class="sk"><polyline points="140,60 134,79 133,98"/><polyline points="144,102 144,123 143,144"/><polyline points="164,60 177,46 183,26"/><polyline points="160,102 160,123 161,144"/><polyline points="140,60 164,60"/><polyline points="144,102 160,102"/><polyline points="140,60 144,102"/><polyline points="164,60 160,102"/><polyline points="152,40 152,60"/></g><circle class="kp" cx="152" cy="40" r="2.6"/><circle class="kp" cx="140" cy="60" r="2.6"/><circle class="kp" cx="164" cy="60" r="2.6"/><circle class="kp" cx="134" cy="79" r="2.6"/><circle class="kp" cx="177" cy="46" r="2.6"/><circle class="kp" cx="133" cy="98" r="2.6"/><circle class="kp" cx="183" cy="26" r="2.6"/><circle class="kp" cx="144" cy="102" r="2.6"/><circle class="kp" cx="160" cy="102" r="2.6"/><circle class="kp" cx="144" cy="123" r="2.6"/><circle class="kp" cx="160" cy="123" r="2.6"/><circle class="kp" cx="143" cy="144" r="2.6"/><circle class="kp" cx="161" cy="144" r="2.6"/></svg>
+<figcaption><p class="t">姿勢辨識</p><p class="d">找出每個人的關節點，連起來看出姿勢：右邊的人舉起手。</p></figcaption>
+</figure>
+</div>
+      <div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">任務</th><th scope="col">輸出</th><th scope="col">適合回答</th><th scope="col">本課用的模型</th></tr></thead><tbody>
+<tr><th scope="row">影像分類</th><td data-label="輸出">一個類別和信心度</td><td data-label="適合回答">畫面裡主要是什麼？有沒有某種東西？</td><td data-label="本課用的模型"><span class="pin">yolo26n-cls.pt</span><span class="sub">ImageNet 1000 類</span></td></tr>
+<tr><th scope="row">物件偵測</th><td data-label="輸出">每個物體一個框、類別、信心度</td><td data-label="適合回答">有幾個人？在畫面的哪裡？</td><td data-label="本課用的模型"><span class="pin">yolo26n.pt</span><span class="sub">COCO 80 類</span></td></tr>
+<tr><th scope="row">實例分割</th><td data-label="輸出">每個物體的輪廓</td><td data-label="適合回答">形狀和面積，例如水果有多大</td><td data-label="本課用的模型"><span class="pin">yolo26n-seg.pt</span><span class="sub">COCO 80 類</span></td></tr>
+<tr><th scope="row">語意分割</th><td data-label="輸出">每個像素的類別</td><td data-label="適合回答">沒有固定形狀的區域：路面、天空、草地</td><td data-label="本課用的模型"><span class="pin">yolo26n-sem.pt</span><span class="sub">Cityscapes 19 類街景</span></td></tr>
+<tr><th scope="row">姿勢辨識</th><td data-label="輸出">每個人 17 個關節點的位置</td><td data-label="適合回答">舉手、跌倒、運動動作對不對</td><td data-label="本課用的模型"><span class="pin">yolo26n-pose.pt</span><span class="sub">COCO 人體關節點</span></td></tr>
+</tbody></table></div>
+      <p class="note">本課用 Ultralytics 的 YOLO26（2026 年 1 月發布），五種任務用同一套程式寫法，只換模型檔。檔名的 n 是最小的版本，一般筆電不用顯示卡也跑得動。</p>
+      <h3>還有這些</h3>
+      <ul class="prose">
+        <li><b>人臉偵測和人臉辨識</b>：偵測是「這裡有一張臉」；辨識是「這是誰」。辨識需要先登記每個人的臉，臉部特徵屬於個人資料，用之前要取得當事人同意。</li>
+        <li><b>文字辨識（OCR）</b>：把照片裡的文字讀成文字，例如車牌、標籤。</li>
+        <li><b>用文字描述畫面</b>：多模態大型語言模型（例如 Claude、ChatGPT、Gemini）可以回答「畫面裡的人在做什麼」這種開放的問題，但要上傳到雲端，一張要零點幾秒到幾秒。</li>
+      </ul>
+    </section>
+
+    <section class="sec" id="s4" aria-labelledby="s4-h">
+      <p class="sec-no">04</p>
+      <h2 id="s4-h">看懂辨識結果</h2>
+      <p>把一張 1280×720 的照片（兩個人，其中一個打領帶）交給 <span class="pin">yolo26n.pt</span> 做物件偵測，得到三筆結果：</p>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">類別</th><th scope="col">信心度</th><th scope="col">框（x1, y1, x2, y2）</th></tr></thead><tbody>
+<tr><th scope="row">person</th><td data-label="信心度"><span class="pin">0.89</span></td><td data-label="框"><span class="pin">742, 40, 1150, 708</span></td></tr>
+<tr><th scope="row">person</th><td data-label="信心度"><span class="pin">0.84</span></td><td data-label="框"><span class="pin">118, 201, 1002, 712</span></td></tr>
+<tr><th scope="row">tie</th><td data-label="信心度"><span class="pin">0.58</span></td><td data-label="框"><span class="pin">436, 434, 525, 715</span></td></tr>
+</tbody></table></div>
+      <ul class="prose">
+        <li><b>類別</b>：模型認得的名稱之一，是英文。COCO 的 80 類裡有 person、cat、dog、car、cup、cell phone，沒有「安全帽」「乒乓球」（球都算 sports ball）。</li>
+        <li><b>信心度</b>：0 到 1，模型自己覺得有多像。它不是「答對的機率」：模型也可能很有信心地認錯。</li>
+        <li><b>框</b>：左上角（x1, y1）和右下角（x2, y2），單位是像素。原點在畫面左上角，x 往右變大，y 往下變大。中心點是 ((x1+x2)/2, (y1+y2)/2)；框越大，通常代表越近。</li>
+      </ul>
+      <h3>門檻：誤報和漏報的取捨</h3>
+      <p>程式只留下信心度超過門檻的結果。同一張照片：</p>
+      <div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">門檻</th><th scope="col">留下的結果</th></tr></thead><tbody>
+<tr><th scope="row"><span class="pin">0.25–0.4</span></th><td data-label="留下的結果">person、person、tie</td></tr>
+<tr><th scope="row"><span class="pin">0.6 以上</span></th><td data-label="留下的結果">person、person（領帶不見了）</td></tr>
+</tbody></table></div>
+      <p>門檻調高，誤報變少，漏報變多；調低則相反。這和簡易防盜系統調觸發距離是同一件事，兩個數字要一起看。</p>
+      <h3>一張準，不代表每一張都準</h3>
+      <p>同一個人站著不動，連續幾張畫面裡，信心度也會在門檻上下跳，這一張有、下一張沒有。所以實際的系統不會看到一次就發通知，而是「連續幾張都有」才算數，發過通知後再等一段冷卻時間。<a href="monitor-esp32cam.html">微專題&nbsp;02</a> 的判斷就是在做這件事。</p>
+    </section>
+
+    <section class="sec" id="s5" aria-labelledby="s5-h">
+      <p class="sec-no">05</p>
+      <h2 id="s5-h">模型從哪裡來</h2>
+      <p>模型是用「資料集」訓練出來的：大量照片，每一張都由人標好答案（類別、框、輪廓或關節點）。模型只認得訓練時看過的類別。</p>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">資料集</th><th scope="col">內容</th><th scope="col">要注意</th></tr></thead><tbody>
+<tr><th scope="row">ImageNet</th><td data-label="內容">約 128 萬張訓練照片，1000 類，用在影像分類</td><td data-label="要注意">1000 類裡沒有「人」。拿人的照片去分類，答案會是 suit（西裝）、sweatshirt（運動衫）這種衣服</td></tr>
+<tr><th scope="row">COCO</th><td data-label="內容">約 12 萬張訓練照片，80 類日常物品，標了框、輪廓和人體關節點</td><td data-label="要注意">大多是平視的生活照；監視器常從高處往下拍，角度和訓練照片不同</td></tr>
+<tr><th scope="row">Cityscapes</th><td data-label="內容">歐洲城市的街景，5,000 張逐像素標註，常用 19 類</td><td data-label="要注意">只學過街景，對著室內會把牆認成 building、地板認成 road</td></tr>
+</tbody></table></div>
+      <h3>要認的東西不在清單裡</h3>
+      <ul class="prose">
+        <li><b>影像分類</b>：<a href="https://teachablemachine.withgoogle.com/" target="_blank" rel="noopener">Teachable&nbsp;Machine</a> 在瀏覽器裡用鏡頭拍幾十張照片就能訓練，例如「有戴安全帽／沒戴安全帽」。不用寫程式、不用登入。</li>
+        <li><b>物件偵測</b>：自己拍照、一張一張框出目標，再用 Ultralytics 從已經訓練好的模型接著訓練。每一類至少要幾百張，而且要包含不同光線、角度和背景。</li>
+      </ul>
+      <h3>訓練資料決定了模型的盲點</h3>
+      <p>訓練照片裡少見的情況，模型就表現差：夜間、逆光、特殊角度、特殊服裝，以及在資料集裡出現得比較少的族群和膚色。模型在你的場地準不準，要在你的場地測過才知道。</p>
+    </section>
+
+    <section class="sec" id="s6" aria-labelledby="s6-h">
+      <p class="sec-no">06</p>
+      <h2 id="s6-h">在哪裡跑</h2>
+      <p>同樣是「看到人就通知」，辨識可以放在三個地方：</p>
+      <div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col"></th><th scope="col">板子上</th><th scope="col">電腦上</th><th scope="col">雲端</th></tr></thead><tbody>
+<tr><th scope="row">例子</th><td data-label="板子上"><span class="nw">ESP32-S3</span>、XIAO&nbsp;<span class="nw">ESP32-S3</span>&nbsp;Sense、<span class="nw">AMB82-mini</span></td><td data-label="電腦上">筆電跑 YOLO26（<a href="monitor-esp32cam.html">微專題&nbsp;02</a>）</td><td data-label="雲端">雲端影像辨識服務、多模態大型語言模型</td></tr>
+<tr><th scope="row">模型</th><td data-label="板子上">很小：類別少、解析度低</td><td data-label="電腦上">中小型，每秒十幾到幾十張</td><td data-label="雲端">最大，能用文字描述畫面</td></tr>
+<tr><th scope="row">反應時間</th><td data-label="板子上">最快</td><td data-label="電腦上">快，畫面要先從板子傳到電腦</td><td data-label="雲端">慢，要上傳、排隊，一張零點幾秒到幾秒</td></tr>
+<tr><th scope="row">網路</th><td data-label="板子上">不需要</td><td data-label="電腦上">板子和電腦要在同一個網路</td><td data-label="雲端">要能上網</td></tr>
+<tr><th scope="row">費用</th><td data-label="板子上">只有硬體</td><td data-label="電腦上">電腦要一直開著</td><td data-label="雲端">依用量收費，要保管金鑰</td></tr>
+<tr><th scope="row">隱私</th><td data-label="板子上">影像不離開板子</td><td data-label="電腦上">影像留在自己的電腦</td><td data-label="雲端">影像傳到別人的伺服器</td></tr>
+</tbody></table></div>
+      <p><span class="nw">ESP32-CAM</span> 用的是經典款 ESP32，只能做顏色篩選、畫面相減這類簡單的運算，所以<a href="monitor-esp32cam.html">微專題&nbsp;02</a> 讓 <span class="nw">ESP32-CAM</span> 負責拍、電腦負責辨識。各種板子的比較見<a href="controller.html#s4">選擇控制器</a>講義。</p>
+    </section>
+
+    <section class="sec" id="s7" aria-labelledby="s7-h">
+      <p class="sec-no">07</p>
+      <h2 id="s7-h">自己試試看</h2>
+      <p>vision_demo.py 用電腦的鏡頭，在同一個畫面上切換六種方法：HSV 和第 03 節的五種 AI 任務。</p>
+      <h3>安裝</h3>
+      <p>先照<a href="setup.html#s3">環境安裝</a>講義建好課程資料夾，再在課程資料夾的終端機執行：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 安裝 ultralytics">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> add ultralytics</code></pre>
+</div>
+      <p class="note">ultralytics 會一起裝 PyTorch 和 OpenCV，裝好約 1&nbsp;GB，下載要好幾分鐘，請在上課前裝好。每種方法第一次使用時，還會自動下載 3–8&nbsp;MB 的模型檔到課程資料夾。</p>
+      <h3>執行</h3>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 執行 vision_demo">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run vision_demo.py</code></pre>
+</div>
+      <ul class="prose">
+        <li>按 <b>1–6</b> 切換：1 HSV、2 影像分類、3 物件偵測、4 實例分割、5 語意分割、6 姿勢辨識。按 <b>Q</b> 結束。</li>
+        <li>終端機每秒印一次結果，例如「detect：person ×1、cup ×1」。</li>
+        <li>HSV 模式會多開一個視窗，上面有滑桿和黑白遮罩。在畫面上點一下，終端機會印出那一點的 HSV。</li>
+      </ul>
+      <p>不用電腦鏡頭，改用一張照片，或 <span class="nw">ESP32-CAM</span> 的畫面（板子要先燒<a href="esp32-cam.html#ex3">範例 3</a>，IP 換成序列埠印出的）：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 用照片或 ESP32-CAM 執行">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run vision_demo.py <span class="n">--source</span> 照片.jpg
+<span class="f">uv</span> run vision_demo.py <span class="n">--source</span> http://192.168.1.23/capture</code></pre>
+</div>
+      <details class="fold">
+        <summary><span><span class="tag">教學</span>打不開鏡頭：允許終端機使用相機</span></summary>
+        <div class="fold-body">
+          <ul class="prose">
+            <li><b>macOS</b>：第一次執行會問「終端機想要取用相機」，按允許。按了不允許的話，到「系統設定 → 隱私權與安全性 → 相機」，打開「終端機」或「Visual Studio Code」，再重新打開終端機。</li>
+            <li><b>Windows</b>：到「設定 → 隱私權與安全性 → 相機」，打開「相機存取」和「讓桌面應用程式存取您的相機」。</li>
+            <li>視訊會議軟體（Teams、Meet、LINE）開著的時候，鏡頭可能被它佔用，先關掉。</li>
+            <li>筆電接了外接鏡頭時，用 <code>--source 1</code> 試第二支。</li>
+          </ul>
+        </div>
+      </details>
+      <h3>程式</h3>
+      <p>存成課程資料夾裡的 vision_demo.py。</p>
+<!-- code:python/vision_demo.py -->
+<div class="code" data-lang="py">
+<div class="code-bar"><span><span class="code-name">vision_demo.py</span><span class="code-lines">239 行</span></span><button class="copy" type="button" aria-label="複製 vision_demo.py">複製</button></div>
+<pre tabindex="0"><code data-lang="py"><span class="s">"""
+影像辨識試驗台：同一個畫面，試六種辨識方法
+執行：uv run vision_demo.py [--source 來源] [--task 方法]（在課程資料夾裡執行）
+  --source  0：電腦鏡頭（預設）；1：第二支鏡頭
+            http://ESP32-CAM的IP/capture：ESP32-CAM（範例 3 的程式）
+            圖片或影片檔的路徑
+  --task    hsv、classify、detect、segment、semantic、pose（預設 detect）
+畫面上按 1–6 切換方法，按 Q 或 Esc 結束。
+HSV 模式：用 HSV 視窗的滑桿調範圍；在畫面上點一下，終端機會印出那一點的 HSV。
+需要套件：ultralytics（uv add ultralytics）。每種方法第一次用，會自動下載模型到課程資料夾。
+"""</span>
+
+<span class="k">import</span> argparse
+<span class="k">import</span> time
+<span class="k">from</span> pathlib <span class="k">import</span> <span class="t">Path</span>
+
+<span class="k">import</span> cv2
+<span class="k">import</span> numpy <span class="k">as</span> np
+<span class="k">import</span> requests
+<span class="k">from</span> ultralytics <span class="k">import</span> <span class="n">YOLO</span>
+
+<span class="n">WIN</span> = <span class="s">"vision"</span>
+<span class="n">HSV_WIN</span> = <span class="s">"HSV"</span>
+<span class="n">TASKS</span> = [<span class="s">"hsv"</span>, <span class="s">"classify"</span>, <span class="s">"detect"</span>, <span class="s">"segment"</span>, <span class="s">"semantic"</span>, <span class="s">"pose"</span>]  <span class="c"># 對應按鍵 1–6</span>
+
+<span class="c"># 每種方法用的模型：Ultralytics YOLO26 最小的 n 版，一般筆電不用顯示卡也跑得動</span>
+<span class="n">MODELS</span> = {
+    <span class="s">"classify"</span>: <span class="s">"yolo26n-cls.pt"</span>,  <span class="c"># 影像分類：ImageNet 1000 類，整張圖一個答案</span>
+    <span class="s">"detect"</span>: <span class="s">"yolo26n.pt"</span>,        <span class="c"># 物件偵測：COCO 80 類，每個物體一個框</span>
+    <span class="s">"segment"</span>: <span class="s">"yolo26n-seg.pt"</span>,   <span class="c"># 實例分割：COCO 80 類，每個物體描出輪廓</span>
+    <span class="s">"semantic"</span>: <span class="s">"yolo26n-sem.pt"</span>,  <span class="c"># 語意分割：Cityscapes 19 類（街景），每個像素一個類別</span>
+    <span class="s">"pose"</span>: <span class="s">"yolo26n-pose.pt"</span>,     <span class="c"># 姿勢辨識：每個人 17 個關節點</span>
+}
+<span class="n">CONF</span> = <span class="n">0.4</span>  <span class="c"># 信心度低於這個值的結果不畫</span>
+
+<span class="c"># HSV 滑桿的初始值：橘色乒乓球。OpenCV 的 H 是 0–179（色相角度除以 2），S、V 是 0–255</span>
+<span class="n">HSV_START</span> = {<span class="s">"H min"</span>: <span class="n">5</span>, <span class="s">"H max"</span>: <span class="n">20</span>, <span class="s">"S min"</span>: <span class="n">120</span>, <span class="s">"V min"</span>: <span class="n">120</span>}
+<span class="n">HSV_MAX</span> = {<span class="s">"H min"</span>: <span class="n">179</span>, <span class="s">"H max"</span>: <span class="n">179</span>, <span class="s">"S min"</span>: <span class="n">255</span>, <span class="s">"V min"</span>: <span class="n">255</span>}
+
+<span class="n">IMAGE_EXT</span> = {<span class="s">".jpg"</span>, <span class="s">".jpeg"</span>, <span class="s">".png"</span>, <span class="s">".bmp"</span>, <span class="s">".webp"</span>}
+
+models = {}               <span class="c"># 載入過的模型，切回來不用重新載入</span>
+last = {<span class="s">"frame"</span>: <span class="n">None</span>}    <span class="c"># 最新的原始畫面，給滑鼠點擊查 HSV 用</span>
+
+
+<span class="c"># ---------- 畫面來源 ----------</span>
+
+<span class="k">class</span> <span class="t">Source</span>:
+    <span class="s">"""電腦鏡頭、ESP32-CAM 網址、圖片、影片，都用 read() 拿一張畫面。"""</span>
+
+    <span class="k">def</span> <span class="f">__init__</span>(self, src: <span class="t">str</span>):
+        self.cap = <span class="n">None</span>
+        self.url = <span class="n">None</span>
+        self.image = <span class="n">None</span>
+        <span class="k">if</span> src.<span class="f">isdigit</span>():
+            self.cap = cv2.<span class="t">VideoCapture</span>(<span class="t">int</span>(src))
+        <span class="k">elif</span> src.<span class="f">startswith</span>(<span class="s">"http"</span>) <span class="k">and</span> src.<span class="f">rstrip</span>(<span class="s">"/"</span>).<span class="f">endswith</span>(<span class="s">"/capture"</span>):
+            self.url = src  <span class="c"># 每次要一張最新的</span>
+        <span class="k">elif</span> <span class="t">Path</span>(src).suffix.<span class="f">lower</span>() <span class="k">in</span> <span class="n">IMAGE_EXT</span>:
+            self.image = cv2.<span class="f">imread</span>(src)
+            <span class="k">if</span> self.image <span class="k">is</span> <span class="n">None</span>:
+                <span class="k">raise</span> <span class="t">SystemExit</span>(<span class="s">f"讀不到圖片：{</span>src<span class="s">}"</span>)
+        <span class="k">else</span>:
+            self.cap = cv2.<span class="t">VideoCapture</span>(src)  <span class="c"># 影片檔，或 ESP32-CAM 的 :81/stream</span>
+        <span class="k">if</span> self.cap <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> <span class="k">not</span> self.cap.<span class="f">isOpened</span>():
+            <span class="k">raise</span> <span class="t">SystemExit</span>(<span class="s">f"打不開 {</span>src<span class="s">}：鏡頭被別的程式用著、編號不對、檔案不存在，或網址打錯"</span>)
+
+    <span class="k">def</span> <span class="f">read</span>(self):
+        <span class="k">if</span> self.image <span class="k">is</span> <span class="k">not</span> <span class="n">None</span>:
+            <span class="k">return</span> self.image.<span class="f">copy</span>()
+        <span class="k">if</span> self.url:
+            <span class="k">try</span>:
+                r = requests.<span class="f">get</span>(self.url, timeout=<span class="n">5</span>)
+                r.<span class="f">raise_for_status</span>()
+            <span class="k">except</span> requests.<span class="t">RequestException</span> <span class="k">as</span> e:
+                <span class="f">print</span>(<span class="s">f"拿不到畫面：{</span>e<span class="s">}"</span>)
+                <span class="k">return</span> <span class="n">None</span>
+            <span class="k">return</span> cv2.<span class="f">imdecode</span>(np.<span class="f">frombuffer</span>(r.content, np.uint8), cv2.<span class="n">IMREAD_COLOR</span>)
+        ok, frame = self.cap.<span class="f">read</span>()
+        <span class="k">return</span> frame <span class="k">if</span> ok <span class="k">else</span> <span class="n">None</span>
+
+    <span class="k">def</span> <span class="f">close</span>(self):
+        <span class="k">if</span> self.cap <span class="k">is</span> <span class="k">not</span> <span class="n">None</span>:
+            self.cap.<span class="f">release</span>()
+
+
+<span class="c"># ---------- 傳統方法：HSV 顏色篩選 ----------</span>
+
+<span class="k">def</span> <span class="f">hsv_mask</span>(frame, h_min, h_max, s_min, v_min):
+    <span class="s">"""回傳黑白遮罩：顏色在範圍內的像素是白色（255）。"""</span>
+    hsv = cv2.<span class="f">cvtColor</span>(frame, cv2.<span class="n">COLOR_BGR2HSV</span>)
+    <span class="k">if</span> h_min &lt;= h_max:
+        mask = cv2.<span class="f">inRange</span>(hsv, (h_min, s_min, v_min), (h_max, <span class="n">255</span>, <span class="n">255</span>))
+    <span class="k">else</span>:
+        <span class="c"># 紅色跨過 0：H ≥ h_min 或 H ≤ h_max 都算</span>
+        mask = (cv2.<span class="f">inRange</span>(hsv, (h_min, s_min, v_min), (<span class="n">179</span>, <span class="n">255</span>, <span class="n">255</span>))
+                | cv2.<span class="f">inRange</span>(hsv, (<span class="n">0</span>, s_min, v_min), (h_max, <span class="n">255</span>, <span class="n">255</span>)))
+    <span class="c"># 先縮再脹，去掉零星的雜點</span>
+    <span class="k">return</span> cv2.<span class="f">morphologyEx</span>(mask, cv2.<span class="n">MORPH_OPEN</span>, np.<span class="f">ones</span>((<span class="n">5</span>, <span class="n">5</span>), np.uint8))
+
+
+<span class="k">def</span> <span class="f">run_hsv</span>(frame, h_min, h_max, s_min, v_min):
+    mask = <span class="f">hsv_mask</span>(frame, h_min, h_max, s_min, v_min)
+    out = (frame * <span class="n">0.3</span>).<span class="f">astype</span>(np.uint8)  <span class="c"># 不符合的地方變暗</span>
+    out[mask &gt; <span class="n">0</span>] = frame[mask &gt; <span class="n">0</span>]
+    summary = <span class="s">"沒有找到這個顏色"</span>
+    contours, _ = cv2.<span class="f">findContours</span>(mask, cv2.<span class="n">RETR_EXTERNAL</span>, cv2.<span class="n">CHAIN_APPROX_SIMPLE</span>)
+    <span class="k">if</span> contours:
+        biggest = <span class="f">max</span>(contours, key=cv2.contourArea)
+        area = cv2.<span class="f">contourArea</span>(biggest)
+        <span class="k">if</span> area &gt; <span class="n">200</span>:  <span class="c"># 太小的當作雜訊</span>
+            x, y, w, h = cv2.<span class="f">boundingRect</span>(biggest)
+            cx, cy = x + w // <span class="n">2</span>, y + h // <span class="n">2</span>
+            cv2.<span class="f">rectangle</span>(out, (x, y), (x + w, y + h), (<span class="n">0</span>, <span class="n">255</span>, <span class="n">0</span>), <span class="n">2</span>)
+            cv2.<span class="f">circle</span>(out, (cx, cy), <span class="n">5</span>, (<span class="n">0</span>, <span class="n">0</span>, <span class="n">255</span>), -<span class="n">1</span>)
+            summary = <span class="s">f"最大的一塊：中心 ({</span>cx<span class="s">}, {</span>cy<span class="s">})，面積 {</span>int(area)<span class="s">} 像素"</span>
+    <span class="k">return</span> out, mask, summary
+
+
+<span class="k">def</span> <span class="f">read_sliders</span>():
+    <span class="k">return</span> [cv2.<span class="f">getTrackbarPos</span>(name, <span class="n">HSV_WIN</span>) <span class="k">for</span> name <span class="k">in</span> <span class="n">HSV_START</span>]
+
+
+<span class="k">def</span> <span class="f">open_hsv_window</span>():
+    cv2.<span class="f">namedWindow</span>(<span class="n">HSV_WIN</span>)
+    <span class="k">for</span> name, value <span class="k">in</span> <span class="n">HSV_START</span>.<span class="f">items</span>():
+        cv2.<span class="f">createTrackbar</span>(name, <span class="n">HSV_WIN</span>, value, <span class="n">HSV_MAX</span>[name], <span class="k">lambda</span> v: <span class="n">None</span>)
+
+
+<span class="k">def</span> <span class="f">on_click</span>(event, x, y, flags, param):
+    frame = last[<span class="s">"frame"</span>]
+    <span class="k">if</span> event == cv2.<span class="n">EVENT_LBUTTONDOWN</span> <span class="k">and</span> frame <span class="k">is</span> <span class="k">not</span> <span class="n">None</span>:
+        h, s, v = cv2.<span class="f">cvtColor</span>(frame[y:y + <span class="n">1</span>, x:x + <span class="n">1</span>], cv2.<span class="n">COLOR_BGR2HSV</span>)[<span class="n">0</span>, <span class="n">0</span>]
+        <span class="f">print</span>(<span class="s">f"({</span>x<span class="s">}, {</span>y<span class="s">}) 的 HSV：H={</span>h<span class="s">} S={</span>s<span class="s">} V={</span>v<span class="s">}"</span>)
+
+
+<span class="c"># ---------- AI 方法：YOLO26 ----------</span>
+
+<span class="k">def</span> <span class="f">get_model</span>(task):
+    <span class="k">if</span> task <span class="k">not</span> <span class="k">in</span> models:
+        <span class="f">print</span>(<span class="s">f"載入 {</span>MODELS[task]<span class="s">}（第一次會下載）……"</span>)
+        models[task] = <span class="f">YOLO</span>(<span class="n">MODELS</span>[task])
+    <span class="k">return</span> models[task]
+
+
+<span class="k">def</span> <span class="f">summarize</span>(task, res):
+    <span class="s">"""把辨識結果整理成一行文字。"""</span>
+    names = res.names
+    <span class="k">if</span> task == <span class="s">"classify"</span>:
+        top = res.probs.top5[:<span class="n">3</span>]
+        <span class="k">return</span> <span class="s">"、"</span>.<span class="f">join</span>(<span class="s">f"{</span>names[i]<span class="s">} {</span>float(res.probs.data[i]):.2f<span class="s">}"</span> <span class="k">for</span> i <span class="k">in</span> top)
+    <span class="k">if</span> task == <span class="s">"semantic"</span>:
+        classes, counts = np.<span class="f">unique</span>(res.semantic_mask.data.<span class="f">cpu</span>().<span class="f">numpy</span>(), return_counts=<span class="n">True</span>)
+        share = <span class="f">sorted</span>(<span class="f">zip</span>(counts, classes), reverse=<span class="n">True</span>)[:<span class="n">3</span>]
+        total = counts.<span class="f">sum</span>()
+        <span class="k">return</span> <span class="s">"、"</span>.<span class="f">join</span>(<span class="s">f"{</span>names[int(c)]<span class="s">} {</span>n / total:.0%<span class="s">}"</span> <span class="k">for</span> n, c <span class="k">in</span> share)
+    <span class="k">if</span> res.boxes <span class="k">is</span> <span class="n">None</span> <span class="k">or</span> <span class="f">len</span>(res.boxes) == <span class="n">0</span>:
+        <span class="k">return</span> <span class="s">"沒有偵測到"</span>
+    found = {}
+    <span class="k">for</span> c <span class="k">in</span> res.boxes.cls.<span class="f">tolist</span>():
+        found[names[<span class="t">int</span>(c)]] = found.<span class="f">get</span>(names[<span class="t">int</span>(c)], <span class="n">0</span>) + <span class="n">1</span>
+    text = <span class="s">"、"</span>.<span class="f">join</span>(<span class="s">f"{</span>name<span class="s">} ×{</span>n<span class="s">}"</span> <span class="k">for</span> name, n <span class="k">in</span> found.<span class="f">items</span>())
+    <span class="k">if</span> task == <span class="s">"pose"</span>:
+        text += <span class="s">f"（每人 {</span>res.keypoints.shape[1]<span class="s">} 個關節點）"</span>
+    <span class="k">return</span> text
+
+
+<span class="k">def</span> <span class="f">run_model</span>(task, frame):
+    res = <span class="f">get_model</span>(task)(frame, conf=<span class="n">CONF</span>, verbose=<span class="n">False</span>)[<span class="n">0</span>]
+    <span class="k">return</span> res.<span class="f">plot</span>(), <span class="f">summarize</span>(task, res)
+
+
+<span class="c"># ---------- 主程式 ----------</span>
+
+<span class="k">def</span> <span class="f">label</span>(img, text):
+    <span class="s">"""左上角寫字：先畫黑色粗字當外框，再畫白字。"""</span>
+    <span class="k">for</span> color, thick <span class="k">in</span> (((<span class="n">0</span>, <span class="n">0</span>, <span class="n">0</span>), <span class="n">5</span>), ((<span class="n">255</span>, <span class="n">255</span>, <span class="n">255</span>), <span class="n">2</span>)):
+        cv2.<span class="f">putText</span>(img, text, (<span class="n">12</span>, <span class="n">32</span>), cv2.<span class="n">FONT_HERSHEY_SIMPLEX</span>, <span class="n">0.8</span>, color, thick, cv2.<span class="n">LINE_AA</span>)
+
+
+<span class="k">def</span> <span class="f">main</span>():
+    parser = argparse.<span class="t">ArgumentParser</span>(description=<span class="s">"影像辨識試驗台"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--source"</span>, default=<span class="s">"0"</span>, help=<span class="s">"0、1、ESP32-CAM 的 /capture 網址、圖片或影片檔"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--task"</span>, default=<span class="s">"detect"</span>, choices=<span class="n">TASKS</span>)
+    args = parser.<span class="f">parse_args</span>()
+
+    src = <span class="t">Source</span>(args.source)
+    task = args.task
+    cv2.<span class="f">namedWindow</span>(<span class="n">WIN</span>)
+    cv2.<span class="f">setMouseCallback</span>(<span class="n">WIN</span>, on_click)
+    <span class="k">if</span> task == <span class="s">"hsv"</span>:
+        <span class="f">open_hsv_window</span>()
+    <span class="f">print</span>(<span class="s">"按 1–6 切換：1 HSV、2 分類、3 偵測、4 實例分割、5 語意分割、6 姿勢。按 Q 結束。"</span>)
+
+    fails = <span class="n">0</span>
+    last_print = <span class="n">0.0</span>
+    <span class="k">while</span> <span class="n">True</span>:
+        frame = src.<span class="f">read</span>()
+        <span class="k">if</span> frame <span class="k">is</span> <span class="n">None</span>:
+            fails += <span class="n">1</span>
+            <span class="k">if</span> fails &gt;= <span class="n">10</span>:
+                <span class="f">print</span>(<span class="s">"連續 10 次沒有畫面，結束"</span>)
+                <span class="k">break</span>
+            time.<span class="f">sleep</span>(<span class="n">0.5</span>)
+            <span class="k">continue</span>
+        fails = <span class="n">0</span>
+        last[<span class="s">"frame"</span>] = frame
+
+        start = time.<span class="f">perf_counter</span>()
+        <span class="k">if</span> task == <span class="s">"hsv"</span>:
+            out, mask, summary = <span class="f">run_hsv</span>(frame, *<span class="f">read_sliders</span>())
+            cv2.<span class="f">imshow</span>(<span class="n">HSV_WIN</span>, mask)
+        <span class="k">else</span>:
+            out, summary = <span class="f">run_model</span>(task, frame)
+        fps = <span class="n">1</span> / <span class="f">max</span>(time.<span class="f">perf_counter</span>() - start, <span class="n">1e-6</span>)
+
+        <span class="f">label</span>(out, <span class="s">f"[{</span>TASKS.index(task) + 1<span class="s">}] {</span>task<span class="s">}  {</span>fps:.1f<span class="s">} fps"</span>)
+        cv2.<span class="f">imshow</span>(<span class="n">WIN</span>, out)
+        <span class="k">if</span> time.<span class="f">time</span>() - last_print &gt;= <span class="n">1</span>:  <span class="c"># 每秒印一次結果</span>
+            <span class="f">print</span>(<span class="s">f"{</span>task<span class="s">}：{</span>summary<span class="s">}"</span>)
+            last_print = time.<span class="f">time</span>()
+
+        key = cv2.<span class="f">waitKey</span>(<span class="n">1</span>) &amp; <span class="n">0xFF</span>
+        <span class="k">if</span> key <span class="k">in</span> (<span class="f">ord</span>(<span class="s">"q"</span>), <span class="f">ord</span>(<span class="s">"Q"</span>), <span class="n">27</span>):
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="f">ord</span>(<span class="s">"1"</span>) &lt;= key &lt;= <span class="f">ord</span>(<span class="s">"6"</span>):
+            new_task = <span class="n">TASKS</span>[key - <span class="f">ord</span>(<span class="s">"1"</span>)]
+            <span class="k">if</span> new_task == <span class="s">"hsv"</span> <span class="k">and</span> task != <span class="s">"hsv"</span>:
+                <span class="f">open_hsv_window</span>()
+            <span class="k">elif</span> task == <span class="s">"hsv"</span> <span class="k">and</span> new_task != <span class="s">"hsv"</span>:
+                cv2.<span class="f">destroyWindow</span>(<span class="n">HSV_WIN</span>)
+            task = new_task
+
+    src.<span class="f">close</span>()
+    cv2.<span class="f">destroyAllWindows</span>()
+
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    <span class="f">main</span>()
+</code></pre>
+</div>
+<!-- /code -->
+      <h3>試試這些</h3>
+      <ol class="prose">
+        <li><b>HSV</b>：調到只剩手上的一樣東西被選到。換到窗邊或關掉一盞燈，看範圍還準不準。</li>
+        <li><b>影像分類</b>：對著自己，答案是什麼？為什麼不是 person？</li>
+        <li><b>物件偵測</b>：慢慢往後退，看框變小、信心度什麼時候掉到門檻以下。用手遮住半張臉再試一次。</li>
+        <li><b>實例分割和語意分割</b>：找另一個人一起入鏡，比較兩種分割怎麼處理兩個人。</li>
+        <li><b>姿勢辨識</b>：舉起右手，看手腕的點有沒有跑到肩膀上面。這就是「偵測舉手」的判斷方法。</li>
+        <li>對著手機螢幕上的人物照片，物件偵測會不會把它當成人？</li>
+      </ol>
+    </section>
+
+    <section class="sec" id="s8" aria-labelledby="s8-h">
+      <p class="sec-no">08</p>
+      <h2 id="s8-h">什麼情況下會看錯</h2>
+      <p class="lead-q">「我的辨識在什麼狀況下會翻車？」</p>
+      <p class="fails-h">拍攝條件</p>
+      <ul class="fails">
+        <li><div><b>太暗或逆光</b>：細節不見了，人變成一團黑影，漏報。<span class="nw">ESP32-CAM</span> 這類小相機在暗處特別明顯。</div></li>
+        <li><div><b>動作太快</b>：畫面模糊，認不出來。</div></li>
+        <li><div><b>東西太小或太遠</b>：只佔幾個像素，什麼方法都認不出來。</div></li>
+        <li><div><b>被遮住一半、角度特殊</b>：從正上方往下拍、只拍到背影或半身，信心度會掉很多。</div></li>
+      </ul>
+      <p class="fails-h">模型本身</p>
+      <ul class="fails">
+        <li><div><b>照片、海報、螢幕裡的人</b>：模型分不出是真人還是圖片，一樣會偵測到。</div></li>
+        <li><div><b>鏡子和玻璃的倒影</b>：同一個人被算成兩個。</div></li>
+        <li><div><b>不在清單裡的東西</b>：模型不會說「不認得」，而是歸到最像的類別，或乾脆不理它。</div></li>
+        <li><div><b>訓練資料裡少見的情況</b>：特殊服裝、夜間、特殊族群，準確度比平常低。</div></li>
+        <li><div><b>信心度高不等於對</b>：模型可能以 0.9 的信心度認錯。</div></li>
+      </ul>
+      <p class="fails-h">不用 AI 的方法</p>
+      <ul class="fails">
+        <li><div><b>HSV 碰到同色的背景，或燈光的顏色改變</b>：選錯，或找不到。</div></li>
+        <li><div><b>畫面相減碰到開燈、窗簾晃動、相機自動曝光</b>：整個畫面都在變，誤報。</div></li>
+      </ul>
+      <p>這些情況不能靠「換一個更大的模型」全部解決。實際的系統會限制場地（固定光線、固定角度）、要求連續幾張都偵測到、並且讓人做最後的確認。</p>
+    </section>
+
+    <section class="sec" id="s9" aria-labelledby="s9-h">
+      <p class="sec-no">09</p>
+      <h2 id="s9-h">請 AI 幫你寫</h2>
+      <dl class="qa lead-in">
+        <dt>你要準備</dt><dd>要做哪一種任務（分類、偵測、分割、姿勢）、要認哪些類別、畫面從哪裡來（電腦鏡頭、<span class="nw">ESP32-CAM</span> 的網址、照片）、你的環境（Python 3.13、用 uv 管理、ultralytics 的版本，用 <code>uv pip list</code> 查）。</dd>
+        <dt>AI 能幫你</dt><dd>寫讀取畫面、跑模型、畫框的程式；解釋結果裡每個欄位的意思；寫一個調 HSV 範圍的小工具；把結果整理成「連續幾張都有才算數」的判斷。</dd>
+        <dt>怎麼查證</dt><dd>先拿幾張已知答案的照片測（有人、沒人各幾張）；讓程式印出每一張的類別和信心度；寫法以 <a href="https://docs.ultralytics.com/" target="_blank" rel="noopener">Ultralytics 官方文件</a>為準。</dd>
+        <dt class="is-trap">常見陷阱</dt><dd><ul>
+<li>AI 用舊模型（yolov5、yolov8）或舊的寫法。說清楚：我用 ultralytics 8.4 版和 yolo26n.pt。</li>
+<li>AI 叫你 pip install。改用 uv add。</li>
+<li>OpenCV 的顏色順序是 BGR 不是 RGB，H 是 0–179 不是 0–360。AI 寫錯時顏色範圍會完全不對。</li>
+<li>AI 裝了 <span class="nw">opencv-python-headless</span>：這個版本沒有視窗，cv2.imshow 會出錯。</li>
+</ul></dd>
+      </dl>
+    </section>
+    <nav class="doc-end" aria-label="下一步"><a class="back" href="../handout.html">← 講義選單</a><a href="esp32-cam.html"><span class="nw">ESP32-CAM</span> →</a></nav>
+  </main>
+</div>
+<script src="../assets/handout.js"></script>
+</body>
+</html>

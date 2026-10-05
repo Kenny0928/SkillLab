@@ -1,0 +1,13 @@
+{
+  "monitor": {
+    "capture_url": "http://192.168.1.23/capture",
+    "target": "person",
+    "conf": 0.5,
+    "hit_frames": 3,
+    "clear_frames": 10,
+    "cooldown_seconds": 60
+  },
+  "discord": {
+    "webhook_url": "https://discord.com/api/webhooks/貼上你的網址"
+  }
+}

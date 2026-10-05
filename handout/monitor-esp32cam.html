@@ -1,0 +1,843 @@
+<!doctype html>
+<!-- 由 content/handout/monitor-esp32cam.md 產生（node tools/md2html.mjs monitor-esp32cam），內容要改 md，不要直接改這個檔 -->
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>簡易 AI 監控系統 ESP32-CAM 版｜SkillLab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/handout.css">
+</head>
+<body class="hd">
+<header class="topbar"><div class="topbar-in">
+  <a class="brand" href="../index.html">SkillLab</a><span class="sep">/</span>
+  <a href="../handout.html">講義</a><span class="sep">/</span>
+  <span class="here">簡易 AI 監控系統・<span class="nw">ESP32-CAM</span> 版</span>
+</div></header>
+
+<div class="page has-toc">
+<header class="doc-head">
+<p class="kicker" data-type="project"><span class="type-tag">微專題&nbsp;02</span><span class="nw">ESP32-CAM</span> 版</p>
+<h1>簡易 AI 監控系統<span class="badge">初稿・尚未實機測試</span></h1>
+<p class="lead"><span class="nw">ESP32-CAM</span> 負責拍，電腦上的 Python 用 YOLO26 辨識，畫面裡連續出現人就發 Discord 通知並附上截圖。</p>
+<p class="scope"><b>學習用的雛形</b>　用便宜的相機板練習把視覺、判斷和通知串成一個系統。它有很多看不到、看錯的情況（見第 05 節），不能拿來保護真正的財物或人身安全，也不能用來監看別人。</p>
+<p class="meta"><span><b>適用</b>　AI&nbsp;Thinker&nbsp;<span class="nw">ESP32-CAM</span>＋<span class="nw">ESP32-CAM-MB</span> 燒錄底板</span><span><b>電腦</b>　Windows、macOS、Linux，Python 3.13（uv）</span></p>
+</header>
+<nav class="toc" aria-label="目錄">
+<p class="toc-h">目錄</p>
+<ol>
+<li><a href="#s1"><span class="n">01</span>成果與材料</a></li>
+<li><a href="#s2"><span class="n">02</span>系統架構</a></li>
+<li><a href="#s3"><span class="n">03</span>動手做</a></li>
+<li><a href="#s4"><span class="n">04</span>整合驗收</a></li>
+<li><a href="#s5"><span class="n">05</span>什麼情況下會失效</a></li>
+<li><a href="#s6"><span class="n">06</span>延伸挑戰</a></li>
+<li><a href="#s7"><span class="n">07</span>附錄</a></li>
+</ol>
+</nav>
+<main class="doc">
+<section class="sec" id="s1" aria-labelledby="s1-h">
+<p class="sec-no">01</p>
+<h2 id="s1-h">成果與材料</h2>
+<p>做完以後：</p>
+<ul class="prose">
+<li><span class="nw">ESP32-CAM</span> 放在門口或桌上，電腦即時看到畫面和辨識框。</li>
+<li>畫面裡連續幾張都出現人，手機收到 Discord 通知，附上當下的截圖。</li>
+<li>同一個人一直待在畫面裡，冷卻時間內不會重複通知。</li>
+</ul>
+<figure class="figure panel lead-in">
+  <svg class="dg" viewBox="0 0 480 240" role="img" aria-label="房間門口旁的書架上有 ESP32-CAM，鏡頭拍到走進房間的人，透過 Wi-Fi 將畫面送到房間外的筆電辨識，再通知手機" xmlns="http://www.w3.org/2000/svg">
+    <path class="tint" d="M 131 96 L 79 69 Q 49 104 101 168 Z"/>
+
+    <line class="ln dash" x1="191" y1="151" x2="284" y2="151"/>
+    <path class="ln" d="M 278 146 L 284 151 L 278 156"/>
+
+    <rect class="shade" x="18" y="56" width="63" height="11"/>
+    <rect class="shade" x="119" y="56" width="111" height="11"/>
+    <rect class="shade" x="18" y="56" width="11" height="164"/>
+    <rect class="shade" x="219" y="56" width="11" height="164"/>
+    <rect class="shade" x="18" y="209" width="212" height="11"/>
+
+    <text x="72" y="29" text-anchor="middle">門口</text>
+    <line class="ln2" x1="99" y1="36" x2="99" y2="77"/>
+    <path class="ln2" d="M 94 71 L 99 78 L 104 71"/>
+
+    <circle class="face" cx="96" cy="92" r="8"/>
+    <path class="ln" d="M 96 101 V 124 M 96 108 L 85 117 M 96 108 L 107 117 M 96 124 L 87 143 M 96 124 L 105 143"/>
+
+    <rect class="shade" x="143" y="67" width="39" height="77"/>
+    <line class="ln2" x1="149" y1="87" x2="176" y2="87"/>
+    <line class="ln2" x1="149" y1="115" x2="176" y2="115"/>
+    <line class="ln2" x1="149" y1="133" x2="176" y2="133"/>
+    <rect class="face" x="138" y="86" width="20" height="21"/>
+    <circle class="face" cx="135" cy="96" r="5"/>
+    <circle class="ln" cx="135" cy="96" r="2"/>
+    <text class="tm" x="160" y="182" text-anchor="middle">ESP32-CAM</text>
+
+    <text class="tm" x="259" y="130" text-anchor="middle">Wi-Fi</text>
+    <rect class="shade" x="291" y="80" width="87" height="95"/>
+    <rect class="face" x="303" y="89" width="63" height="42"/>
+    <rect class="ln" x="324" y="94" width="22" height="32"/>
+    <circle class="ln2" cx="335" cy="103" r="4"/>
+    <ellipse class="ln2" cx="335" cy="116" rx="8" ry="5"/>
+    <rect class="face" x="299" y="132" width="71" height="33"/>
+    <line class="ln2" x1="307" y1="143" x2="362" y2="143"/>
+    <line class="ln2" x1="307" y1="150" x2="362" y2="150"/>
+    <text x="335" y="201" text-anchor="middle">筆電</text>
+
+    <line class="ln" x1="385" y1="147" x2="410" y2="147"/>
+    <path class="ln" d="M 404 142 L 410 147 L 404 152"/>
+    <rect class="tint" x="389" y="29" width="84" height="38"/>
+    <text x="431" y="53" text-anchor="middle">有人來了</text>
+    <line class="ln2 dash" x1="431" y1="67" x2="431" y2="91"/>
+    <rect class="face" x="417" y="99" width="41" height="76"/>
+    <rect class="shade" x="422" y="108" width="31" height="52"/>
+    <line class="ln2" x1="430" y1="168" x2="445" y2="168"/>
+    <text x="438" y="201" text-anchor="middle">手機</text>
+  </svg>
+  <figcaption>書架上的 <span class="nw">ESP32-CAM</span> 拍到有人走進房間，透過 <span class="nw">Wi-Fi</span> 將畫面送到別處的筆電辨識，再通知手機。</figcaption>
+</figure>
+<h3>做完你會</h3>
+<ul class="prose">
+<li>用 <span class="nw">Wi-Fi</span> 從板子拿到畫面。</li>
+<li>讀懂物件偵測的輸出：類別、信心度、框。</li>
+<li>用「連續幾張」和「冷卻時間」，把一張一張的辨識結果變成一次事件。</li>
+<li>用 Python 送出附圖片的通知。</li>
+<li>測出系統在什麼情況下會漏報、誤報。</li>
+</ul>
+<h3>材料</h3>
+<div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">零件</th><th scope="col">數量</th><th scope="col">說明</th></tr></thead><tbody>
+<tr><th scope="row"><span class="nw">ESP32-CAM</span>＋<span class="nw">ESP32-CAM-MB</span> 燒錄底板</th><td data-label="數量">1</td><td data-label="說明">AI Thinker 版本，相機是 OV2640</td></tr>
+<tr><th scope="row">USB 傳輸線</th><td data-label="數量">1</td><td data-label="說明">要能傳資料；底板多半是 <span class="nw">micro-USB</span> 接頭</td></tr>
+<tr><th scope="row">電腦</th><td data-label="數量">1</td><td data-label="說明">能跑 Python 3.13，硬碟至少留 2&nbsp;GB 給 ultralytics</td></tr>
+<tr><th scope="row"><span class="nw">Wi-Fi</span></th><td data-label="數量">—</td><td data-label="說明">2.4&nbsp;GHz，電腦和板子連同一個；學校網路不行時用手機熱點</td></tr>
+<tr><th scope="row">Discord 帳號</th><td data-label="數量">—</td><td data-label="說明">和簡易防盜系統步驟 7 一樣，要一個能建 Webhook 的伺服器</td></tr>
+</tbody></table></div>
+<p class="note"><span class="nw">ESP32-CAM</span> 的規格、腳位和限制在 <a href="esp32-cam.html"><span class="nw">ESP32-CAM</span></a> 講義。</p>
+<h3>先讀</h3>
+<ul class="prose">
+<li><a href="setup.html">環境安裝</a>：裝好 Arduino&nbsp;IDE、ESP32 開發板套件、uv 和課程資料夾。</li>
+<li><a href="esp32-cam.html"><span class="nw">ESP32-CAM</span></a>：第 03 節燒錄、範例 3。</li>
+<li><a href="vision.html">影像辨識</a>：第 03、04 節，看懂物件偵測的結果。</li>
+<li><a href="alarm-uno.html#step7">簡易防盜系統</a>：步驟 7 建立 Discord Webhook。這個專題沿用同一個 config.json。</li>
+</ul>
+</section>
+<section class="sec" id="s2" aria-labelledby="s2-h">
+<p class="sec-no">02</p>
+<h2 id="s2-h">系統架構</h2>
+<figure class="figure arch lead-in">
+<ol class="arch-sys" style="--cols: minmax(0, 1fr) 76px minmax(0, 1fr) 76px minmax(0, 1fr) 40px minmax(0, 1fr)">
+<li class="arch-box"><p class="arch-h">裝置</p><p class="arch-m"><span class="nw">ESP32-CAM</span><span class="arch-sub">拍照</span></p></li>
+<li class="arch-link"><span class="nw">Wi-Fi</span></li>
+<li class="arch-box is-core"><p class="arch-h">閘道</p><p class="arch-m">電腦上的 Python<span class="arch-sub">YOLO26 辨識、判斷事件</span></p></li>
+<li class="arch-link">網際網路</li>
+<li class="arch-box"><p class="arch-h">雲端服務</p><p class="arch-m">Discord</p></li>
+<li class="arch-link"></li>
+<li class="arch-box"><p class="arch-h">應用</p><p class="arch-m">手機收到通知和截圖</p></li>
+</ol>
+</figure>
+<p>電腦每次向 <span class="nw">ESP32-CAM</span> 的 /capture 網址要一張照片，辨識完再要下一張。</p>
+<p>和簡易防盜系統比較：</p>
+<div class="table-wrap"><table class="tbl stack"><thead><tr><th></th><th scope="col">簡易防盜系統</th><th scope="col">簡易 AI 監控系統</th></tr></thead><tbody>
+<tr><th scope="row">感測</th><td data-label="簡易防盜系統"><span class="nw">HC-SR04</span> 量距離、光敏電阻量亮度</td><td data-label="簡易 AI 監控系統">相機拍畫面</td></tr>
+<tr><th scope="row">判斷在哪裡</th><td data-label="簡易防盜系統">Uno 上</td><td data-label="簡易 AI 監控系統">電腦上</td></tr>
+<tr><th scope="row">判斷什麼</th><td data-label="簡易防盜系統">距離變短、變亮</td><td data-label="簡易 AI 監控系統">畫面裡有沒有人</td></tr>
+<tr><th scope="row">板子和電腦怎麼連</th><td data-label="簡易防盜系統">USB 序列埠</td><td data-label="簡易 AI 監控系統"><span class="nw">Wi-Fi</span></td></tr>
+</tbody></table></div>
+<h3>系統怎麼判斷</h3>
+<p>模型每張畫面都會給一次答案，但同一個人站著不動，信心度也會在門檻上下跳。所以不是看到一次就通知，而是：</p>
+<ol class="states">
+<li class="st"><p class="st-name">沒人</p><p class="st-out">不通知</p></li>
+<li class="tr">連續 3 張都偵測到 person，信心度 0.5 以上</li>
+<li class="st is-alarm"><p class="st-name">有人</p><p class="st-out">發一次通知，附上截圖</p></li>
+</ol>
+<p class="st-loop">連續 10 張都沒有偵測到，<b>回到「沒人」</b>，重新開始數。</p>
+<ul class="prose">
+<li><b>冷卻時間</b>：發過通知後 60 秒內不再發，就算中間回到「沒人」又變成「有人」。</li>
+<li>這些數字都放在設定檔，測試時再調。</li>
+</ul>
+</section>
+<section class="sec" id="s3" aria-labelledby="s3-h">
+<p class="sec-no">03</p>
+<h2 id="s3-h">動手做</h2>
+<p>一共 5 個步驟。前 3 步用 <span class="nw">ESP32-CAM</span> 和影像辨識講義現成的範例，第 4、5 步用這個專題的監控程式 monitor.py。</p>
+<ol class="ex-index lead-in">
+<li><a href="#step1"><span class="n">步驟 1</span>用電腦鏡頭跑物件偵測<span class="k">Python</span></a></li>
+<li><a href="#step2"><span class="n">步驟 2</span><span class="nw">ESP32-CAM</span> 送出畫面<span class="k">Arduino</span></a></li>
+<li><a href="#step3"><span class="n">步驟 3</span>電腦改看 <span class="nw">ESP32-CAM</span> 的畫面<span class="k">Python</span></a></li>
+<li><a href="#step4"><span class="n">步驟 4</span>從一張一張的辨識，變成「有人來了」這個事件<span class="k">Python</span></a></li>
+<li><a href="#step5"><span class="n">步驟 5</span>發 Discord 通知，附上截圖<span class="k">Python</span></a></li>
+</ol>
+<article class="ex" id="step1" aria-labelledby="step1-h">
+<p class="ex-no">步驟 1</p>
+<h3 id="step1-h">用電腦鏡頭跑物件偵測</h3>
+<p class="ex-tags"><span class="kind">Python</span></p>
+<p class="ex-goal"><b>目標</b>：確認電腦的 Python、ultralytics 和鏡頭都能用。</p>
+<p class="ex-h">程式</p>
+<p>用<a href="vision.html#s7">影像辨識</a>講義的 vision_demo.py，不用改：</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 uv run vision_demo.py --task detect">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run vision_demo.py <span class="n">--task</span> detect</code></pre>
+</div>
+<p class="ex-h">完成標準</p>
+<p>視窗裡看到自己被框起來，標著 person 和信心度；終端機每秒印一次「detect：person ×1」。</p>
+<details class="fold">
+<summary>常見問題</summary>
+<div class="fold-body">
+<ul class="prose">
+<li><b>打不開鏡頭</b>：照影像辨識講義第 07 節，允許終端機使用相機。</li>
+<li><b>第一次執行很久沒反應</b>：正在下載模型檔，約 5&nbsp;MB。</li>
+</ul>
+</div>
+</details>
+</article>
+<article class="ex" id="step2" aria-labelledby="step2-h">
+<p class="ex-no">步驟 2</p>
+<h3 id="step2-h"><span class="nw">ESP32-CAM</span> 送出畫面</h3>
+<p class="ex-tags"><span class="kind">Arduino</span><span>2.4&nbsp;GHz <span class="nw">Wi-Fi</span></span></p>
+<p class="ex-goal"><b>目標</b>：<span class="nw">ESP32-CAM</span> 連上 <span class="nw">Wi-Fi</span>，瀏覽器打得開它的畫面。</p>
+<p class="ex-h">程式</p>
+<p>燒錄 <span class="nw">ESP32-CAM</span> 講義的範例 3，燒錄前改 WIFI_SSID、WIFI_PASS。</p>
+<!-- code:esp32cam/cam_server/cam_server.ino -->
+<div class="code" data-lang="ino">
+<div class="code-bar"><span><span class="code-name">cam_server.ino</span><span class="code-lines">194 行</span></span><button class="copy" type="button" aria-label="複製 cam_server.ino">複製</button></div>
+<pre tabindex="0"><code data-lang="ino"><span class="c">// 範例 3：串流與拍照網址（微專題 02 的 Python 從這裡拿畫面）</span>
+<span class="c">// 開發板選「AI Thinker ESP32-CAM」，序列埠監控視窗的速率選 115200</span>
+<span class="c">// 燒錄前先改 WIFI_SSID、WIFI_PASS；只能連 2.4 GHz 的 Wi-Fi</span>
+<span class="c">// 開機後序列埠會印出板子的 IP，例如 192.168.1.23：</span>
+<span class="c">//   http://192.168.1.23/           瀏覽器看即時畫面</span>
+<span class="c">//   http://192.168.1.23/capture    拍一張 JPEG（Python 用這個）</span>
+<span class="c">//   http://192.168.1.23:81/stream  連續畫面（同時只能一個人看）</span>
+<span class="c">// 這些網址沒有密碼，連到同一個 Wi-Fi 的人都打得開</span>
+
+<span class="k">#include</span> <span class="s">"esp_camera.h"</span>
+<span class="k">#include</span> <span class="s">"esp_http_server.h"</span>
+<span class="k">#include</span> &lt;<span class="t">WiFi</span>.h&gt;
+
+<span class="k">const</span> <span class="t">char</span> *<span class="n">WIFI_SSID</span> = <span class="s">"你的 Wi-Fi 名稱"</span>;
+<span class="k">const</span> <span class="t">char</span> *<span class="n">WIFI_PASS</span> = <span class="s">"你的 Wi-Fi 密碼"</span>;
+
+<span class="k">const</span> framesize_t <span class="n">FRAME_SIZE</span> = <span class="n">FRAMESIZE_VGA</span>;  <span class="c">// 640×480；要更順可以改 FRAMESIZE_QVGA（320×240）</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">JPEG_QUALITY</span> = <span class="n">12</span>;                   <span class="c">// 10–63，數字越小畫質越好、檔案越大</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">RED_LED</span> = <span class="n">33</span>;                        <span class="c">// 背面紅色 LED，LOW 亮：亮著代表沒連上 Wi-Fi</span>
+<span class="k">const</span> <span class="t">int</span> <span class="n">FLASH_LED</span> = <span class="n">4</span>;                       <span class="c">// 閃光燈，這個範例不用，保持關閉</span>
+
+<span class="c">// AI Thinker ESP32-CAM 的相機腳位（和官方範例 camera_pins.h 的 CAMERA_MODEL_AI_THINKER 相同）</span>
+<span class="k">#define</span> <span class="n">PWDN_GPIO_NUM</span>  <span class="n">32</span>
+<span class="k">#define</span> <span class="n">RESET_GPIO_NUM</span> -<span class="n">1</span>
+<span class="k">#define</span> <span class="n">XCLK_GPIO_NUM</span>  <span class="n">0</span>
+<span class="k">#define</span> <span class="n">SIOD_GPIO_NUM</span>  <span class="n">26</span>
+<span class="k">#define</span> <span class="n">SIOC_GPIO_NUM</span>  <span class="n">27</span>
+<span class="k">#define</span> <span class="n">Y9_GPIO_NUM</span>    <span class="n">35</span>
+<span class="k">#define</span> <span class="n">Y8_GPIO_NUM</span>    <span class="n">34</span>
+<span class="k">#define</span> <span class="n">Y7_GPIO_NUM</span>    <span class="n">39</span>
+<span class="k">#define</span> <span class="n">Y6_GPIO_NUM</span>    <span class="n">36</span>
+<span class="k">#define</span> <span class="n">Y5_GPIO_NUM</span>    <span class="n">21</span>
+<span class="k">#define</span> <span class="n">Y4_GPIO_NUM</span>    <span class="n">19</span>
+<span class="k">#define</span> <span class="n">Y3_GPIO_NUM</span>    <span class="n">18</span>
+<span class="k">#define</span> <span class="n">Y2_GPIO_NUM</span>    <span class="n">5</span>
+<span class="k">#define</span> <span class="n">VSYNC_GPIO_NUM</span> <span class="n">25</span>
+<span class="k">#define</span> <span class="n">HREF_GPIO_NUM</span>  <span class="n">23</span>
+<span class="k">#define</span> <span class="n">PCLK_GPIO_NUM</span>  <span class="n">22</span>
+
+<span class="k">#define</span> <span class="n">BOUNDARY</span> <span class="s">"frame"</span>
+
+<span class="c">// 首頁：一張圖，來源是 81 埠的串流</span>
+<span class="k">const</span> <span class="t">char</span> <span class="n">INDEX_HTML</span>[] = R<span class="s">"html(&lt;!doctype html&gt;</span>
+&lt;html lang=<span class="s">"zh-Hant"</span>&gt;&lt;head&gt;&lt;meta charset=<span class="s">"utf-8"</span>&gt;
+&lt;meta name=<span class="s">"viewport"</span> content=<span class="s">"width=device-width, initial-scale=1"</span>&gt;&lt;title&gt;<span class="n">ESP32</span>-<span class="n">CAM</span>&lt;/title&gt;
+&lt;style&gt;body{margin:<span class="n">0</span>;background:#<span class="n">111</span>;color:#eee;font-family:sans-serif;text-align:center}img{max-width:<span class="n">100</span>%}a{color:#f9a}&lt;/style&gt;
+&lt;/head&gt;&lt;body&gt;&lt;img id=<span class="s">"v"</span> alt=<span class="s">"即時畫面"</span>&gt;&lt;p&gt;&lt;a href=<span class="s">"/capture"</span>&gt;拍一張&lt;/a&gt;&lt;/p&gt;
+&lt;script&gt;document.<span class="f">getElementById</span>(<span class="s">"v"</span>).src = <span class="s">"http://"</span> + location.hostname + <span class="s">":81/stream"</span>;&lt;/script&gt;
+&lt;/body&gt;&lt;/html&gt;)html<span class="s">";</span>
+
+httpd_handle_t webServer = <span class="n">NULL</span>;     <span class="c">// 80 埠：首頁、拍照</span>
+httpd_handle_t streamServer = <span class="n">NULL</span>;  <span class="c">// 81 埠：串流</span>
+
+<span class="t">bool</span> <span class="f">initCamera</span>() {
+  camera_config_t c = {};
+  c.ledc_channel = <span class="n">LEDC_CHANNEL_0</span>;
+  c.ledc_timer = <span class="n">LEDC_TIMER_0</span>;
+  c.pin_d0 = <span class="n">Y2_GPIO_NUM</span>;
+  c.pin_d1 = <span class="n">Y3_GPIO_NUM</span>;
+  c.pin_d2 = <span class="n">Y4_GPIO_NUM</span>;
+  c.pin_d3 = <span class="n">Y5_GPIO_NUM</span>;
+  c.pin_d4 = <span class="n">Y6_GPIO_NUM</span>;
+  c.pin_d5 = <span class="n">Y7_GPIO_NUM</span>;
+  c.pin_d6 = <span class="n">Y8_GPIO_NUM</span>;
+  c.pin_d7 = <span class="n">Y9_GPIO_NUM</span>;
+  c.pin_xclk = <span class="n">XCLK_GPIO_NUM</span>;
+  c.pin_pclk = <span class="n">PCLK_GPIO_NUM</span>;
+  c.pin_vsync = <span class="n">VSYNC_GPIO_NUM</span>;
+  c.pin_href = <span class="n">HREF_GPIO_NUM</span>;
+  c.pin_sccb_sda = <span class="n">SIOD_GPIO_NUM</span>;
+  c.pin_sccb_scl = <span class="n">SIOC_GPIO_NUM</span>;
+  c.pin_pwdn = <span class="n">PWDN_GPIO_NUM</span>;
+  c.pin_reset = <span class="n">RESET_GPIO_NUM</span>;
+  c.xclk_freq_hz = <span class="n">20000000</span>;
+  c.pixel_format = <span class="n">PIXFORMAT_JPEG</span>;     <span class="c">// 相機直接輸出 JPEG</span>
+  c.frame_size = <span class="n">FRAME_SIZE</span>;
+  c.jpeg_quality = <span class="n">JPEG_QUALITY</span>;
+  c.fb_count = <span class="n">2</span>;                      <span class="c">// 兩個畫面緩衝區，放在 PSRAM</span>
+  c.fb_location = <span class="n">CAMERA_FB_IN_PSRAM</span>;
+  c.grab_mode = <span class="n">CAMERA_GRAB_LATEST</span>;    <span class="c">// 永遠拿最新的畫面</span>
+  esp_err_t err = <span class="f">esp_camera_init</span>(&amp;c);
+  <span class="k">if</span> (err != <span class="n">ESP_OK</span>) {
+    <span class="t">Serial</span>.<span class="f">printf</span>(<span class="s">"相機啟動失敗：0x%x（排線沒插好，或開發板選錯）\n"</span>, err);
+    <span class="k">return</span> <span class="n">false</span>;
+  }
+  <span class="k">return</span> <span class="n">true</span>;
+}
+
+<span class="c">// http://IP/</span>
+esp_err_t <span class="f">indexHandler</span>(httpd_req_t *req) {
+  <span class="f">httpd_resp_set_type</span>(req, <span class="s">"text/html; charset=utf-8"</span>);
+  <span class="k">return</span> <span class="f">httpd_resp_send</span>(req, <span class="n">INDEX_HTML</span>, <span class="n">HTTPD_RESP_USE_STRLEN</span>);
+}
+
+<span class="c">// http://IP/capture：回傳一張 JPEG</span>
+esp_err_t <span class="f">captureHandler</span>(httpd_req_t *req) {
+  camera_fb_t *fb = <span class="f">esp_camera_fb_get</span>();
+  <span class="k">if</span> (!fb) {
+    <span class="f">httpd_resp_send_500</span>(req);
+    <span class="k">return</span> <span class="n">ESP_FAIL</span>;
+  }
+  <span class="f">httpd_resp_set_type</span>(req, <span class="s">"image/jpeg"</span>);
+  <span class="f">httpd_resp_set_hdr</span>(req, <span class="s">"Cache-Control"</span>, <span class="s">"no-store"</span>);
+  <span class="f">httpd_resp_set_hdr</span>(req, <span class="s">"Access-Control-Allow-Origin"</span>, <span class="s">"*"</span>);
+  esp_err_t res = <span class="f">httpd_resp_send</span>(req, (<span class="k">const</span> <span class="t">char</span> *)fb-&gt;buf, fb-&gt;len);
+  <span class="f">esp_camera_fb_return</span>(fb);
+  <span class="k">return</span> res;
+}
+
+<span class="c">// http://IP:81/stream：一張接一張送 JPEG，直到對方關掉</span>
+esp_err_t <span class="f">streamHandler</span>(httpd_req_t *req) {
+  <span class="f">httpd_resp_set_type</span>(req, <span class="s">"multipart/x-mixed-replace;boundary="</span> <span class="n">BOUNDARY</span>);
+  <span class="f">httpd_resp_set_hdr</span>(req, <span class="s">"Access-Control-Allow-Origin"</span>, <span class="s">"*"</span>);
+  <span class="t">char</span> head[<span class="n">80</span>];
+  <span class="k">while</span> (<span class="n">true</span>) {
+    camera_fb_t *fb = <span class="f">esp_camera_fb_get</span>();
+    <span class="k">if</span> (!fb) <span class="k">return</span> <span class="n">ESP_FAIL</span>;
+    <span class="t">int</span> n = <span class="f">snprintf</span>(head, <span class="k">sizeof</span>(head),
+                     <span class="s">"\r\n--"</span> <span class="n">BOUNDARY</span> <span class="s">"\r\nContent-Type: image/jpeg\r\nContent-Length: %u\r\n\r\n"</span>, fb-&gt;len);
+    esp_err_t res = <span class="f">httpd_resp_send_chunk</span>(req, head, n);
+    <span class="k">if</span> (res == <span class="n">ESP_OK</span>) res = <span class="f">httpd_resp_send_chunk</span>(req, (<span class="k">const</span> <span class="t">char</span> *)fb-&gt;buf, fb-&gt;len);
+    <span class="f">esp_camera_fb_return</span>(fb);
+    <span class="k">if</span> (res != <span class="n">ESP_OK</span>) <span class="k">return</span> res;  <span class="c">// 瀏覽器或 Python 關掉了</span>
+  }
+}
+
+<span class="t">void</span> <span class="f">startServers</span>() {
+  httpd_config_t config = <span class="f">HTTPD_DEFAULT_CONFIG</span>();
+  httpd_uri_t indexUri = {.uri = <span class="s">"/"</span>, .method = <span class="n">HTTP_GET</span>, .handler = indexHandler, .user_ctx = <span class="n">NULL</span>};
+  httpd_uri_t captureUri = {.uri = <span class="s">"/capture"</span>, .method = <span class="n">HTTP_GET</span>, .handler = captureHandler, .user_ctx = <span class="n">NULL</span>};
+  httpd_uri_t streamUri = {.uri = <span class="s">"/stream"</span>, .method = <span class="n">HTTP_GET</span>, .handler = streamHandler, .user_ctx = <span class="n">NULL</span>};
+
+  <span class="k">if</span> (<span class="f">httpd_start</span>(&amp;webServer, &amp;config) == <span class="n">ESP_OK</span>) {
+    <span class="f">httpd_register_uri_handler</span>(webServer, &amp;indexUri);
+    <span class="f">httpd_register_uri_handler</span>(webServer, &amp;captureUri);
+  }
+  <span class="c">// 串流會一直佔著伺服器，所以另外開一個在 81 埠</span>
+  config.server_port += <span class="n">1</span>;
+  config.ctrl_port += <span class="n">1</span>;
+  <span class="k">if</span> (<span class="f">httpd_start</span>(&amp;streamServer, &amp;config) == <span class="n">ESP_OK</span>) {
+    <span class="f">httpd_register_uri_handler</span>(streamServer, &amp;streamUri);
+  }
+}
+
+<span class="t">void</span> <span class="f">setup</span>() {
+  <span class="t">Serial</span>.<span class="f">begin</span>(<span class="n">115200</span>);
+  <span class="f">pinMode</span>(<span class="n">RED_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">LOW</span>);
+  <span class="f">pinMode</span>(<span class="n">FLASH_LED</span>, <span class="n">OUTPUT</span>);
+  <span class="f">digitalWrite</span>(<span class="n">FLASH_LED</span>, <span class="n">LOW</span>);
+
+  <span class="k">if</span> (!<span class="f">initCamera</span>()) {
+    <span class="k">while</span> (<span class="n">true</span>) <span class="f">delay</span>(<span class="n">1000</span>);  <span class="c">// 相機壞了就停在這裡，紅燈一直亮</span>
+  }
+
+  <span class="t">WiFi</span>.<span class="f">mode</span>(<span class="n">WIFI_STA</span>);
+  <span class="t">WiFi</span>.<span class="f">setSleep</span>(<span class="n">false</span>);  <span class="c">// 關掉 Wi-Fi 省電模式，畫面延遲比較小</span>
+  <span class="t">WiFi</span>.<span class="f">begin</span>(<span class="n">WIFI_SSID</span>, <span class="n">WIFI_PASS</span>);
+  <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">"連線 Wi-Fi"</span>);
+  <span class="t">unsigned</span> <span class="t">long</span> start = <span class="f">millis</span>();
+  <span class="k">while</span> (<span class="t">WiFi</span>.<span class="f">status</span>() != <span class="n">WL_CONNECTED</span>) {
+    <span class="k">if</span> (<span class="f">millis</span>() - start &gt; <span class="n">20000</span>) {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"\n連不上 Wi-Fi：檢查名稱、密碼，以及是不是 2.4 GHz。5 秒後重新開機"</span>);
+      <span class="f">delay</span>(<span class="n">5000</span>);
+      <span class="n">ESP</span>.<span class="f">restart</span>();
+    }
+    <span class="f">delay</span>(<span class="n">500</span>);
+    <span class="t">Serial</span>.<span class="f">print</span>(<span class="s">"."</span>);
+  }
+  <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, <span class="n">HIGH</span>);
+
+  <span class="f">startServers</span>();
+  <span class="t">String</span> ip = <span class="t">WiFi</span>.<span class="f">localIP</span>().<span class="f">toString</span>();
+  <span class="t">Serial</span>.<span class="f">println</span>();
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"即時畫面：http://"</span> + ip + <span class="s">"/"</span>);
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"拍一張：  http://"</span> + ip + <span class="s">"/capture"</span>);
+  <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"串流：    http://"</span> + ip + <span class="s">":81/stream"</span>);
+}
+
+<span class="t">void</span> <span class="f">loop</span>() {
+  <span class="c">// 網頁伺服器在背景執行，這裡只顯示 Wi-Fi 狀態</span>
+  <span class="k">static</span> <span class="t">bool</span> wasConnected = <span class="n">true</span>;
+  <span class="t">bool</span> connected = <span class="t">WiFi</span>.<span class="f">status</span>() == <span class="n">WL_CONNECTED</span>;
+  <span class="k">if</span> (connected != wasConnected) {
+    <span class="k">if</span> (connected) {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"Wi-Fi 重新連上了，IP："</span> + <span class="t">WiFi</span>.<span class="f">localIP</span>().<span class="f">toString</span>());  <span class="c">// IP 可能和之前不同</span>
+    } <span class="k">else</span> {
+      <span class="t">Serial</span>.<span class="f">println</span>(<span class="s">"Wi-Fi 斷線，自動重連中"</span>);
+    }
+    <span class="f">digitalWrite</span>(<span class="n">RED_LED</span>, connected ? <span class="n">HIGH</span> : <span class="n">LOW</span>);
+    wasConnected = connected;
+  }
+  <span class="f">delay</span>(<span class="n">1000</span>);
+}
+</code></pre>
+</div>
+<!-- /code -->
+<p class="ex-h">完成標準</p>
+<p>序列埠印出三個網址；手機或電腦打開 <code>http://板子的IP/capture</code> 看到一張照片。把這個網址記下來，後面會用到。</p>
+<div class="ex-terms">
+<p class="ex-h">這一步的新名詞</p>
+<dl>
+<dt>IP 位址</dt><dd>裝置在網路裡的地址。路由器可能每次分配不同的，以序列埠印出的為準。</dd>
+</dl>
+</div>
+</article>
+<article class="ex" id="step3" aria-labelledby="step3-h">
+<p class="ex-no">步驟 3</p>
+<h3 id="step3-h">電腦改看 <span class="nw">ESP32-CAM</span> 的畫面</h3>
+<p class="ex-tags"><span class="kind">Python</span></p>
+<p class="ex-goal"><b>目標</b>：同一支 vision_demo.py，畫面來源換成 <span class="nw">ESP32-CAM</span>。</p>
+<p class="ex-h">程式</p>
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 uv run vision_demo.py --task detect --so">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run vision_demo.py <span class="n">--task</span> detect <span class="n">--source</span> http://192.168.1.23/capture</code></pre>
+</div>
+<p>IP 換成步驟 2 序列埠印出的。</p>
+<p class="ex-h">完成標準</p>
+<p>視窗裡是 <span class="nw">ESP32-CAM</span> 拍到的畫面，人走到鏡頭前會被框起來。比較一下和電腦鏡頭差多少：每秒張數、清晰度、多遠還認得出來。</p>
+<details class="fold">
+<summary>常見問題</summary>
+<div class="fold-body">
+<ul class="prose">
+<li><b>拿不到畫面：Connection refused／timed out</b>：電腦和板子不在同一個網路，或 IP 打錯。</li>
+<li><b>很卡</b>：先在 <span class="nw">ESP32-CAM</span> 範例 3 把 FRAME_SIZE 改成 FRAMESIZE_QVGA 試試。</li>
+</ul>
+</div>
+</details>
+</article>
+<article class="ex" id="step4" aria-labelledby="step4-h">
+<p class="ex-no">步驟 4</p>
+<h3 id="step4-h">從一張一張的辨識，變成「有人來了」這個事件</h3>
+<p class="ex-tags"><span class="kind">Python</span></p>
+<p class="ex-goal"><b>目標</b>：照「系統怎麼判斷」的規則，連續 3 張有人才印出「有人來了」，冷卻時間內不重複。</p>
+<p class="ex-h">設定檔</p>
+<p>在課程資料夾的 config.json 加上 monitor 這一段，capture_url 換成步驟 2 的網址。discord 那一段和簡易防盜系統共用，還沒建 Webhook 也可以先做這一步：沒填的話程式只在終端機印出事件。</p>
+<!-- code:python/monitor.config.example.json name=config.json -->
+<div class="code" data-lang="json">
+<div class="code-bar"><span><span class="code-name">config.json</span><span class="code-lines">13 行</span></span><button class="copy" type="button" aria-label="複製 config.json">複製</button></div>
+<pre tabindex="0"><code data-lang="json">{
+  <span class="a">"monitor"</span>: {
+    <span class="a">"capture_url"</span>: <span class="s">"http://192.168.1.23/capture"</span>,
+    <span class="a">"target"</span>: <span class="s">"person"</span>,
+    <span class="a">"conf"</span>: <span class="n">0.5</span>,
+    <span class="a">"hit_frames"</span>: <span class="n">3</span>,
+    <span class="a">"clear_frames"</span>: <span class="n">10</span>,
+    <span class="a">"cooldown_seconds"</span>: <span class="n">60</span>
+  },
+  <span class="a">"discord"</span>: {
+    <span class="a">"webhook_url"</span>: <span class="s">"https://discord.com/api/webhooks/貼上你的網址"</span>
+  }
+}
+</code></pre>
+</div>
+<!-- /code -->
+<p class="ex-h">程式</p>
+<p>存成課程資料夾裡的 monitor.py：</p>
+<!-- code:python/monitor.py -->
+<div class="code" data-lang="py">
+<div class="code-bar"><span><span class="code-name">monitor.py</span><span class="code-lines">244 行</span></span><button class="copy" type="button" aria-label="複製 monitor.py">複製</button></div>
+<pre tabindex="0"><code data-lang="py"><span class="s">"""
+步驟 4、5：畫面交給 YOLO26 找人，連續幾張都有人就發 Discord 通知，附上截圖
+執行：uv run monitor.py [--source 網址] [--no-window]（在課程資料夾裡執行）
+  --source     http://ESP32-CAM的IP/capture，會蓋過 config.json 的 monitor.capture_url
+               沒有板子時可以填 0（電腦鏡頭），先測試判斷和通知
+  --no-window  不開視窗，只在終端機印訊息，按 Ctrl+C 結束
+有視窗時，在畫面上按 Q 或 Esc 結束。config.json 的 discord.webhook_url 沒填，就只印出事件。
+需要套件：ultralytics、requests（uv add ultralytics requests）。第一次執行會下載 yolo26n.pt。
+"""</span>
+
+<span class="k">import</span> argparse
+<span class="k">import</span> json
+<span class="k">import</span> math
+<span class="k">import</span> sys
+<span class="k">import</span> time
+<span class="k">from</span> datetime <span class="k">import</span> datetime
+<span class="k">from</span> pathlib <span class="k">import</span> <span class="t">Path</span>
+
+<span class="k">import</span> cv2
+<span class="k">import</span> numpy <span class="k">as</span> np
+<span class="k">import</span> requests
+<span class="k">from</span> ultralytics <span class="k">import</span> <span class="n">YOLO</span>
+
+<span class="n">CONFIG_PATH</span> = <span class="t">Path</span>(__file__).<span class="f">with_name</span>(<span class="s">"config.json"</span>)
+<span class="c"># config.json 範例裡的網址，還沒改掉就代表「沒填」</span>
+<span class="n">WEBHOOK_PLACEHOLDER</span> = <span class="s">"https://discord.com/api/webhooks/貼上你的網址"</span>
+
+<span class="c"># config.json 的 monitor 沒寫到的欄位，用這裡的值</span>
+<span class="n">DEFAULTS</span> = {
+    <span class="s">"capture_url"</span>: <span class="n">None</span>,     <span class="c"># ESP32-CAM 的 /capture 網址</span>
+    <span class="s">"target"</span>: <span class="s">"person"</span>,      <span class="c"># 要找的類別，COCO 80 類的英文名稱</span>
+    <span class="s">"conf"</span>: <span class="n">0.5</span>,             <span class="c"># 信心度門檻</span>
+    <span class="s">"hit_frames"</span>: <span class="n">3</span>,         <span class="c"># 連續幾張有 → 有人</span>
+    <span class="s">"clear_frames"</span>: <span class="n">10</span>,      <span class="c"># 連續幾張沒有 → 沒人</span>
+    <span class="s">"cooldown_seconds"</span>: <span class="n">60</span>,  <span class="c"># 通知後幾秒內不再通知</span>
+}
+<span class="n">MODEL</span> = <span class="s">"yolo26n.pt"</span>         <span class="c"># 物件偵測，和影像辨識講義的 detect 相同</span>
+<span class="n">SNAPSHOT_SIZE</span> = <span class="n">800</span>          <span class="c"># 截圖的長邊縮到幾像素以內再傳</span>
+<span class="n">FAIL_REMIND</span> = <span class="n">10</span>             <span class="c"># 拿不到畫面時，每幾秒提醒一次，不要洗版</span>
+
+
+<span class="k">def</span> <span class="f">load_config</span>():
+    <span class="s">"""讀取同資料夾的 config.json，回傳 monitor 設定和 Webhook 網址（沒填就是 None）。"""</span>
+    <span class="k">if</span> <span class="k">not</span> <span class="n">CONFIG_PATH</span>.<span class="f">exists</span>():
+        sys.<span class="f">exit</span>(<span class="s">"找不到 config.json：照講義步驟 4，在課程資料夾建立 config.json。"</span>)
+    <span class="k">try</span>:
+        cfg = json.<span class="f">loads</span>(<span class="n">CONFIG_PATH</span>.<span class="f">read_text</span>(encoding=<span class="s">"utf-8"</span>))
+    <span class="k">except</span> json.<span class="t">JSONDecodeError</span> <span class="k">as</span> error:
+        sys.<span class="f">exit</span>(<span class="s">f"config.json 格式錯誤：{</span>error<span class="s">}"</span>)
+    webhook = <span class="t">str</span>(cfg.<span class="f">get</span>(<span class="s">"discord"</span>, {}).<span class="f">get</span>(<span class="s">"webhook_url"</span>) <span class="k">or</span> <span class="s">""</span>).<span class="f">strip</span>()
+    <span class="k">if</span> webhook <span class="k">in</span> (<span class="s">""</span>, <span class="n">WEBHOOK_PLACEHOLDER</span>):
+        webhook = <span class="n">None</span>
+    <span class="k">return</span> <span class="n">DEFAULTS</span> | cfg.<span class="f">get</span>(<span class="s">"monitor"</span>, {}), webhook
+
+
+<span class="c"># ---------- 畫面來源 ----------</span>
+
+<span class="k">class</span> <span class="t">NoFrame</span>(<span class="t">Exception</span>):
+    <span class="s">"""拿不到畫面。這和「畫面裡沒人」是兩回事。"""</span>
+
+
+<span class="k">class</span> <span class="t">Source</span>:
+    <span class="s">"""ESP32-CAM 的 /capture 網址，或電腦鏡頭編號（沒有板子時測試用），都用 read() 拿一張畫面。"""</span>
+
+    <span class="k">def</span> <span class="f">__init__</span>(self, src: <span class="t">str</span>):
+        self.url, self.cap = src, <span class="n">None</span>
+        <span class="k">if</span> src.<span class="f">isdigit</span>():
+            self.cap = cv2.<span class="t">VideoCapture</span>(<span class="t">int</span>(src))
+            <span class="k">if</span> <span class="k">not</span> self.cap.<span class="f">isOpened</span>():
+                sys.<span class="f">exit</span>(<span class="s">f"打不開鏡頭 {</span>src<span class="s">}：被別的程式用著，或編號不對"</span>)
+        <span class="k">elif</span> <span class="k">not</span> (src.<span class="f">startswith</span>(<span class="s">"http"</span>) <span class="k">and</span> src.<span class="f">rstrip</span>(<span class="s">"/"</span>).<span class="f">endswith</span>(<span class="s">"/capture"</span>)):
+            sys.<span class="f">exit</span>(<span class="s">f"看不懂的畫面來源：{</span>src<span class="s">}。要填 http://板子的IP/capture，或鏡頭編號 0。"</span>)
+
+    <span class="k">def</span> <span class="f">read</span>(self):
+        <span class="s">"""拿一張畫面；拿不到就丟出例外。"""</span>
+        <span class="k">if</span> self.cap <span class="k">is</span> <span class="k">not</span> <span class="n">None</span>:
+            ok, frame = self.cap.<span class="f">read</span>()
+        <span class="k">else</span>:
+            r = requests.<span class="f">get</span>(self.url, timeout=<span class="n">5</span>)  <span class="c"># 每次要一張最新的</span>
+            r.<span class="f">raise_for_status</span>()
+            frame = cv2.<span class="f">imdecode</span>(np.<span class="f">frombuffer</span>(r.content, np.uint8), cv2.<span class="n">IMREAD_COLOR</span>)
+        <span class="k">if</span> frame <span class="k">is</span> <span class="n">None</span>:
+            <span class="k">raise</span> <span class="t">NoFrame</span>(<span class="s">"沒有收到圖片"</span>)
+        <span class="k">return</span> frame
+
+
+<span class="k">def</span> <span class="f">why</span>(error) -&gt; <span class="t">str</span>:
+    <span class="s">"""把連線失敗的原因整理成一句話。"""</span>
+    <span class="k">if</span> <span class="f">isinstance</span>(error, requests.<span class="t">Timeout</span>):
+        <span class="k">return</span> <span class="s">"等太久沒有回應（timed out）"</span>
+    <span class="k">if</span> <span class="f">isinstance</span>(error, requests.<span class="t">ConnectionError</span>):
+        <span class="k">return</span> <span class="s">"連不上（Connection refused，或網路不通）"</span>
+    <span class="k">return</span> <span class="t">str</span>(error)
+
+
+<span class="c"># ---------- 辨識與通知 ----------</span>
+
+<span class="k">def</span> <span class="f">detect</span>(model, frame, target: <span class="t">str</span>, conf: <span class="t">float</span>):
+    <span class="s">"""辨識一張畫面，回傳（畫好框的圖, 目標有幾個, 最高信心度）。"""</span>
+    res = <span class="f">model</span>(frame, conf=conf, verbose=<span class="n">False</span>)[<span class="n">0</span>]  <span class="c"># 信心度不到 conf 的框直接丟掉</span>
+    scores = [p <span class="k">for</span> c, p <span class="k">in</span> <span class="f">zip</span>(res.boxes.cls.<span class="f">tolist</span>(), res.boxes.conf.<span class="f">tolist</span>())
+              <span class="k">if</span> res.names[<span class="t">int</span>(c)] == target]
+    <span class="k">return</span> res.<span class="f">plot</span>(), <span class="f">len</span>(scores), <span class="f">max</span>(scores, default=<span class="n">0.0</span>)
+
+
+<span class="k">def</span> <span class="f">send_discord</span>(url: <span class="t">str</span>, text: <span class="t">str</span>, image) -&gt; <span class="t">bool</span>:
+    <span class="s">"""發一則訊息到 Discord 頻道，附上截圖，成功回傳 True。"""</span>
+    <span class="c"># 截圖的長邊縮到 800 像素以內，存成 JPEG（畫質 80），檔案大約幾十 KB</span>
+    h, w = image.shape[:<span class="n">2</span>]
+    scale = <span class="n">SNAPSHOT_SIZE</span> / <span class="f">max</span>(h, w)
+    <span class="k">if</span> scale &lt; <span class="n">1</span>:
+        image = cv2.<span class="f">resize</span>(image, (<span class="f">round</span>(w * scale), <span class="f">round</span>(h * scale)),
+                           interpolation=cv2.<span class="n">INTER_AREA</span>)
+    jpeg = cv2.<span class="f">imencode</span>(<span class="s">".jpg"</span>, image, [cv2.<span class="n">IMWRITE_JPEG_QUALITY</span>, <span class="n">80</span>])[<span class="n">1</span>].<span class="f">tobytes</span>()
+    <span class="c"># 要附檔案就不能只送 JSON：文字放在 payload_json，圖片放在 files[0]</span>
+    data = {<span class="s">"payload_json"</span>: json.<span class="f">dumps</span>({<span class="s">"content"</span>: text[:<span class="n">2000</span>]})}
+    files = {<span class="s">"files[0]"</span>: (<span class="s">"snapshot.jpg"</span>, jpeg, <span class="s">"image/jpeg"</span>)}
+    <span class="k">try</span>:
+        response = requests.<span class="f">post</span>(url, data=data, files=files, timeout=<span class="n">15</span>)
+    <span class="k">except</span> requests.<span class="t">RequestException</span> <span class="k">as</span> error:
+        <span class="f">print</span>(<span class="s">f"  Discord 連線失敗：{</span>why(error)<span class="s">}"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    code = response.status_code
+    <span class="k">if</span> code <span class="k">in</span> (<span class="n">200</span>, <span class="n">204</span>):
+        <span class="f">print</span>(<span class="s">"  已發到 Discord"</span>)
+        <span class="k">return</span> <span class="n">True</span>
+    <span class="k">if</span> code == <span class="n">429</span>:
+        <span class="k">try</span>:
+            wait = response.<span class="f">json</span>().<span class="f">get</span>(<span class="s">"retry_after"</span>, <span class="s">"?"</span>)
+        <span class="k">except</span> <span class="t">ValueError</span>:
+            wait = <span class="s">"?"</span>
+        <span class="f">print</span>(<span class="s">f"  發太快被限流，請等 {</span>wait<span class="s">} 秒"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="k">if</span> code <span class="k">in</span> (<span class="n">401</span>, <span class="n">403</span>, <span class="n">404</span>):
+        <span class="f">print</span>(<span class="s">f"  Webhook 無效（{</span>code<span class="s">}）：網址可能被刪除或複製不完整，照簡易防盜系統步驟 7 重建。"</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="f">print</span>(<span class="s">f"  Discord 回應 {</span>code<span class="s">}：{</span>response.text[:200]<span class="s">}"</span>)
+    <span class="k">return</span> <span class="n">False</span>
+
+
+<span class="c"># ---------- 主程式 ----------</span>
+
+<span class="k">def</span> <span class="f">clock</span>() -&gt; <span class="t">str</span>:
+    <span class="k">return</span> datetime.<span class="f">now</span>().<span class="f">strftime</span>(<span class="s">"%H:%M:%S"</span>)
+
+
+<span class="k">def</span> <span class="f">pressed_quit</span>(show: <span class="t">bool</span>, ms: <span class="t">int</span>) -&gt; <span class="t">bool</span>:
+    <span class="s">"""等 ms 毫秒；有視窗時順便看有沒有按 Q 或 Esc。"""</span>
+    <span class="k">if</span> <span class="k">not</span> show:
+        time.<span class="f">sleep</span>(ms / <span class="n">1000</span>)
+        <span class="k">return</span> <span class="n">False</span>
+    <span class="k">return</span> (cv2.<span class="f">waitKey</span>(ms) &amp; <span class="n">0xFF</span>) <span class="k">in</span> (<span class="f">ord</span>(<span class="s">"q"</span>), <span class="f">ord</span>(<span class="s">"Q"</span>), <span class="n">27</span>)
+
+
+<span class="k">def</span> <span class="f">main</span>():
+    parser = argparse.<span class="t">ArgumentParser</span>(description=<span class="s">"簡易 AI 監控系統"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--source"</span>, help=<span class="s">"ESP32-CAM 的 /capture 網址；沒有板子時填 0（電腦鏡頭）"</span>)
+    parser.<span class="f">add_argument</span>(<span class="s">"--no-window"</span>, action=<span class="s">"store_true"</span>, help=<span class="s">"不開視窗，按 Ctrl+C 結束"</span>)
+    args = parser.<span class="f">parse_args</span>()
+
+    cfg, webhook = <span class="f">load_config</span>()
+    source = args.source <span class="k">or</span> cfg[<span class="s">"capture_url"</span>]
+    <span class="k">if</span> <span class="k">not</span> source:
+        sys.<span class="f">exit</span>(<span class="s">"沒有畫面來源：在 config.json 的 monitor 填 capture_url，或加上 --source 網址。"</span>)
+    target, conf = cfg[<span class="s">"target"</span>], <span class="t">float</span>(cfg[<span class="s">"conf"</span>])
+    hit_frames, clear_frames = <span class="t">int</span>(cfg[<span class="s">"hit_frames"</span>]), <span class="t">int</span>(cfg[<span class="s">"clear_frames"</span>])
+    cooldown = <span class="t">float</span>(cfg[<span class="s">"cooldown_seconds"</span>])
+    show = <span class="k">not</span> args.no_window
+    src = <span class="t">Source</span>(<span class="t">str</span>(source))
+
+    <span class="f">print</span>(<span class="s">f"載入 {</span>MODEL<span class="s">}（第一次會下載）……"</span>)
+    model = <span class="f">YOLO</span>(<span class="n">MODEL</span>)
+    <span class="k">if</span> target <span class="k">not</span> <span class="k">in</span> model.names.<span class="f">values</span>():
+        sys.<span class="f">exit</span>(<span class="s">f"{</span>MODEL<span class="s">} 沒有 {</span>target<span class="s">} 這個類別，可以用的有：{</span>'、'.join(model.names.values())<span class="s">}"</span>)
+    <span class="k">if</span> webhook <span class="k">is</span> <span class="n">None</span>:
+        <span class="f">print</span>(<span class="s">"config.json 的 discord.webhook_url 還沒填：只在終端機印出事件，不發 Discord 通知。"</span>)
+    <span class="f">print</span>(<span class="s">f"開始監控 {</span>source<span class="s">}：連續 {</span>hit_frames<span class="s">} 張有 {</span>target<span class="s">}（信心度 {</span>conf<span class="s">} 以上）算有人，"</span>
+          <span class="s">f"連續 {</span>clear_frames<span class="s">} 張沒有算人走了，通知後 {</span>cooldown:g<span class="s">} 秒內不再通知。"</span>)
+    <span class="f">print</span>(<span class="s">"按 Q 或 Esc 結束。"</span> <span class="k">if</span> show <span class="k">else</span> <span class="s">"沒有視窗：發生事件才會印訊息，按 Ctrl+C 結束。"</span>)
+
+    present = <span class="n">False</span>     <span class="c"># 現在的狀態：False 沒人、True 有人</span>
+    hits = misses = <span class="n">0</span>   <span class="c"># 連續幾張有、連續幾張沒有</span>
+    last_notify = <span class="n">None</span>  <span class="c"># 上次通知的時間（time.monotonic()，不受電腦改時間影響）</span>
+    fail_since = <span class="n">None</span>   <span class="c"># 從什麼時候開始拿不到畫面；None 代表畫面正常</span>
+    last_remind = <span class="n">0.0</span>
+    <span class="k">try</span>:
+        <span class="k">while</span> <span class="n">True</span>:
+            <span class="k">try</span>:
+                frame = src.<span class="f">read</span>()
+            <span class="k">except</span> (requests.<span class="t">RequestException</span>, <span class="t">NoFrame</span>) <span class="k">as</span> error:
+                <span class="c"># 拿不到畫面不等於沒人：計數維持原樣，等 1 秒再試</span>
+                now = time.<span class="f">monotonic</span>()
+                <span class="k">if</span> fail_since <span class="k">is</span> <span class="n">None</span>:
+                    fail_since = last_remind = now
+                    <span class="f">print</span>(<span class="s">f"{</span>clock()<span class="s">} 拿不到畫面：{</span>why(error)<span class="s">}"</span>)
+                    <span class="f">print</span>(<span class="s">"  計數先不變，持續重試。檢查板子有沒有電、IP 是不是序列埠印出的那個、"</span>
+                          <span class="s">"電腦和板子是不是連同一個 Wi-Fi。"</span>)
+                <span class="k">elif</span> now - last_remind &gt;= <span class="n">FAIL_REMIND</span>:
+                    last_remind = now
+                    <span class="f">print</span>(<span class="s">f"{</span>clock()<span class="s">} 還是拿不到畫面（{</span>now - fail_since:.0f<span class="s">} 秒了）：{</span>why(error)<span class="s">}"</span>)
+                <span class="k">if</span> <span class="f">pressed_quit</span>(show, <span class="n">1000</span>):
+                    <span class="k">break</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> fail_since <span class="k">is</span> <span class="k">not</span> <span class="n">None</span>:
+                <span class="f">print</span>(<span class="s">f"{</span>clock()<span class="s">} 畫面恢復了（中斷 {</span>time.monotonic() - fail_since:.0f<span class="s">} 秒）"</span>)
+                fail_since = <span class="n">None</span>
+
+            annotated, count, best = <span class="f">detect</span>(model, frame, target, conf)
+            <span class="k">if</span> count:  <span class="c"># 這張有：「連續有」加 1，「連續沒有」歸零</span>
+                hits, misses = hits + <span class="n">1</span>, <span class="n">0</span>
+            <span class="k">else</span>:      <span class="c"># 這張沒有：反過來</span>
+                hits, misses = <span class="n">0</span>, misses + <span class="n">1</span>
+
+            <span class="k">if</span> <span class="k">not</span> present <span class="k">and</span> hits &gt;= hit_frames:
+                present = <span class="n">True</span>
+                found = <span class="s">f"{</span>target<span class="s">} ×{</span>count<span class="s">}，最高信心度 {</span>best:.2f<span class="s">}"</span>
+                <span class="f">print</span>(<span class="s">f"{</span>clock()<span class="s">} 有人來了（{</span>found<span class="s">}）"</span>)
+                now = time.<span class="f">monotonic</span>()
+                <span class="k">if</span> last_notify <span class="k">is</span> <span class="k">not</span> <span class="n">None</span> <span class="k">and</span> now - last_notify &lt; cooldown:
+                    left = math.<span class="f">ceil</span>(cooldown - (now - last_notify))
+                    <span class="f">print</span>(<span class="s">f"  冷卻中，{</span>left<span class="s">} 秒內不再通知"</span>)
+                <span class="k">else</span>:
+                    last_notify = now
+                    <span class="k">if</span> webhook:
+                        text = (<span class="s">f"【AI 監控】有人來了\n時間：{</span>datetime.now():%Y-%m-%d %H:%M:%S<span class="s">}\n"</span>
+                                <span class="s">f"偵測：{</span>found<span class="s">}"</span>)
+                        <span class="f">send_discord</span>(webhook, text, annotated)
+            <span class="k">elif</span> present <span class="k">and</span> misses &gt;= clear_frames:
+                present = <span class="n">False</span>
+                <span class="f">print</span>(<span class="s">f"{</span>clock()<span class="s">} 人走了"</span>)
+
+            <span class="k">if</span> show:
+                cv2.<span class="f">imshow</span>(<span class="s">"monitor"</span>, annotated)
+            <span class="k">if</span> <span class="f">pressed_quit</span>(show, <span class="n">1</span>):
+                <span class="k">break</span>
+    <span class="k">except</span> <span class="t">KeyboardInterrupt</span>:
+        <span class="k">pass</span>
+    <span class="f">print</span>(<span class="s">"已結束。"</span>)
+    <span class="k">if</span> show:
+        cv2.<span class="f">destroyAllWindows</span>()
+
+
+<span class="k">if</span> __name__ == <span class="s">"__main__"</span>:
+    <span class="f">main</span>()
+</code></pre>
+</div>
+<!-- /code -->
+<div class="code" data-lang="sh">
+<div class="code-bar"><span class="code-name">終端機</span><button class="copy" type="button" aria-label="複製 uv run monitor.py">複製</button></div>
+<pre tabindex="0"><code data-lang="sh"><span class="f">uv</span> run monitor.py</code></pre>
+</div>
+<p>沒有板子時，用電腦鏡頭也能測判斷和通知：<code>uv run monitor.py --source 0</code>。</p>
+<details class="fold ai">
+<summary><span><span class="tag">AI</span>你可以請 AI 幫你這樣做</span></summary>
+<div class="fold-body">
+<div class="code prompt" data-lang="plain">
+<div class="code-bar"><span class="code-name">提示詞</span><button class="copy" type="button" aria-label="複製 提示詞：我有一支 Python 程式，每次呼叫 get_frame() 會拿到 ESP3">複製</button></div>
+<pre tabindex="0"><code data-lang="plain">我有一支 Python 程式，每次呼叫 get_frame() 會拿到 ESP32-CAM 的一張畫面（OpenCV 的 BGR 影像），用 ultralytics 的 yolo26n.pt 做物件偵測。
+請幫我加上判斷：連續 3 張都偵測到 person（信心度 0.5 以上）才算「有人來了」，印出時間；連續 10 張都沒有才算「人走了」。發生「有人來了」之後 60 秒內不要再觸發。
+這些數字從 config.json 的 monitor 讀。用 uv run 執行，不要用 pip。</code></pre>
+</div>
+<h4>拿到程式後先檢查</h4>
+<ul class="prose">
+<li>「連續」有沒有在中間斷掉時歸零。</li>
+<li>冷卻時間用的是 time.monotonic() 或 time.time()，不是數張數。</li>
+<li>沒拿到畫面（網路斷了）時不會當掉，也不會被當成「沒人」。</li>
+</ul>
+</div>
+</details>
+<p class="ex-h">完成標準</p>
+<p>走進鏡頭前，2 秒內終端機印出一次「有人來了」；站著不動不會一直印；離開畫面幾秒後印「人走了」。</p>
+<div class="ex-terms">
+<p class="ex-h">這一步的新名詞</p>
+<dl>
+<dt>事件</dt><dd>系統要回應的一件事。模型每張畫面都有結果，但「有人來了」只算一次。</dd>
+<dt>冷卻時間</dt><dd>觸發後一段時間內不再觸發，避免通知洗版。</dd>
+</dl>
+</div>
+</article>
+<article class="ex" id="step5" aria-labelledby="step5-h">
+<p class="ex-no">步驟 5</p>
+<h3 id="step5-h">發 Discord 通知，附上截圖</h3>
+<p class="ex-tags"><span class="kind">Python</span></p>
+<p class="ex-goal"><b>目標</b>：「有人來了」時，把當下的畫面加上辨識框，傳到 Discord 頻道。</p>
+<p class="ex-h">程式</p>
+<p>步驟 4 的 monitor.py 已經包含這一段，config.json 的 discord.webhook_url 填好就會發。</p>
+<p class="ex-h">完成標準</p>
+<p>走進鏡頭前，手機在 5 秒內收到通知，圖片上有框；站在畫面裡 3 分鐘，只收到一則。</p>
+<p class="note">Discord 免費帳號上傳檔案的上限是 10&nbsp;MB。程式把截圖的長邊縮到 800 像素、存成 JPEG，大約 50–130&nbsp;KB。</p>
+<details class="fold">
+<summary>常見問題</summary>
+<div class="fold-body">
+<ul class="prose">
+<li><b>發太快被限流（429）</b>：短時間發太多則，Discord 會要你等幾秒。冷卻時間就是為了避免這件事。</li>
+<li><b>Webhook 無效（401／404）</b>：網址被刪除或複製不完整，照簡易防盜系統步驟 7 重建。</li>
+</ul>
+</div>
+</details>
+</article>
+</section>
+<section class="sec" id="s4" aria-labelledby="s4-h">
+<p class="sec-no">04</p>
+<h2 id="s4-h">整合驗收</h2>
+<div class="table-wrap lead-in"><table class="tbl stack"><thead><tr><th scope="col">項目</th><th scope="col">怎麼做</th><th scope="col">記錄什麼</th></tr></thead><tbody>
+<tr><th scope="row">漏報</th><td data-label="怎麼做">用平常的速度走過鏡頭前 10 次</td><td data-label="記錄什麼">收到幾則通知</td></tr>
+<tr><th scope="row">漏報</th><td data-label="怎麼做">背對鏡頭、戴帽子、彎腰走過，各 5 次</td><td data-label="記錄什麼">收到幾則</td></tr>
+<tr><th scope="row">距離</th><td data-label="怎麼做">站在 1&nbsp;m、3&nbsp;m、5&nbsp;m</td><td data-label="記錄什麼">信心度多少、有沒有觸發</td></tr>
+<tr><th scope="row">光線</th><td data-label="怎麼做">關燈、拉上窗簾</td><td data-label="記錄什麼">有沒有觸發</td></tr>
+<tr><th scope="row">誤報</th><td data-label="怎麼做">沒人的房間放 1 小時</td><td data-label="記錄什麼">誤觸發幾次</td></tr>
+<tr><th scope="row">誤報</th><td data-label="怎麼做">對著播放有人的電視、海報</td><td data-label="記錄什麼">有沒有觸發</td></tr>
+<tr><th scope="row">冷卻</th><td data-label="怎麼做">站在畫面裡 3 分鐘</td><td data-label="記錄什麼">收到幾則</td></tr>
+<tr><th scope="row">延遲</th><td data-label="怎麼做">從走進畫面到手機跳出通知</td><td data-label="記錄什麼">幾秒</td></tr>
+<tr><th scope="row">斷線</th><td data-label="怎麼做">拔掉 <span class="nw">ESP32-CAM</span> 的電</td><td data-label="記錄什麼">Python 有沒有發現、會不會當掉</td></tr>
+</tbody></table></div>
+<p>誤報太多，看的人會把通知關掉；漏報太多，系統就沒有用。調門檻和連續張數時，兩個數字要一起看。</p>
+</section>
+<section class="sec" id="s5" aria-labelledby="s5-h">
+<p class="sec-no">05</p>
+<h2 id="s5-h">什麼情況下會失效</h2>
+<p class="lead-q">「我做的東西在什麼狀況下會翻車？」</p>
+<p>每一步的常見問題發生在製作時；這一節是系統裝好以後，在真實情況下會失效的地方。</p>
+<p class="fails-h">裝置：<span class="nw">ESP32-CAM</span></p>
+<ul class="fails">
+<li><div><b>鏡頭被遮住或轉了方向</b>：畫面裡沒有人，系統只會覺得「沒人」，不會通知。</div></li>
+<li><div><b>房間太暗</b>：<span class="nw">ESP32-CAM</span> 沒有夜視，人變成一團黑影，認不出來。</div></li>
+<li><div><b>斷電、重新開機</b>：IP 可能改變，Python 一直拿不到畫面。</div></li>
+<li><div><b><span class="nw">Wi-Fi</span> 斷線或太遠</b>：畫面延遲好幾秒，或完全斷掉。</div></li>
+</ul>
+<p class="fails-h">辨識與判斷</p>
+<ul class="fails">
+<li><div><b>背對、被遮住、離太遠、走太快</b>：信心度不夠，或連續張數不夠，漏報。</div></li>
+<li><div><b>電視、海報、手機螢幕裡的人</b>：一樣被當成人，誤報。</div></li>
+<li><div><b>貓、狗走過</b>：不是 person，不會通知；如果你要偵測的是寵物，就要改類別。</div></li>
+</ul>
+<p class="fails-h">閘道與通知</p>
+<ul class="fails">
+<li><div><b>電腦休眠、關機，或 Python 當掉</b>：完全不會通知。「沒收到通知」不代表「沒有人來」。</div></li>
+<li><div><b>Discord Webhook 網址外流</b>：別人可以用它往你的頻道發訊息。</div></li>
+<li><div><b>通知太多</b>：看的人開始忽略。</div></li>
+</ul>
+<p class="fails-h">隱私</p>
+<ul class="fails">
+<li><div><b>拍到別人</b>：在家裡用，要讓家人知道鏡頭在哪裡、拍什麼；不要對著別人家、公共空間或廁所、臥室。</div></li>
+<li><div><b>截圖傳到 Discord</b>：畫面離開你的電腦，存在別人的伺服器上。</div></li>
+<li><div><b>/capture 網址沒有密碼</b>：連到同一個 <span class="nw">Wi-Fi</span> 的人都看得到畫面。</div></li>
+</ul>
+<p>真正的影像監控系統會用夜視鏡頭、多支攝影機、本機錄影和人工確認補上這些漏洞，也要遵守個人資料的相關規定。這個專題的目的，是讓你親手做出系統，再親手找出它的漏洞。</p>
+</section>
+<section class="sec" id="s6" aria-labelledby="s6-h">
+<p class="sec-no">06</p>
+<h2 id="s6-h">延伸挑戰</h2>
+<ul class="prose">
+<li><b>只看畫面裡的一塊</b>：例如門口那一塊，框的中心點在範圍內才算。</li>
+<li><b>換一個類別</b>：改 config.json 的 target，偵測貓（cat）、狗（dog）或杯子（cup），COCO 的 80 類都可以。程式印的「有人來了」也要跟著改。</li>
+<li><b>舉手才通知</b>：改用 yolo26n-pose.pt，手腕比肩膀高才觸發。</li>
+<li><b>系統自我檢查</b>：超過 1 分鐘拿不到畫面，或畫面全黑，也發一則通知。</li>
+<li><b>板子先篩選</b>：<span class="nw">ESP32-CAM</span> 先做畫面變化偵測（<a href="esp32-cam.html#ex5"><span class="nw">ESP32-CAM</span> 講義範例 5</a>），有變化才請電腦辨識。</li>
+<li><b>改用其他通知</b>：Gmail、Telegram，沿用簡易防盜系統的程式。</li>
+</ul>
+</section>
+<section class="sec" id="s7" aria-labelledby="s7-h">
+<p class="sec-no">07</p>
+<h2 id="s7-h">附錄</h2>
+<h3>程式檔案</h3>
+<div class="table-wrap"><table class="tbl stack"><thead><tr><th scope="col">檔案</th><th scope="col">用在</th></tr></thead><tbody>
+<tr><th scope="row"><span class="pin">cam_server.ino</span></th><td data-label="用在">步驟 2</td></tr>
+<tr><th scope="row"><span class="pin">vision_demo.py</span></th><td data-label="用在">步驟 1、3</td></tr>
+<tr><th scope="row"><span class="pin">monitor.py</span></th><td data-label="用在">步驟 4、5</td></tr>
+<tr><th scope="row"><span class="pin">config.json</span></th><td data-label="用在">步驟 4</td></tr>
+</tbody></table></div>
+</section>
+<nav class="doc-end" aria-label="下一步"><a class="back" href="../handout.html">← 講義選單</a></nav>
+</main>
+</div>
+<script src="../assets/handout.js"></script>
+</body>
+</html>

@@ -19,32 +19,82 @@
 <main class="menu">
   <h1>講義</h1>
 
-  <!-- One card per handout, in reading order. data-type picks the colour (see handout.css):
+  <!-- Grouped by type, groups in the order of the table in CLAUDE.md; inside a group, reading order.
+       data-type picks the colour (see handout.css):
        tool 工具・hardware 硬體・concept 觀念・project 微專題・advanced 進階專題・resource 學習資源 -->
-  <ul class="cards">
-    <li class="card" data-type="tool">
-      <p class="type-tag">工具</p>
-      <h2><a class="card-link" href="handout/setup.html">環境安裝</a></h2>
-      <p class="card-desc">Arduino&nbsp;IDE・驅動程式・Python（uv）・VS&nbsp;Code・Git・AI 工具與資安</p>
-      <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
-    </li>
-    <li class="card" data-type="hardware">
-      <p class="type-tag">硬體</p>
-      <h2><a class="card-link" href="handout/controller.html">選擇控制器</a></h2>
-      <p class="card-desc">規格怎麼看・市面上的熱門控制器・什麼任務用什麼板子</p>
-      <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
-    </li>
-    <li class="card" data-type="project">
-      <p class="type-tag">微專題 01</p>
-      <h2><a class="card-link" href="handout/alarm-uno.html">簡易防盜系統</a></h2>
-      <p class="card-desc">用入門零件做防盜系統的雛形，練習把偵測、警報和 Gmail 通知串成一個系統。</p>
-      <ul class="card-vers" aria-label="版本">
-        <li><a class="ver" href="handout/alarm-uno.html">Arduino Uno 版</a></li>
-        <li><a class="ver" href="handout/alarm-esp32.html">ESP32 版<span class="st">撰寫中</span></a></li>
-      </ul>
-      <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
-    </li>
-  </ul>
+  <nav class="grp-nav" aria-label="講義類型">
+    <a class="grp-jump" data-type="tool" href="#tool">工具</a>
+    <a class="grp-jump" data-type="hardware" href="#hardware">硬體</a>
+    <a class="grp-jump" data-type="concept" href="#concept">觀念</a>
+    <a class="grp-jump" data-type="project" href="#project">微專題</a>
+  </nav>
+
+  <section class="grp" id="tool" data-type="tool" aria-labelledby="tool-h">
+    <div class="grp-head"><h2 id="tool-h">工具</h2><p class="grp-desc">軟體環境、開發工具</p></div>
+    <ul class="cards">
+      <li class="card" data-type="tool">
+        <p class="type-tag">工具</p>
+        <h3><a class="card-link" href="handout/setup.html">環境安裝</a></h3>
+        <p class="card-desc">Arduino&nbsp;IDE・驅動程式・Python（uv）・VS&nbsp;Code・Git・AI 工具與資安</p>
+        <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="grp" id="hardware" data-type="hardware" aria-labelledby="hardware-h">
+    <div class="grp-head"><h2 id="hardware-h">硬體</h2><p class="grp-desc">控制器、感測器、模組</p></div>
+    <ul class="cards">
+      <li class="card" data-type="hardware">
+        <p class="type-tag">硬體</p>
+        <h3><a class="card-link" href="handout/controller.html">選擇控制器</a></h3>
+        <p class="card-desc">規格怎麼看・市面上的熱門控制器・什麼任務用什麼板子</p>
+        <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+      </li>
+      <li class="card" data-type="hardware">
+        <p class="type-tag">硬體</p>
+        <h3><a class="card-link" href="handout/esp32-cam.html">ESP32-CAM</a></h3>
+        <p class="card-desc">相機板與燒錄底板・適合用在哪裡・拍照、串流、畫面變化偵測的範例程式</p>
+        <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="grp" id="concept" data-type="concept" aria-labelledby="concept-h">
+    <div class="grp-head"><h2 id="concept-h">觀念</h2><p class="grp-desc">電路、訊號、影像等原理</p></div>
+    <ul class="cards">
+      <li class="card" data-type="concept">
+        <p class="type-tag">觀念</p>
+        <h3><a class="card-link" href="handout/vision.html">影像辨識</a></h3>
+        <p class="card-desc">像素與 HSV 顏色篩選・影像分類、物件偵測、分割、姿勢辨識・在板子、電腦還是雲端跑</p>
+        <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="grp" id="project" data-type="project" aria-labelledby="project-h">
+    <div class="grp-head"><h2 id="project-h">微專題</h2><p class="grp-desc">小型專題，照順序做</p></div>
+    <ul class="cards">
+      <li class="card" data-type="project">
+        <p class="type-tag">微專題 01</p>
+        <h3><a class="card-link" href="handout/alarm-uno.html">簡易防盜系統</a></h3>
+        <p class="card-desc">用入門零件做防盜系統的雛形，練習把偵測、警報和 Gmail 通知串成一個系統。</p>
+        <ul class="card-vers" aria-label="版本">
+          <li><a class="ver" href="handout/alarm-uno.html">Arduino Uno 版</a></li>
+          <li><a class="ver" href="handout/alarm-esp32.html">ESP32 版<span class="st">撰寫中</span></a></li>
+        </ul>
+        <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+      </li>
+      <li class="card" data-type="project">
+        <p class="type-tag">微專題 02</p>
+        <h3><a class="card-link" href="handout/monitor-esp32cam.html">簡易 AI 監控系統</a></h3>
+        <p class="card-desc">ESP32-CAM 拍畫面，電腦上的 AI 模型辨識，連續偵測到人就發 Discord 通知。練習把視覺、判斷和通知串成一個系統。</p>
+        <ul class="card-vers" aria-label="版本">
+          <li><a class="ver" href="handout/monitor-esp32cam.html">ESP32-CAM 版<span class="st">撰寫中</span></a></li>
+        </ul>
+        <p class="card-date">更新於 <time datetime="2026-10">2026-10</time></p>
+      </li>
+    </ul>
+  </section>
 </main>
 </body>
 </html>

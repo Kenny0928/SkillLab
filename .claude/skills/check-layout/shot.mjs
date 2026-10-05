@@ -54,7 +54,8 @@ for (const W of widths) {
   const H = await ev('document.documentElement.scrollHeight');
   await send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: scale, mobile });
   await sleep(400);
-  const overflow = await ev('document.documentElement.scrollWidth - innerWidth');
+  // clientWidth, not innerWidth: under phone emulation innerWidth grows with an overflowing page
+  const overflow = await ev('document.documentElement.scrollWidth - document.documentElement.clientWidth');
   let clip;
   if (selector) {
     const r = await ev(`(() => { const e = document.querySelector(${JSON.stringify(selector)}); if (!e) return null; const b = e.getBoundingClientRect(); return { x: Math.max(0, b.left - 16), y: Math.max(0, b.top + scrollY - 16), width: Math.min(innerWidth, b.width + 32), height: b.height + 32 }; })()`);

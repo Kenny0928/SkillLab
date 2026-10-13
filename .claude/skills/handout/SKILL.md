@@ -46,6 +46,21 @@ description: SkillLab 講義的製作流程：先用 Markdown 寫初稿（conten
 | 上網頁後 | 排版 | 用 check-layout 截 1440／900／390，對照 CLAUDE.md 的視覺風格 | 不改檔 | 問題、寬度、截圖路徑 |
 | 上網頁後 | 連結 | 站內連結和錨點都存在、外部連結打得開 | 不改檔 | 壞掉的連結 |
 
+### 外部 AI：Codex、Gemini
+
+使用者有 ChatGPT 和 Google AI 的付費方案，部分工作可以交給 Codex 和 Gemini，分散用量。它們交回來的東西一律由 Claude 驗收後才用，回報時說明哪些採用、哪些沒採用和原因。
+
+| 工作 | 交給 | 驗收 |
+|---|---|---|
+| 試讀 | Gemini | 每一點回到 md 原文確認；網頁上才有的東西（節號、標記）不算問題 |
+| 查證，特別是 Google 自家的服務 | Gemini | 打開它給的來源；沒有來源的不採用 |
+| 畫圖（`:::diagram`） | Codex | check-layout 截三種寬度，對照 CLAUDE.md 的視覺風格 |
+| 程式審查（第二意見） | Codex | 先重現它說的問題，重現得出來才改 |
+
+- **Codex**：`codex exec -C . -s read-only --color never -o <scratchpad 裡的輸出檔> -`，提示從標準輸入給。唯讀，要它產生的檔案寫在回答裡，由 Claude 存檔。
+- **Gemini**：`~/.gemini/bin/agy -p "<提示>" --effort high --print-timeout 600s`（Antigravity 的指令列，預設 Gemini 3.8 Flash）。要它看的檔案用 `cat -n` 加上行號直接放進提示，不給它專案的讀寫權限。
+- 兩者都不改專案檔、不 commit。講義文字還是由 Claude 寫。
+
 ### 交代子 agent 時寫清楚
 
 1. **目標**：要做出什麼，給講義 md 的路徑讓它讀相關段落。

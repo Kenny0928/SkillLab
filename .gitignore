@@ -15,3 +15,6 @@ __pycache__/
 
 # md2html previews
 handout/_preview-*.html
+
+# local test runs
+_try/

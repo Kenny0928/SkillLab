@@ -212,7 +212,8 @@ function fence(node) {
     return `<div class="code prompt" data-lang="plain">\n${codeBar('提示詞', '提示詞：' + first)}\n<pre tabindex="0"><code data-lang="plain">${esc(node.code)}</code></pre>\n</div>`;
   }
   const lang = { py: 'py', python: 'py', ino: 'ino', cpp: 'ino', json: 'json', js: 'js' }[node.lang] || 'plain';
-  return `<div class="code" data-lang="${lang}">\n${codeBar(node.lang || '程式', first)}\n<pre tabindex="0"><code data-lang="${lang}">${esc(node.code)}</code></pre>\n</div>`;
+  const name = { py: 'Python', python: 'Python', ino: 'Arduino', cpp: 'Arduino', json: 'JSON', js: 'JavaScript', text: '輸出' }[node.lang] || node.lang || '程式';
+  return `<div class="code" data-lang="${lang}">\n${codeBar(name, first)}\n<pre tabindex="0"><code data-lang="${lang}">${esc(node.code)}</code></pre>\n</div>`;
 }
 
 function quote(node) {

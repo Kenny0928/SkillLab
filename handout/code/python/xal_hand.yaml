@@ -1,0 +1,10 @@
+# X-AnyLabeling 的自訂模型：用 Hugging Face 上分享的手部偵測模型，先幫每張照片框出手
+# 存在課程資料夾。模型檔要先照講義匯出成 weights/hand_yolov8n.onnx
+type: yolov8
+name: hand_yolov8n
+display_name: Hand (Bingsu/adetailer)
+model_path: weights/hand_yolov8n.onnx  # 從這個檔所在的資料夾算起
+iou_threshold: 0.45
+conf_threshold: 0.3  # 信心度低於 0.3 的框不要
+classes:
+  - hand  # 只知道是手；rps_data.py 會照檔名決定是 rock、paper 還是 scissors

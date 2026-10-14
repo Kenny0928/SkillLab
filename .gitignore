@@ -18,3 +18,6 @@ handout/_preview-*.html
 
 # local test runs
 _try/
+
+# 使用者提供的原稿（不推送）
+_drafts/
